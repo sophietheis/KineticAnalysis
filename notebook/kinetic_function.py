@@ -5,6 +5,27 @@ import pandas as pd
 from scipy import optimize
 
 
+def read_csv_file(f):
+    """
+    Read csv file of trajectories.
+    Drop first lines.
+    Switch some type columns (turn it into numeric values)
+    """
+
+    datas = pd.read_csv(f)
+    datas.drop(index=[0, 1, 2], inplace=True)
+    datas['FRAME'] = pd.to_numeric(datas["FRAME"])
+    datas['POSITION_X'] = pd.to_numeric(datas["POSITION_X"])
+    datas['POSITION_Y'] = pd.to_numeric(datas["POSITION_Y"])
+    datas['TRACK_ID'] = pd.to_numeric(datas["TRACK_ID"])
+    datas['MEAN_INTENSITY_CH1'] = pd.to_numeric(datas["MEAN_INTENSITY_CH1"])
+    datas['POSITION_T'] = pd.to_numeric(datas["POSITION_T"])
+    datas.drop("MANUAL_SPOT_COLOR", axis=1, inplace=True)
+    datas = datas.dropna(axis=0)
+
+    return datas
+
+
 def fit_function(x, t, c):
     """
     function : (((T-x)/(c*T**2)) * np.heaviside((T-x),0)))
@@ -64,27 +85,6 @@ def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500
     translation_init_r = popt[1]
 
     return elongation_r, translation_init_r
-
-
-def read_csv_file(f):
-    """
-    Read csv file of trajectories.
-    Drop first lines.
-    Switch some type columns (turn it into numeric values)
-    """
-
-    datas = pd.read_csv(f)
-    datas.drop(index=[0, 1, 2], inplace=True)
-    datas['FRAME'] = pd.to_numeric(datas["FRAME"])
-    datas['POSITION_X'] = pd.to_numeric(datas["POSITION_X"])
-    datas['POSITION_Y'] = pd.to_numeric(datas["POSITION_Y"])
-    datas['TRACK_ID'] = pd.to_numeric(datas["TRACK_ID"])
-    datas['MEAN_INTENSITY_CH1'] = pd.to_numeric(datas["MEAN_INTENSITY_CH1"])
-    datas['POSITION_T'] = pd.to_numeric(datas["POSITION_T"])
-    datas.drop("MANUAL_SPOT_COLOR", axis=1, inplace=True)
-    datas = datas.dropna(axis=0)
-
-    return datas
 
 
 def single_track_analysis(datas, id_track=0, delta_t=0.5, protein_size=1500, normalise_intensity=2 ** 16 * 100):
