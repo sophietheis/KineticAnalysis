@@ -87,7 +87,11 @@ def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500
     return elongation_r, translation_init_r
 
 
-def single_track_analysis(datas, id_track=0, delta_t=0.5, protein_size=1500, normalise_intensity=2 ** 16 * 100):
+def single_track_analysis(datas, 
+                          id_track=0, 
+                          delta_t=0.5, 
+                          protein_size=1500, 
+                          normalise_intensity=2 ** 16 * 100):
     x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values -
          min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values))
     y = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['MEAN_INTENSITY_CH1'].values / normalise_intensity)
