@@ -7,22 +7,51 @@ import scipy.signal
 import scipy.io.wavfile
 
 
-def read_csv_file(f):
+def read_csv_file(f, sep=";"):
     """
     Read csv file of trajectories.
     Drop first lines.
     Switch some type columns (turn it into numeric values)
     """
 
-    datas = pd.read_csv(f)
-    datas.drop(index=[0, 1, 2], inplace=True)
+    datas = pd.read_csv(f, sep=sep)
+    # datas.drop(index=[0, 1, 2], inplace=True)
     datas['FRAME'] = pd.to_numeric(datas["FRAME"])
     datas['POSITION_X'] = pd.to_numeric(datas["POSITION_X"])
     datas['POSITION_Y'] = pd.to_numeric(datas["POSITION_Y"])
-    datas['TRACK_ID'] = pd.to_numeric(datas["TRACK_ID"])
+    try:
+        datas['TRACK_ID'] = pd.to_numeric(datas["TRACK_ID"])
+    except:
+        pass
     datas['MEAN_INTENSITY_CH1'] = pd.to_numeric(datas["MEAN_INTENSITY_CH1"])
     datas['POSITION_T'] = pd.to_numeric(datas["POSITION_T"])
     datas.drop("MANUAL_SPOT_COLOR", axis=1, inplace=True)
+    datas = datas.dropna(axis=0)
+
+    return datas
+
+
+def read_csv_file_v2(f, sep=","):
+    """
+    Read csv file of trajectories.
+    Drop first lines.
+    Switch some type columns (turn it into numeric values)
+    """
+
+    datas = pd.read_csv(f, sep=sep)
+    datas.columns = datas.iloc[0]
+    datas.columns = [x.upper() for x in datas.columns]
+    datas.drop([0, 1, 2], axis=0, inplace=True)
+    datas.reset_index(inplace=True)
+    datas.drop(index=[0, 1, 2], inplace=True)
+    datas['FRAME'] = pd.to_numeric(datas["FRAME"])
+    datas['X'] = pd.to_numeric(datas["X"])
+    datas['Y'] = pd.to_numeric(datas["Y"])
+    datas['Z'] = pd.to_numeric(datas["Z"])
+    datas['TRACK ID'] = pd.to_numeric(datas["TRACK ID"])
+    datas['MEAN INTENSITY CH1'] = pd.to_numeric(datas["MEAN INTENSITY CH1"])
+    datas['T'] = pd.to_numeric(datas["T"])
+    datas.drop("MANUAL SPOT COLOR", axis=1, inplace=True)
     datas = datas.dropna(axis=0)
 
     return datas
@@ -67,7 +96,7 @@ def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     return autocor.flatten()[0::2], autocor.flatten()[1::2]
 
 
-def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500):
+def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500, first_dot=True):
     """
     Fit autocorrelation curve with func_
     Parameters
@@ -77,6 +106,9 @@ def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500
     method : method of fit resolution
     protein_size: in aa in order to calculation the elongation rate
     """
+    if not first_dot:
+        x = x[1:]
+        y = y[1:]
     print("original method")
     popt, pcov = optimize.curve_fit(
         func_,
@@ -87,7 +119,8 @@ def fit_autocorrelation(x, y, func_=fit_function, method='lm', protein_size=1500
     elongation_r = protein_size / popt[0]
     translation_init_r = popt[1]
 
-    return elongation_r, translation_init_r
+    return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
+
 
 def fit_autocorrelation_v2(x, y, protein_size=1200):
     # fit ax+b equation at the begining, until curve reach 0
@@ -96,23 +129,28 @@ def fit_autocorrelation_v2(x, y, protein_size=1200):
     ysign = np.sign(np.array(y))
     signchange = ((np.roll(ysign, 1) - ysign) != 0).astype(int)
     signchange[0] = 0
-    t = np.where(signchange==1)[0][0]
+    t = np.where(signchange == 1)[0][0]
 
-    elongation_r = protein_size/x[t]
-    if len(x[:t])<2:
-        return -1, -1
+    elongation_r = protein_size / x[t]
+    if len(x[:t]) < 2:
+        return -1, -1, [-1,-1]
     res_fit = np.polyfit(x[:t], y[:t], 1)
-    print(res_fit)
-    translation_init_r = 1/(res_fit[1]*x[t])
-
-    return elongation_r, translation_init_r
-
+    translation_init_r = 1 / (res_fit[1] * x[t])
+    return elongation_r, translation_init_r, [-1,-1]
 
 
 def lowpass(data: np.ndarray, cutoff: float, sample_rate: float, poles: int = 5):
     sos = scipy.signal.butter(poles, cutoff, 'lowpass', fs=sample_rate, output='sos')
     filtered_data = scipy.signal.sosfiltfilt(sos, data)
     return filtered_data
+
+
+def calculate_MSD(x, y, z):
+    r = (x ** 2 + y ** 2 + z ** 2) ** 0.5
+    diff = np.diff(r)
+    diff_sq = diff ** 2
+    MSD = [np.mean(diff_sq[0:i]) for i in range(1, len(diff_sq))]
+    return MSD
 
 
 def single_track_analysis(datas,
@@ -126,24 +164,27 @@ def single_track_analysis(datas,
                           cutoff=50,
                           rtol=1e-4,
                           method="original",
-                          force_analysis=False):
-    x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values -
-         min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values))
+                          force_analysis=False,
+                          first_dot=True):
+    # x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values -
+    #      min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values))
+    x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['FRAME'].values -
+         min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['FRAME'].values)) * delta_t
     y = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['MEAN_INTENSITY_CH1'].values / normalise_intensity)
 
     if not check_continuous_time(x, delta_t, rtol=rtol):
         times_diff = np.diff(x)[np.where(np.isclose(np.diff(x), delta_t, rtol=rtol) == False)]
-        if (times_diff < 3 * delta_t).all():
+        if (times_diff < 5 * delta_t).all():
             print("to fix")
-            i=0
-            while i < (len(x)-1):
-                if np.round(x[i]-x[i+1], decimals=2)>delta_t:
-                    x = x[:i+1] + [(x[i]+x[i+1])/2] + x[i+1:]
-                i+=1
+            i = 0
+            while i < (len(x) - 1):
+                if np.round(x[i] - x[i + 1], decimals=2) > delta_t:
+                    x = x[:i + 1] + [(x[i] + x[i + 1]) / 2] + x[i + 1:]
+                i += 1
         else:
             print("not fix")
             if not force_analysis:
-                return np.repeat(np.nan, 6)
+                return np.repeat(np.nan, 7)
             else:
                 print("force analysis")
 
@@ -155,11 +196,15 @@ def single_track_analysis(datas,
     x_auto, y_auto = autocorrelation(y, delta_t, normalize_auto, mm)
 
     if method == "original":
-        elongation_r, translation_init_r = fit_autocorrelation(x_auto, y_auto, fit_function, protein_size=protein_size)
+        elongation_r, translation_init_r, perr = fit_autocorrelation(x_auto,
+                                                                     y_auto,
+                                                                     fit_function,
+                                                                     protein_size=protein_size,
+                                                                     first_dot=first_dot)
     elif method == "linear":
-        elongation_r, translation_init_r = fit_autocorrelation_v2(x_auto, y_auto, protein_size=protein_size)
+        elongation_r, translation_init_r, perr = fit_autocorrelation_v2(x_auto, y_auto, protein_size=protein_size)
 
-    return x, y, x_auto, y_auto, elongation_r, translation_init_r
+    return x, y, x_auto, y_auto, elongation_r, translation_init_r, perr
 
 
 def check_continuous_time(x, dt, rtol=0.001):
