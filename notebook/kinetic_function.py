@@ -6,7 +6,36 @@ from scipy import optimize
 import scipy.signal
 import scipy.io.wavfile
 
+def generate_track(prot_length, suntag_appearance, fluo_max_ref, fluo_max, translation_rate, binding_rate, step):
 
+    x = np.arange(prot_length/translation_rate, step=step, )
+    y = translation_rate / suntag_appearance * x * fluo_max/fluo_max_ref
+    y[y>fluo_max]=fluo_max
+
+    # global signal
+    x_global = np.arange(6000, step=step)
+    y_global = np.zeros(len(x_global))
+    y_start_prot = np.zeros(len(x_global))
+    
+    n_rand = np.random.rand(len(x_global))
+    for i in range(len(x_global)):
+        # random number between 0 and 1
+        if n_rand[i] < (binding_rate*step):
+            if i > (len(x_global)-len(x)):
+                y_global[i:i+len(x)] += y[:len(y_global[i:i+len(x)])]
+                y_start_prot[i:i+len(x)] += 1
+            else:
+                y_global[i:i+len(x)] += y
+                y_start_prot[i:i+len(x)] += 1
+    
+    #Remove the first time points
+    x_global = x_global[2000:] - 200 #-200 to start time at 0
+    y_global = y_global[2000:]
+    y_start_prot = y_start_prot[2000:]
+    # y_global -= np.min(y_global)
+
+    return x_global, y_global, y_start_prot
+    
 def read_csv_file(f, sep=";"):
     """
     Read csv file of trajectories.
