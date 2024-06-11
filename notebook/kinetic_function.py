@@ -6,14 +6,14 @@ from scipy import optimize
 import scipy.signal
 import scipy.io.wavfile
 
-def generate_track(prot_length, suntag_appearance, fluo_max_ref, fluo_max, translation_rate, binding_rate, step):
+def generate_track(prot_length, suntag_appearance, fluo_max_ref, fluo_max, translation_rate, binding_rate, step, length=6000):
 
     x = np.arange(prot_length/translation_rate, step=step, )
     y = translation_rate / suntag_appearance * x * fluo_max/fluo_max_ref
     y[y>fluo_max]=fluo_max
 
     # global signal
-    x_global = np.arange(6000, step=step)
+    x_global = np.arange(length, step=step)
     y_global = np.zeros(len(x_global))
     y_start_prot = np.zeros(len(x_global))
     
