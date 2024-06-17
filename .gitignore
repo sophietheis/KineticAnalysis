@@ -6,3 +6,5 @@ notebook/__pycache__/
 /.idea
 
 *.png
+
+*.csv
