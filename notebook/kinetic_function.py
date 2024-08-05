@@ -6,11 +6,48 @@ from scipy import optimize
 import scipy.signal
 import scipy.io.wavfile
 
-def generate_track(prot_length, suntag_appearance, fluo_max_ref, fluo_max, translation_rate, binding_rate, step, length=6000):
+def generate_track(prot_length,
+                   suntag_length,
+                   suntag_appearance,
+                   fluo_max_ref,
+                   fluo_max,
+                   translation_rate,
+                   binding_rate,
+                   retention_time=0,
+                   suntag_pos=0,
+                   step=0.1,
+                   length=6000):
+    """
+    Generate track according to protein translation dynamics
 
-    x = np.arange(prot_length/translation_rate, step=step, )
-    y = translation_rate / suntag_appearance * x * fluo_max/fluo_max_ref
-    y[y>fluo_max]=fluo_max
+    Parameters
+    ----------
+    prot_length : int, length of the protein in aa
+    suntag_appearance: int, number of suntag
+    fluo_max_ref: int
+    fluo_max: int
+    translation_rate: float in aa/sec
+    binding_rate: float in rib/sec
+    retention_time: float in sec
+    suntag_pos: int, 0 or -1 if 0 suntag is at the beginning, at the end if -1
+    step: float in sec
+    length: float, length of the track
+    """
+
+    prot_tot_length = prot_length + suntag_length
+
+    x = np.arange(prot_tot_length/translation_rate+retention_time, step=step, )
+    if suntag_pos==0:
+        y = translation_rate / suntag_appearance * x * fluo_max/fluo_max_ref
+        y[y>fluo_max]=fluo_max
+    elif suntag_pos==-1:
+        y = translation_rate / suntag_appearance * x * fluo_max / fluo_max_ref
+        y = np.concatenate([np.repeat(0, prot_length / translation_rate / step),
+                            y[:-int(prot_length / translation_rate / step)]
+                            ])
+    else:
+        print("suntag_pos is unknown. Please choose between 0 and -1.")
+        return
 
     # global signal
     x_global = np.arange(length, step=step)
@@ -155,10 +192,14 @@ def fit_autocorrelation_v2(x, y, protein_size=1200):
     # fit ax+b equation at the begining, until curve reach 0
     # Find t
     print("linear method")
-    ysign = np.sign(np.array(y))
+    # ysign = np.sign(np.array(y))
+    ysign = np.sign(np.array(np.diff(y)))
     signchange = ((np.roll(ysign, 1) - ysign) != 0).astype(int)
     signchange[0] = 0
-    t = np.where(signchange == 1)[0][0]
+    if len(np.where(signchange == 1)[0])==0:
+        t=-1
+    else:
+        t = np.where(signchange == 1)[0][0]
 
     elongation_r = protein_size / x[t]
     if len(x[:t]) < 2:
