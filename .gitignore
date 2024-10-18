@@ -10,3 +10,6 @@ notebook/__pycache__/
 *.csv
 
 *.eps
+
+notebook/build/
+notebook/dist/
