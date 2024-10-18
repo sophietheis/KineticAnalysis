@@ -6,11 +6,42 @@ from scipy import optimize
 import scipy.signal
 import scipy.io.wavfile
 
+
+def generate_profile(prot_length,
+                   suntag_length,
+                   nb_suntag,
+                   fluo_one_suntag,
+                   translation_rate,
+                   binding_rate,
+                   retention_time=0,
+                   suntag_pos="begin",
+                   step=0.1,
+                   length=6000):
+    if suntag_pos == "begin":
+        suntag_pos = 0
+    else:
+        suntag_pos = -1
+
+    prot_tot_length = prot_length + suntag_length
+
+    x = np.arange(prot_tot_length / translation_rate + retention_time, step=step, )
+    y = (nb_suntag * fluo_one_suntag) / (suntag_length / translation_rate) * np.arange(suntag_length / translation_rate,
+                                                                                       step=0.1)
+
+    if suntag_pos==0:
+        y_prim = np.repeat(y[-1], len(x) - len(y))
+        y = np.concatenate([y, y_prim])
+    elif suntag_pos==-1:
+        y_prim = np.repeat(0, len(x) - len(y))
+        y = np.concatenate([y_prim, y])
+    return x, y
+
+
+
 def generate_track(prot_length,
                    suntag_length,
-                   suntag_appearance,
-                   fluo_max_ref,
-                   fluo_max,
+                   nb_suntag,
+                   fluo_one_suntag,
                    translation_rate,
                    binding_rate,
                    retention_time=0,
@@ -23,8 +54,8 @@ def generate_track(prot_length,
     Parameters
     ----------
     prot_length : int, length of the protein in aa
-    suntag_appearance: int, number of suntag
-    fluo_max_ref: int
+    nb_suntag: int, number of suntag
+    fluo_one_suntag: int, fluorescence value for one suntag
     fluo_max: int
     translation_rate: float in aa/sec
     binding_rate: float in rib/sec
@@ -37,14 +68,15 @@ def generate_track(prot_length,
     prot_tot_length = prot_length + suntag_length
 
     x = np.arange(prot_tot_length/translation_rate+retention_time, step=step, )
+    y = (nb_suntag * fluo_one_suntag) / (suntag_length / translation_rate) * np.arange(suntag_length / translation_rate,
+                                                                                 step=0.1)
+
     if suntag_pos==0:
-        y = translation_rate / suntag_appearance * x * fluo_max/fluo_max_ref
-        y[y>fluo_max]=fluo_max
+        y_prim = np.repeat(y[-1], len(x) - len(y))
+        y = np.concatenate([y, y_prim])
     elif suntag_pos==-1:
-        y = translation_rate / suntag_appearance * x * fluo_max / fluo_max_ref
-        y = np.concatenate([np.repeat(0, prot_length / translation_rate / step),
-                            y[:-int(prot_length / translation_rate / step)]
-                            ])
+        y_prim = np.repeat(0, len(x) - len(y))
+        y = np.concatenate([y_prim, y])
     else:
         print("suntag_pos is unknown. Please choose between 0 and -1.")
         return
@@ -53,7 +85,7 @@ def generate_track(prot_length,
     x_global = np.arange(length, step=step)
     y_global = np.zeros(len(x_global))
     y_start_prot = np.zeros(len(x_global))
-    
+
     n_rand = np.random.rand(len(x_global))
     for i in range(len(x_global)):
         # random number between 0 and 1
@@ -64,7 +96,7 @@ def generate_track(prot_length,
             else:
                 y_global[i:i+len(x)] += y
                 y_start_prot[i:i+len(x)] += 1
-    
+
     #Remove the first time points
     x_global = x_global[2000:] - 200 #-200 to start time at 0
     y_global = y_global[2000:]
@@ -72,7 +104,7 @@ def generate_track(prot_length,
     # y_global -= np.min(y_global)
 
     return x_global, y_global, y_start_prot
-    
+
 def read_csv_file(f, sep=";"):
     """
     Read csv file of trajectories.
@@ -235,14 +267,19 @@ def single_track_analysis(datas,
                           rtol=1e-4,
                           method="original",
                           force_analysis=False,
-                          first_dot=True):
+                          first_dot=True,
+                          simulation=False):
     # x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values -
     #      min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['POSITION_T'].values))
     x = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['FRAME'].values -
-         min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['FRAME'].values)) * delta_t
+         min(datas[datas.TRACK_ID == id_track].sort_values('FRAME')['FRAME'].values))
+    if not simulation:
+        x = x * delta_t
     y = (datas[datas.TRACK_ID == id_track].sort_values('FRAME')['MEAN_INTENSITY_CH1'].values / normalise_intensity)
-
+    print(x)
+    print(delta_t)
     if not check_continuous_time(x, delta_t, rtol=rtol):
+        print("Time not continuous")
         times_diff = np.diff(x)[np.where(np.isclose(np.diff(x), delta_t, rtol=rtol) == False)]
         if (times_diff < 5 * delta_t).all():
             print("to fix")
