@@ -11,6 +11,9 @@ from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_spinner
 
+import tkinter as tk
+from tkinter import filedialog
+
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
@@ -38,57 +41,62 @@ app.layout = dbc.Container([
     html.Li("Track analysis: analyse tracks"),
     html.Br(),
     dbc.Tabs([
+
+        # Generate track tab
         dbc.Tab(label="Generate Tracks", children=[
             dbc.Row([
                 html.Label("Choose Directory to Store Output"),
                 html.Br(),
                 dbc.Button("Select folder", id="add", className="mr-2", style={"width": "150px"},),
-                # html.Div(id="output"),
-                # dcc.Input(id='directory-input', type='text', placeholder='Directory path...'),
-                # html.Button('Valid path', id='browse-dir-btn'),
                 html.Div(id='directory-output', style={'margin-top': '10px'}),
                 html.Br(),
                 html.Br(),
                 dbc.Col([
                     html.Div([
                         html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param1', type='number', value=490),
+                        dcc.Input(id='param1', type='number', value=490, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Suntag length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param2', type='number', value=796),
+                        dcc.Input(id='param2', type='number', value=796, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Number of suntag", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param3', type='number', value=32),
+                        dcc.Input(id='param3', type='number', value=32, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Fluorescence one suntag", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param4', type='number', value=4),
+                        dcc.Input(id='param4', type='number', value=4, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Translation rate", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param5', type='number', value=24),
+                        dcc.Input(id='param5', type='number', value=24, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Binding rate", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param6', type='number', value=0.05),
+                        dcc.Input(id='param6', type='number', value=0.05, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Retention time", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param7', type='number', value=0),
+                        dcc.Input(id='param7', type='number', value=0, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("Suntag position (begin or end)", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param8', type='text', value='begin'),
+                        dcc.Dropdown(id='param8',
+                                     options=[{'label': 'Begin', 'value': 'begin'},
+                                              {'label': 'End', 'value': 'end'}],
+                                     value='begin',  # Default value
+                                     clearable=False,  # Prevents the user from clearing the selection
+                                     style={'width': '200px'}  # Adjust width if needed
+                        ),
                     ]),
                     html.Div([
                         html.P("Number of tracks", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param9', type='number', value=100),
+                        dcc.Input(id='param9', type='number', value=100, style={'width': '200px'}),
                     ]),
                     html.Div([
                         html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param10', type='text', value='datas'),
+                        dcc.Input(id='param10', type='text', value='datas', style={'width': '200px'}),
                     ]),
                     html.Br(),
                     # Generate Button and Spinner Side by Side
@@ -116,32 +124,40 @@ app.layout = dbc.Container([
             ]),
         ]),
 
-
+        # Analyse track tab
         dbc.Tab(label="Analyze Tracks", children=[
             html.Div([
-                html.Label("Choose directory where your file is"),
-                dcc.Input(id='directory-analyze-input', type='text', placeholder='Directory path...'),
-                html.Button('Browse', id='browse-analyze-dir-btn'),
+
+                # Choose a directory
+                html.Label("Choose Directory where your file is"),
+                html.Br(),
+                dbc.Button("Select folder", id="browse_directory_analyze", className="mr-2", style={"width": "150px"},),
                 html.Div(id='directory-analyze-output', style={'margin-top': '10px'}),
                 html.Br(),
-                dcc.Dropdown(id='file-dropdown', options=[], placeholder="Select a file..."),
-                html.Button('Select File', id='select-file-btn'),
+                # Select a file inside the directory
+                dcc.Dropdown(id='file-dropdown', options=[], placeholder="Select a file...", style={"width": "150px"},),
+                dbc.Button('Validate file', id='select-file-btn', className="mr-2", style={"width": "150px"},),
                 html.Div(id='selected-file-output'),
-                html.Div([
-                    html.Label("dt"),
-                    dcc.Input(id='dt-param', type='number', value=3),
-                ]),
-                html.Div([
-                    html.Label("Protein length (aa)"),
-                    dcc.Input(id='prot-length-param', type='number', value=800),
-                ]),
-                html.Div([
-                    html.Label("File name to save"),
-                    dcc.Input(id='save-results-name', type='text', value='datas_results'),
-                ]),
                 html.Br(),
-                html.Button('Start Analyze Tracks', id='start-analyze-btn'),
-                html.Div(id='analyze-output'),
+                html.Br(),
+                html.Br(),
+                dbc.Col([
+                    html.Div([
+                        html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
+                        dcc.Input(id='dt-param', type='number', value=3),
+                    ]),
+                    html.Div([
+                        html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
+                        dcc.Input(id='prot-length-param', type='number', value=800),
+                    ]),
+                    html.Div([
+                        html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
+                        dcc.Input(id='save-results-name', type='text', value='datas_results'),
+                    ]),
+                    html.Br(),
+                    dbc.Button('Start Analyze Tracks', id='start-analyze-btn', className="mr-2", style={"width": "150px"},),
+                    html.Div(id='analyze-output'),
+                ], width=3),
             ]),
         ]),
     ]),
@@ -149,16 +165,6 @@ app.layout = dbc.Container([
 
 # Callbacks
 
-# @app.callback(
-#     Output('directory-output', 'children'),
-#     Input('browse-dir-btn', 'n_clicks'),
-#     State('directory-input', 'value')
-# )
-# def browse_directory(n_clicks, directory):
-#     if n_clicks:
-#         app.data['directory'] = directory
-#         return f"Directory chosen: {directory}"
-#     raise PreventUpdate
 
 @app.callback(
     Output("directory-output", "children"),
@@ -166,24 +172,33 @@ app.layout = dbc.Container([
 )
 def add(n_clicks):
     if n_clicks :
-        command = ['python3', './local.py']
-        p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        out, err = p.communicate()
-        app.data['directory'] = str(out.decode("utf-8"))[:-1] + "/"
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        folder_selected = filedialog.askdirectory()
+        if folder_selected:
+            print(folder_selected)
+        else:
+            print(None)
+        app.data['directory'] = folder_selected
         return f"Directory chosen: {app.data['directory']}"
-
 
 @app.callback(
     Output('directory-analyze-output', 'children'),
-    Input('browse-analyze-dir-btn', 'n_clicks'),
-    State('directory-analyze-input', 'value')
+    Input('browse_directory_analyze', 'n_clicks'),
 )
-def browse_directory_analyze(n_clicks, directory):
+def browse_directory_analyze(n_clicks):
     if n_clicks:
-        app.data['directory'] = directory
-        load_csv_files(directory)
-        return f"Directory chosen: {directory}"
-    raise PreventUpdate
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        folder_selected = filedialog.askdirectory()
+        if folder_selected:
+            print(folder_selected)
+        else:
+            print(None)
+        app.data['directory'] = folder_selected
+        return f"Directory chosen: {app.data['directory']}"
 
 
 @app.callback(
@@ -337,7 +352,16 @@ def start_analyze_tracks(n_clicks, dt, prot_length):
             return f"Error: {str(e)}"
     raise PreventUpdate
 
-
+import webview
+from threading import Thread
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)
+    app.run_server(debug=True, port=8080)
+    # def run_app():
+    #     app.run_server(debug=False, port=8080)
+    # t = Thread(target=run_app)
+    # t.daemon = True
+    # t.start()
+    #
+    # window = webview.create_window('Kinetic analysis', 'http://127.0.0.1:8080/')
+    # webview.start(debug=False)
 
