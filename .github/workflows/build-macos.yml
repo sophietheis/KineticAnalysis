@@ -24,14 +24,18 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller dash
+          pip install pyinstaller 
+          pip install dash dash-html-components dash-core-components dash-bootstrap-components 
+          pip install dash-spinner dash_table
+          pip install numpy pandas os time threading subprocess tk plotly
+          pip install scipy multipletau
 
       - name: Create Executable with PyInstaller
         run: |
-          pyinstaller --onefile app_dash.py
+          yinstaller kinetic_analysis/app_dash_mac_gh.spec
 
       - name: Upload Executable
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: macos-dash-app
-          path: dist/KineticAnalysisMac
+          name: KineticAnalysisMac
+          path: dist/
