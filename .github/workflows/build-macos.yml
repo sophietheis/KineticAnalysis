@@ -22,13 +22,14 @@ jobs:
           python-version: '3.9'  # Choose the Python version you need
 
       - name: Install Dependencies
-        run: |
+        run: |         
+          brew install openssl
           python -m pip install --upgrade pip
           pip install pyinstaller 
           pip install dash dash-html-components dash-core-components dash-bootstrap-components 
           pip install dash-spinner dash_table
           pip install numpy pandas threaded tk plotly
-          pip install scipy multipletau webview
+          pip install scipy multipletau pywebview
 
       - name: Create Executable with PyInstaller
         run: |

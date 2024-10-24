@@ -1,7 +1,9 @@
 import os
 import time
 import threading
-import subprocess
+import webview
+
+from threading import Thread
 
 import numpy as np
 import pandas as pd
@@ -352,16 +354,15 @@ def start_analyze_tracks(n_clicks, dt, prot_length):
             return f"Error: {str(e)}"
     raise PreventUpdate
 
-import webview
-from threading import Thread
-if __name__ == '__main__':
-    # app.run_server(debug=True, port=8080)
-    def run_app():
-        app.run_server(debug=False, port=8080)
-    t = Thread(target=run_app)
-    t.daemon = True
-    t.start()
 
-    window = webview.create_window('Kinetic analysis', 'http://127.0.0.1:8080/')
-    webview.start(debug=False)
+if __name__ == '__main__':
+    app.run_server(debug=True, port=8080)
+    # def run_app():
+    #     app.run_server(debug=False, port=8080)
+    # t = Thread(target=run_app)
+    # t.daemon = True
+    # t.start()
+    #
+    # window = webview.create_window('Kinetic analysis', 'http://127.0.0.1:8080/')
+    # webview.start(debug=False)
 
