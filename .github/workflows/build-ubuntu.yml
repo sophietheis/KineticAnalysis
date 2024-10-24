@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Specify the Python version you need
+          python-version: '3.9'
 
       - name: Install Dependencies
         run: |
@@ -35,5 +35,5 @@ jobs:
       - name: Upload Executable
         uses: actions/upload-artifact@v3
         with:
-          name: linux-dash-app
-          path: dist/KineticAnalysisUbuntu  # Replace with the actual path to your generated executable
+          name: KineticAnalysisUbuntu
+          path: dist/
