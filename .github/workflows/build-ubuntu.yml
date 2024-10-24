@@ -30,7 +30,7 @@ jobs:
 
       - name: Create Executable with PyInstaller
         run: |
-          pyinstaller kinetic_analysis_app/app_dash_ubuntu_gh.spec
+          pyinstaller kinetic_analysis/app_dash_ubuntu_gh.spec
 
       - name: Upload Executable
         uses: actions/upload-artifact@v3
