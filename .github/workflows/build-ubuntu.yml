@@ -28,7 +28,7 @@ jobs:
           pip install dash dash-html-components dash-core-components dash-bootstrap-components 
           pip install dash-spinner dash_table
           pip install numpy pandas threaded tk plotly
-          pip install scipy multipletau
+          pip install scipy multipletau webview
 
       - name: Create Executable with PyInstaller
         run: |
