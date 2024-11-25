@@ -342,7 +342,6 @@ def start_generate_tracks(n_clicks, *params):
                                                      "RETENTION_TIME": float(params[6]),
                                                      })], ignore_index=True)
 
-            print(app.data["directory"])
             datas.to_csv(os.path.join(app.data['directory_generation'],  params[9] + ".csv"))
 
             return  "Tracks generated and saved successfully!", None
