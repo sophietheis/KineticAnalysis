@@ -16,7 +16,9 @@ def generate_profile(prot_length,
                      translation_rate,
                      retention_time=0,
                      suntag_pos="begin",
-                     step=0.1, ):
+                     step=0.1,
+                     noise=False,
+                     noise_std=1):
     """
     Generate fluorescence profile of one protein.
 
@@ -38,6 +40,10 @@ def generate_profile(prot_length,
         position of the suntag, before of after the protein
     step : float, default 0.1
         time step between two point in sec
+    noise : bool, default False
+        add noise to the signal
+    noise_std : float, default 1
+        std of the normal distribution
 
     Returns
     -------
@@ -81,6 +87,10 @@ def generate_profile(prot_length,
     elif suntag_pos == -1:
         y_prim = np.repeat(0, len(x) - len(y))
         y = np.concatenate([y_prim, y])
+    if noise:
+        n = np.random.normal(0, noise_std, len(x))
+        y = y + n
+
     return x, y
 
 
@@ -298,7 +308,7 @@ def fit_autocorrelation_original(x, y, func_=fit_function, method='lm',
                                     method=method)
 
     elongation_r = protein_size / popt[0]
-    translation_init_r = 1/popt[1]
+    translation_init_r = 1 / popt[1]
 
     return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
 
@@ -342,7 +352,7 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
     if len(x[:t]) < 2:
         return -1, -1, [-1, -1]
     res_fit = np.polyfit(x[:t], y[:t], 1)
-    translation_init_r = 1 / (res_fit[1] * x[t])
+    translation_init_r = (res_fit[1] * x[t])
     return elongation_r, translation_init_r, [-1, -1]
 
 
@@ -559,6 +569,7 @@ def calculate_msd(x, y, z):
     diff_sq = diff ** 2
     msd = [np.mean(diff_sq[0:i]) for i in range(1, len(diff_sq))]
     return msd
+
 
 def test(abc):
     return abc
