@@ -196,13 +196,14 @@ app.layout = dbc.Container([
                     'margin-top': '10px'}),
                 html.Br(),
                 # Select a file inside the directory
-                # dcc.Dropdown(id='file-dropdown', options=[], placeholder="Select a file...", style={"width": "150px"},),
-                # dbc.Button('Validate file', id='select-file-btn-vivo',
-                #            className="mr-2", style={"width": "150px"},),
-                # html.Div(id='selected-file-output-vivo'),
-                # html.Br(),
-                # html.Br(),
-                # html.Br(),
+                dcc.Dropdown(id='file-dropdown-vivo', options=[],
+                             placeholder="Select a file...", style={"width": "150px"},),
+                dbc.Button('Validate file', id='select-file-btn-vivo',
+                           className="mr-2", style={"width": "150px"},),
+                html.Div(id='selected-file-output-vivo'),
+                html.Br(),
+                html.Br(),
+                html.Br(),
         #         dbc.Col([
         #             html.Div([
         #                 html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
@@ -321,7 +322,29 @@ def browse_directory_analyze_vivo(n_clicks):
         app.data['directory_analysis_vivo'] = folder_selected
         return f"Directory chosen: {app.data['directory_analysis_vivo']}"
 
+@app.callback(
+    Output('file-dropdown-vivo', 'options'),
+    Input('directory-analyze-output-vivo', 'children')
+)
+def load_csv_files(directory):
+    if app.data['directory_analysis_vivo']:
+        app.data['csv_files'] = [
+            {'label': file, 'value': file}
+            for file in os.listdir(app.data['directory_analysis_vivo']) if file.endswith('.csv')
+        ]
+        return app.data['csv_files']
+    return []
 
+@app.callback(
+    Output('selected-file-output-vivo', 'children'),
+    Input('select-file-btn-vivo', 'n_clicks'),
+    State('file-dropdown-vivo', 'value')
+)
+def select_file(n_clicks, selected_file):
+    if n_clicks and selected_file:
+        app.data['selected_file_vivo'] = selected_file
+        return f"You selected: {selected_file}"
+    raise PreventUpdate
 
 @app.callback(
     Output('profile-plot', 'figure'),
