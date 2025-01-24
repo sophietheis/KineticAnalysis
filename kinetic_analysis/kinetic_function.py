@@ -439,14 +439,14 @@ def single_track_analysis(df,
 
     # Extract time point and multiply by delta_t to get the real time of
     # each frame
-    x = (df[df.TRACK_ID == id_track].sort_values('FRAME')[
+    x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
              'FRAME'].values -
-         min(df[df.TRACK_ID == id_track].sort_values('FRAME')[
+         min(df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
                  'FRAME'].values))
     if not simulation:
         x = x * delta_t
     # Extract intensity value
-    y = (df[df.TRACK_ID == id_track].sort_values('FRAME')[
+    y = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
              'MEAN_INTENSITY_CH1'].values / normalise_intensity)
 
     # Check if time is continuous and fix it if gap not too big

@@ -29,6 +29,7 @@ app.title = "Kinetic analysis app"
 app.data = {
     'directory_generation': None,
     'directory_analysis': None,
+    'directory_analysis_vivo': None,
     'csv_files': [],
     'fig': None,
     'selected_file': None,
@@ -202,55 +203,118 @@ app.layout = dbc.Container([
                         dbc.Button('Validate file', id='select-file-btn-vivo',
                                    className="mr-2", style={"width": "150px"},),
                         html.Div(id='selected-file-output-vivo'),
-                        html.Br(),
-                        html.Br(),
-                        html.Br(),
-                #         dbc.Col([
-                #             html.Div([
-                #                 html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
-                #                 dcc.Input(id='dt-param', type='number', value=3),
-                #             ]),
-                #             html.Div([
-                #                 html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
-                #                 dcc.Input(id='prot-length-param', type='number', value=800),
-                #             ]),
-                #             html.Div([
-                #                 html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
-                #                 dcc.Input(id='save-results-name', type='text', value='datas_results'),
-                #             ]),
-                #             html.Br(),
-                #             # Generate Button and Spinner Side by Side
-                #             dbc.Row([
-                #                 dbc.Col([
-                #                     dbc.Button('Start Analyze Tracks', id='start-analyze-btn', className="mr-2", style={"width": "150px"},),
-                #                 ], width="auto"),
-                #
-                #                 dbc.Col([
-                #                     dbc.Spinner(
-                #                         children=[html.Div(id="loading_analysis")],
-                #                         size="sm", color="primary", type="border", spinner_style={"margin-left": "10px"}
-                #                     )
-                #                 ], width="auto"),
-                #                 html.Div(id='analyze-output'),
-                #             ], align="center", style={"margin-top": "10px"}),
-                #         ], width=3),
                     ]),
                 ], width=3),
                 dbc.Col([
                     html.Label("DataFrame Visualisation"),
-                    html.Button("Show DataFrame", id="show-button",
-                                n_clicks=0),
                     html.Div(id="table-container", children=[]),
                 ], width=5)
             ]),
+            dbc.Row([
+                html.Br(),
+                html.Br(),
+            ]),
+            dbc.Row([
+                html.H4("Confirm column name for the analysis",
+                        style={"text-align": "center",
+                               "color":"#10D79B"}),
+                html.Br(),
+                dbc.Col([
+                    html.Div([
+                        html.P("Track ID column",
+                               style={"height": "auto",
+                                      "margin-bottom": "auto"}),
+                        dcc.Input(id='col_track',
+                                  type='text',
+                                  value="TRACK_ID",
+                                  style={'width': '200px'}),
+                    ]),
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.P("Time column",
+                               style={"height": "auto",
+                                      "margin-bottom": "auto"}),
+                        dcc.Input(id='col_time',
+                                  type='text',
+                                  value="FRAME",
+                                  style={'width': '200px'}),
+                    ]),
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.P("Intensity column",
+                               style={"height": "auto",
+                                      "margin-bottom": "auto"}),
+                        dcc.Input(id='col_intensity',
+                                  type='text',
+                                  value="MEAN_INTENSITY_CH1",
+                                  style={'width': '200px'}),
+                    ]),
+                ]),
+            ]),
+            dbc.Row([
+                html.Br(),
+                html.Br(),
+            ]),
+            dbc.Row([
+                html.H4("Confirm parameters for the analysis",
+                        style={"text-align": "center",
+                               "color":"#10D79B"}),
+                html.Br(),
+                dbc.Col([
+                    html.Div([
+                    html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
+                    dcc.Input(id='dt-param-vivo', type='number', value=3),
+                    ]),
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
+                        dcc.Input(id='prot-length-param-vivo', type='number',
+                                  value=800),
+                    ]),
+                ]),
+                dbc.Col([
+                    html.Div([
+                        html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
+                        dcc.Input(id='save-results-name-vivo', type='text',
+                                  value='datas_results'),
+                    ]),
+                ]),
+                html.Br(),
+            ]),
+            dbc.Row([
+                html.Br(),
+                html.Br(),
+            ]),
+            # Generate Button and Spinner Side by Side
+            dbc.Row([
+                html.Br(),
+                html.Br(),
+                dbc.Col([
+                    dbc.Button('Start Analyse Tracks',
+                               id='start-analyze-btn-vivo',
+                               className="mr-2",
+                               style={"width": "300px"},),
+                    ], width="auto"),
 
+                dbc.Col([
+                    dbc.Spinner(
+                        children=[html.Div(id="loading_analysis_vivo")],
+                        size="sm",
+                        color="primary",
+                        type="border",
+                        spinner_style={"margin-left": "10px"}
+                    )
+                ], width="auto"),
+                html.Div(id='analyze-output-vivo'),
+            ])
         ]),
     ]),
 ])
 
 # Callbacks
-
-
 @app.callback(
     Output("directory-output", "children"),
     [Input("add", "n_clicks")],
@@ -347,31 +411,26 @@ def load_csv_files(directory):
 
 @app.callback(
     Output('selected-file-output-vivo', 'children'),
+    Output("table-container", "children"),
     Input('select-file-btn-vivo', 'n_clicks'),
     State('file-dropdown-vivo', 'value')
 )
 def select_file(n_clicks, selected_file):
     if n_clicks and selected_file:
         app.data['selected_file_vivo'] = selected_file
-        return f"You selected: {selected_file}"
+        df = pd.read_csv(
+            os.path.join(app.data['directory_analysis_vivo'],
+                         app.data['selected_file_vivo']),
+            index_col="Unnamed: 0")
+        first_10_rows = df.head(10)
+
+        return (f"You selected: {selected_file}",
+                dash_table.DataTable(
+                    data=first_10_rows.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in first_10_rows.columns]
+                ))
     raise PreventUpdate
 
-@app.callback(
-    Output("table-container", "children"),
-    Input("show-button", "n_clicks"),
-)
-def display_dataframe(n_clicks):
-    if n_clicks > 0:
-        if app.data['selected_file_vivo'] is not None:
-            df = pd.read_csv(
-                os.path.join(app.data['directory_analysis_vivo'],
-                             app.data['selected_file_vivo']),
-                index_col="Unnamed: 0")
-            return dash_table.DataTable(
-                data = df.to_dict('records'),
-                columns = [{"name": i, "id": i} for i in df.columns]
-            )
-        return []
 
 
 
@@ -556,6 +615,89 @@ def start_analyze_tracks(n_clicks, filename, *params):
 
 
             results.to_csv(os.path.join(app.data['directory_analysis'], params[2] + ".csv"))
+
+            return "Analysis completed and saved successfully!", None
+        except Exception as e:
+            return f"Error: {str(e)}", None
+    raise PreventUpdate
+
+
+
+
+@app.callback(
+    Output('analyze-output-vivo', 'children'),
+    Output('loading_analysis_vivo', 'children'),
+    Input('start-analyze-btn-vivo', 'n_clicks'),
+    State('file-dropdown-vivo', 'value'),
+    State('col_track', 'value'),
+    State('col_time', 'value'),
+    State('col_intensity', 'value'),
+    State('dt-param-vivo', 'value'),
+    State('prot-length-param-vivo', 'value'),
+    State('save-results-name-vivo', 'value'),
+)
+def start_analyze_tracks(n_clicks, filename, *params):
+    if n_clicks:
+        try:
+            # Read csv file
+            datas = pd.read_csv(os.path.join(app.data[
+                                                 'directory_analysis_vivo'],
+                                             filename),
+                                index_col="Unnamed: 0")
+            datas.rename(columns={params[0]: 'TRACK_ID',
+                                  params[1]: 'FRAME',
+                                  params[2]: 'MEAN_INTENSITY_CH1',
+                                  },
+                         inplace=True)
+            dt = float(params[3])
+            t = dt / 0.1
+            prot_length = float(params[4])
+            nb_track = len(np.unique(datas["TRACK_ID"]))
+
+            first_time = True
+            # Analyse all tracks and save it
+            for i in range(nb_track):
+                datas2 = datas[(datas["TRACK_ID"] == i)][::int(t)]
+
+                (x,
+                 y,
+                 x_auto,
+                 y_auto,
+                 elongation_r,
+                 translation_init_r,
+                 perr) = single_track_analysis(datas2,
+                                               i,
+                                               delta_t=dt,
+                                               protein_size=prot_length,
+                                               normalise_intensity=1,
+                                               normalise_auto=True,
+                                               mm=None,
+                                               lowpass_=False,
+                                               cutoff=100,
+                                               rtol=1e-1,
+                                               method="linear",
+                                               force_analysis=True,
+                                               first_dot=True,
+                                               simulation=True)
+                if first_time:
+                    results = pd.DataFrame({"elongation_r": elongation_r,
+                                            "init_translation_r": translation_init_r,
+                                            "dt": dt,
+                                            "id": i, },
+                                           index=[0])
+                    first_time = False
+
+                else:
+                    results = pd.concat([results,
+                                         pd.DataFrame({"elongation_r": elongation_r,
+                                                       "init_translation_r": translation_init_r,
+                                                       "dt": dt,
+                                                       "id": i, }, index=[0])
+                                         ], ignore_index=True)
+
+
+            results.to_csv(os.path.join(app.data['directory_analysis_vivo'],
+                                        params[5] + ".csv"))
 
             return "Analysis completed and saved successfully!", None
         except Exception as e:
