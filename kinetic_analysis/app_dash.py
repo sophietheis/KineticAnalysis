@@ -10,7 +10,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 
-from dash import Dash, html, dcc, Input, Output, State
+from dash import Dash, html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_spinner
@@ -184,56 +184,66 @@ app.layout = dbc.Container([
 
         # Analyse track in vivo tab
         dbc.Tab(label="Analyze Tracks in vivo", children=[
-            html.Div([
-
-                # Choose a directory
-                html.Label("Choose Directory where your file is"),
-                html.Br(),
-                dbc.Button("Select folder",
-                           id="browse_directory_analyze_vivo",
-                           className="mr-2", style={"width": "150px"},),
-                html.Div(id='directory-analyze-output-vivo', style={
-                    'margin-top': '10px'}),
-                html.Br(),
-                # Select a file inside the directory
-                dcc.Dropdown(id='file-dropdown-vivo', options=[],
-                             placeholder="Select a file...", style={"width": "150px"},),
-                dbc.Button('Validate file', id='select-file-btn-vivo',
-                           className="mr-2", style={"width": "150px"},),
-                html.Div(id='selected-file-output-vivo'),
-                html.Br(),
-                html.Br(),
-                html.Br(),
-        #         dbc.Col([
-        #             html.Div([
-        #                 html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
-        #                 dcc.Input(id='dt-param', type='number', value=3),
-        #             ]),
-        #             html.Div([
-        #                 html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
-        #                 dcc.Input(id='prot-length-param', type='number', value=800),
-        #             ]),
-        #             html.Div([
-        #                 html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
-        #                 dcc.Input(id='save-results-name', type='text', value='datas_results'),
-        #             ]),
-        #             html.Br(),
-        #             # Generate Button and Spinner Side by Side
-        #             dbc.Row([
-        #                 dbc.Col([
-        #                     dbc.Button('Start Analyze Tracks', id='start-analyze-btn', className="mr-2", style={"width": "150px"},),
-        #                 ], width="auto"),
-        #
-        #                 dbc.Col([
-        #                     dbc.Spinner(
-        #                         children=[html.Div(id="loading_analysis")],
-        #                         size="sm", color="primary", type="border", spinner_style={"margin-left": "10px"}
-        #                     )
-        #                 ], width="auto"),
-        #                 html.Div(id='analyze-output'),
-        #             ], align="center", style={"margin-top": "10px"}),
-        #         ], width=3),
+            dbc.Row([
+                dbc.Col([
+                    html.Div([
+                        # Choose a directory
+                        html.Label("Choose Directory where your file is"),
+                        html.Br(),
+                        dbc.Button("Select folder",
+                                   id="browse_directory_analyze_vivo",
+                                   className="mr-2", style={"width": "150px"},),
+                        html.Div(id='directory-analyze-output-vivo', style={
+                            'margin-top': '10px'}),
+                        html.Br(),
+                        # Select a file inside the directory
+                        dcc.Dropdown(id='file-dropdown-vivo', options=[],
+                                     placeholder="Select a file...", style={"width": "150px"},),
+                        dbc.Button('Validate file', id='select-file-btn-vivo',
+                                   className="mr-2", style={"width": "150px"},),
+                        html.Div(id='selected-file-output-vivo'),
+                        html.Br(),
+                        html.Br(),
+                        html.Br(),
+                #         dbc.Col([
+                #             html.Div([
+                #                 html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
+                #                 dcc.Input(id='dt-param', type='number', value=3),
+                #             ]),
+                #             html.Div([
+                #                 html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
+                #                 dcc.Input(id='prot-length-param', type='number', value=800),
+                #             ]),
+                #             html.Div([
+                #                 html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
+                #                 dcc.Input(id='save-results-name', type='text', value='datas_results'),
+                #             ]),
+                #             html.Br(),
+                #             # Generate Button and Spinner Side by Side
+                #             dbc.Row([
+                #                 dbc.Col([
+                #                     dbc.Button('Start Analyze Tracks', id='start-analyze-btn', className="mr-2", style={"width": "150px"},),
+                #                 ], width="auto"),
+                #
+                #                 dbc.Col([
+                #                     dbc.Spinner(
+                #                         children=[html.Div(id="loading_analysis")],
+                #                         size="sm", color="primary", type="border", spinner_style={"margin-left": "10px"}
+                #                     )
+                #                 ], width="auto"),
+                #                 html.Div(id='analyze-output'),
+                #             ], align="center", style={"margin-top": "10px"}),
+                #         ], width=3),
+                    ]),
+                ], width=3),
+                dbc.Col([
+                    html.Label("DataFrame Visualisation"),
+                    html.Button("Show DataFrame", id="show-button",
+                                n_clicks=0),
+                    html.Div(id="table-container", children=[]),
+                ], width=5)
             ]),
+
         ]),
     ]),
 ])
@@ -345,6 +355,28 @@ def select_file(n_clicks, selected_file):
         app.data['selected_file_vivo'] = selected_file
         return f"You selected: {selected_file}"
     raise PreventUpdate
+
+@app.callback(
+    Output("table-container", "children"),
+    Input("show-button", "n_clicks"),
+)
+def display_dataframe(n_clicks):
+    if n_clicks > 0:
+        if app.data['selected_file_vivo'] is not None:
+            df = pd.read_csv(
+                os.path.join(app.data['directory_analysis_vivo'],
+                             app.data['selected_file_vivo']),
+                index_col="Unnamed: 0")
+            return dash_table.DataTable(
+                data = df.to_dict('records'),
+                columns = [{"name": i, "id": i} for i in df.columns]
+            )
+        return []
+
+
+
+
+
 
 @app.callback(
     Output('profile-plot', 'figure'),
