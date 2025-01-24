@@ -40,7 +40,9 @@ app.layout = dbc.Container([
     html.P("This tool is made to estimate the kinetic parameters of translation (initiation rate and elongation rate). "),
     html.P("You can find different tabs: "),
     html.Li("Track generator: generate tracks to test parameters"),
-    html.Li("Track analysis: analyse tracks"),
+    html.Li("Track analysis simulation : analyse tracks simulation"),
+    html.Li("Track analysis in vivo : analyse tracks from in vivo "
+            "experiments"),
     html.Br(),
     dbc.Tabs([
 
@@ -71,15 +73,20 @@ app.layout = dbc.Container([
                         dcc.Input(id='param4', type='number', value=4, style={'width': '200px'}),
                     ]),
                     html.Div([
-                        html.P("Translation rate", style={"height": "auto", "margin-bottom": "auto"}),
+                        html.P("Translation rate (aa/sec)", style={"height":
+                                                                "auto", "margin-bottom": "auto"}),
                         dcc.Input(id='param5', type='number', value=24, style={'width': '200px'}),
                     ]),
                     html.Div([
-                        html.P("Binding rate", style={"height": "auto", "margin-bottom": "auto"}),
-                        dcc.Input(id='param6', type='number', value=0.05, style={'width': '200px'}),
+                        html.P("Initiation rate (ribosome/sec)", style={
+                            "height":
+                                                                   "auto",
+                                                       "margin-bottom": "auto"}),
+                        dcc.Input(id='param6', type='number', value=1, style={'width': '200px'}),
                     ]),
                     html.Div([
-                        html.P("Retention time", style={"height": "auto", "margin-bottom": "auto"}),
+                        html.P("Retention time (sec)", style={"height":
+                                                                  "auto", "margin-bottom": "auto"}),
                         dcc.Input(id='param7', type='number', value=0, style={'width': '200px'}),
                     ]),
                     html.Div([
@@ -126,8 +133,8 @@ app.layout = dbc.Container([
             ]),
         ]),
 
-        # Analyse track tab
-        dbc.Tab(label="Analyze Tracks", children=[
+        # Analyse track simulation tab
+        dbc.Tab(label="Analyze Tracks Simulation", children=[
             html.Div([
 
                 # Choose a directory
@@ -174,6 +181,59 @@ app.layout = dbc.Container([
                 ], width=3),
             ]),
         ]),
+
+        # Analyse track in vivo tab
+        dbc.Tab(label="Analyze Tracks in vivo", children=[
+            html.Div([
+
+                # Choose a directory
+                html.Label("Choose Directory where your file is"),
+                html.Br(),
+                dbc.Button("Select folder",
+                           id="browse_directory_analyze_vivo",
+                           className="mr-2", style={"width": "150px"},),
+                html.Div(id='directory-analyze-output-vivo', style={
+                    'margin-top': '10px'}),
+                html.Br(),
+                # Select a file inside the directory
+                # dcc.Dropdown(id='file-dropdown', options=[], placeholder="Select a file...", style={"width": "150px"},),
+                # dbc.Button('Validate file', id='select-file-btn-vivo',
+                #            className="mr-2", style={"width": "150px"},),
+                # html.Div(id='selected-file-output-vivo'),
+                # html.Br(),
+                # html.Br(),
+                # html.Br(),
+        #         dbc.Col([
+        #             html.Div([
+        #                 html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
+        #                 dcc.Input(id='dt-param', type='number', value=3),
+        #             ]),
+        #             html.Div([
+        #                 html.P("Protein length (aa)", style={"height": "auto", "margin-bottom": "auto"}),
+        #                 dcc.Input(id='prot-length-param', type='number', value=800),
+        #             ]),
+        #             html.Div([
+        #                 html.P("File name to save", style={"height": "auto", "margin-bottom": "auto"}),
+        #                 dcc.Input(id='save-results-name', type='text', value='datas_results'),
+        #             ]),
+        #             html.Br(),
+        #             # Generate Button and Spinner Side by Side
+        #             dbc.Row([
+        #                 dbc.Col([
+        #                     dbc.Button('Start Analyze Tracks', id='start-analyze-btn', className="mr-2", style={"width": "150px"},),
+        #                 ], width="auto"),
+        #
+        #                 dbc.Col([
+        #                     dbc.Spinner(
+        #                         children=[html.Div(id="loading_analysis")],
+        #                         size="sm", color="primary", type="border", spinner_style={"margin-left": "10px"}
+        #                     )
+        #                 ], width="auto"),
+        #                 html.Div(id='analyze-output'),
+        #             ], align="center", style={"margin-top": "10px"}),
+        #         ], width=3),
+            ]),
+        ]),
     ]),
 ])
 
@@ -216,7 +276,6 @@ def browse_directory_analyze(n_clicks):
         app.data['directory_analysis'] = folder_selected
         return f"Directory chosen: {app.data['directory_analysis']}"
 
-
 @app.callback(
     Output('file-dropdown', 'options'),
     Input('directory-analyze-output', 'children')
@@ -231,6 +290,7 @@ def load_csv_files(directory):
     return []
 
 
+
 @app.callback(
     Output('selected-file-output', 'children'),
     Input('select-file-btn', 'n_clicks'),
@@ -241,6 +301,26 @@ def select_file(n_clicks, selected_file):
         app.data['selected_file'] = selected_file
         return f"You selected: {selected_file}"
     raise PreventUpdate
+
+
+@app.callback(
+    Output('directory-analyze-output-vivo', 'children'),
+    Input('browse_directory_analyze_vivo', 'n_clicks'),
+)
+def browse_directory_analyze_vivo(n_clicks):
+    if n_clicks:
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        folder_selected = filedialog.askdirectory()
+        root.destroy()
+        if folder_selected:
+            print(folder_selected)
+        else:
+            print(None)
+        app.data['directory_analysis_vivo'] = folder_selected
+        return f"Directory chosen: {app.data['directory_analysis_vivo']}"
+
 
 
 @app.callback(
@@ -259,33 +339,45 @@ def update_profile_plot(n_clicks, *params):
     if n_clicks:
         try:
             # Generate profile
-            x, y = generate_profile(*map(float, params[:7]), params[7])
+            x,y = generate_profile(float(params[0]),
+                                     float(params[1]),
+                                     float(params[2]),
+                                     float(params[3]),
+                                     float(params[4]),
+                                     float(params[6]),
+                                     params[7])
             # Create the figure
-            figure = make_subplots(rows=2, cols=1, subplot_titles=('One protein fluo profile',  'One track fluo profile'))
+            figure = make_subplots(rows=3,
+                                   cols=1,
+                                   subplot_titles=('One protein fluo profile',
+                                                   'One track fluo profile',
+                                                   'Number of translation'))
             figure.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Profile'),row=1, col=1)
             figure.update_xaxes(title_text='Time', row=1, col=1)
             figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
-            if params[7] == "begin":
-                suntag_pos = 0
-            else:
-                suntag_pos = -1
-            x, y, _ = generate_track(float(params[0]),
+            x, y, y_number = generate_track(float(params[0]),
                                      float(params[1]),
                                      float(params[2]),
                                      float(params[3]),
                                      float(params[4]),
                                      float(params[5]),
                                      float(params[6]),
-                                     suntag_pos)
+                                     params[7])
 
             figure.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Profile'), row=2, col=1)
             figure.update_xaxes(title_text='Time', row=2, col=1)
             figure.update_yaxes(title_text='Fluorescence', row=2, col=1)
 
+            figure.add_trace(go.Scatter(x=x, y=y_number, mode='lines',
+                                        name='Profile'), row=3, col=1)
+            figure.update_xaxes(title_text='Time', row=3, col=1)
+            figure.update_yaxes(title_text='Number of translation', row=3,
+                                col=1)
             figure.update_layout(width=1000, height=800,)
             return figure
         except Exception as e:
+            print(e)
             return {
                 'data': [],
                 'layout': go.Layout(title='Error', xaxis={'title': 'Time'}, yaxis={'title': 'Fluorescence'})
@@ -313,10 +405,6 @@ def start_generate_tracks(n_clicks, *params):
         try:
             # Generate all tracks and save it
             first_time = True
-            if params[7] == "begin":
-                suntag_pos = 0
-            else:
-                suntag_pos = -1
 
             for i in range(int(params[8])):
                 x_global, y_global, y_start_prot = generate_track(float(params[0]),
@@ -326,7 +414,7 @@ def start_generate_tracks(n_clicks, *params):
                                                                  float(params[4]),
                                                                  float(params[5]),
                                                                  float(params[6]),
-                                                                 suntag_pos)
+                                                                 params[7])
                 if first_time:
                     datas = pd.DataFrame({"FRAME": x_global,
                                           "MEAN_INTENSITY_CH1": y_global,
