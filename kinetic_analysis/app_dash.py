@@ -18,10 +18,6 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_function import (generate_profile,
-                              generate_track,
-                              single_track_analysis)
-
 from tab_generate_track import layout as tab1_layout
 from tab_generate_track import register_callbacks as tab1_callbacks
 
