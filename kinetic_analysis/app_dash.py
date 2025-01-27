@@ -200,8 +200,22 @@ app.layout = dbc.Container([
                         # Select a file inside the directory
                         dcc.Dropdown(id='file-dropdown-vivo', options=[],
                                      placeholder="Select a file...", style={"width": "150px"},),
-                        dbc.Button('Validate file', id='select-file-btn-vivo',
-                                   className="mr-2", style={"width": "150px"},),
+                        html.Br(),
+                        dbc.Row([
+                            dbc.Col([
+                                dbc.Button('Validate file', id='select-file-btn-vivo',
+                                           className="mr-2", style={"width": "150px"},),
+                            ], width="auto"),
+                            dbc.Col([
+                                    dbc.Spinner(
+                                        children=[html.Div(id="loading_data_vivo")],
+                                        size="sm",
+                                        color="primary",
+                                        type="border",
+                                        spinner_style={"margin-left": "10px"}
+                                    )
+                                ], width="auto"),
+                        ]),
                         html.Div(id='selected-file-output-vivo'),
                     ]),
                 ], width=3),
@@ -264,7 +278,8 @@ app.layout = dbc.Container([
                 html.Br(),
                 dbc.Col([
                     html.Div([
-                    html.P("dt", style={"height": "auto", "margin-bottom": "auto"}),
+                    html.P("dt (sec)", style={"height": "auto",
+                                             "margin-bottom": "auto"}),
                     dcc.Input(id='dt-param-vivo', type='number', value=3),
                     ]),
                 ]),
@@ -412,6 +427,7 @@ def load_csv_files(directory):
 @app.callback(
     Output('selected-file-output-vivo', 'children'),
     Output("table-container", "children"),
+    Output('loading_data_vivo', 'children'),
     Input('select-file-btn-vivo', 'n_clicks'),
     State('file-dropdown-vivo', 'value')
 )
@@ -428,7 +444,7 @@ def select_file(n_clicks, selected_file):
                 dash_table.DataTable(
                     data=first_10_rows.to_dict('records'),
                     columns=[{"name": i, "id": i} for i in first_10_rows.columns]
-                ))
+                ), None)
     raise PreventUpdate
 
 
