@@ -18,11 +18,11 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_function import (generate_profile,
+from .kinetic_function import (generate_profile,
                               generate_track,
                               single_track_analysis)
 
-from app_function import (list_csv_files,
+from .app_function import (list_csv_files,
                           browse_directory)
 
 def layout():

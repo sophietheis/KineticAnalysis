@@ -18,14 +18,14 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from tab_generate_track import layout as tab1_layout
-from tab_generate_track import register_callbacks as tab1_callbacks
+from tabs.tab_generate_track import layout as tab1_layout
+from tabs.tab_generate_track import register_callbacks as tab1_callbacks
 
-from tab_analyse_simu import layout as tab2_layout
-from tab_analyse_simu import register_callbacks as tab2_callbacks
+from tabs.tab_analyse_simu import layout as tab2_layout
+from tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
 
-from tab_analyse_invivo import layout as tab3_layout
-from tab_analyse_invivo import register_callbacks as tab3_callbacks
+from tabs.tab_analyse_invivo import layout as tab3_layout
+from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
