@@ -22,6 +22,9 @@ from kinetic_function import (generate_profile,
                               generate_track,
                               single_track_analysis)
 
+from app_function import (list_csv_files,
+                          browse_directory)
+
 def layout():
     return(
         # Analyse track in vivo tab
@@ -183,32 +186,16 @@ def register_callbacks(app):
         Input('browse_directory_analyze_vivo', 'n_clicks'),
     )
     def browse_directory_analyze_vivo(n_clicks):
-        if n_clicks:
-            root = tk.Tk()
-            root.withdraw()
-            root.attributes('-topmost', True)
-            folder_selected = filedialog.askdirectory()
-            root.destroy()
-            if folder_selected:
-                print(folder_selected)
-            else:
-                print(None)
-            app.data['directory_analysis_vivo'] = folder_selected
-            return f"Directory chosen: {app.data['directory_analysis_vivo']}"
+        return browse_directory(n_clicks, 'directory_analysis_vivo', app)
+
 
     @app.callback(
         Output('file-dropdown-vivo', 'options'),
         Input('directory-analyze-output-vivo', 'children')
     )
-    def load_csv_files(directory):
-        if app.data['directory_analysis_vivo']:
-            app.data['csv_files'] = [
-                {'label': file, 'value': file}
-                for file in os.listdir(app.data['directory_analysis_vivo']) if
-                file.endswith('.csv')
-            ]
-            return app.data['csv_files']
-        return []
+    def load_csv_file_vivo(directory):
+        return list_csv_files(directory, 'directory_analysis_vivo', app)
+
 
     @app.callback(
         Output('selected-file-output-vivo', 'children'),

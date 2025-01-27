@@ -22,14 +22,14 @@ from kinetic_function import (generate_profile,
                               generate_track,
                               single_track_analysis)
 
+from app_function import (browse_directory)
 
-# Generate track tab
 def layout():
     return(html.Div([
         dbc.Row([
                 html.Label("Choose Directory to Store Output"),
                 html.Br(),
-                dbc.Button("Select folder", id="add", className="mr-2",
+                dbc.Button("Select folder", id="select_directory", className="mr-2",
                            style={"width": "150px"}, ),
                 html.Div(id='directory-output', style={'margin-top': '10px'}),
                 html.Br(),
@@ -139,25 +139,17 @@ def layout():
         ]),
    )
 
+## Callbacks
 def register_callbacks(app):
     @app.callback(
         Output("directory-output", "children"),
-        [Input("add", "n_clicks")],
+        [Input("select_directory", "n_clicks")],
     )
-    def add(n_clicks):
-        if n_clicks :
-            root = tk.Tk()
-            root.withdraw()
-            root.attributes('-topmost', True)
-            folder_selected = filedialog.askdirectory()
-            root.destroy()
-            if folder_selected:
-                print(folder_selected)
-            else:
-                print(None)
-            app.data['directory_generation'] = folder_selected
-            return f"Directory chosen: {app.data['directory_generation']}"
-
+    def select_directory(n_clicks):
+        """
+        Select the directory in which to save the file.
+        """
+        return browse_directory(n_clicks, 'directory_generation', app)
 
 
 
@@ -174,6 +166,9 @@ def register_callbacks(app):
         State('param8', 'value'),
     )
     def update_profile_plot(n_clicks, *params):
+        """
+        This function generate and plot an example for the simulation.
+        """
         if n_clicks:
             try:
                 # Generate profile
@@ -190,10 +185,17 @@ def register_callbacks(app):
                                        subplot_titles=('One protein fluo profile',
                                                        'One track fluo profile',
                                                        'Number of translation'))
-                figure.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Profile'),row=1, col=1)
+
+                # Plot one protein profile
+                figure.add_trace(go.Scatter(x=x, y=y,
+                                            mode='lines',
+                                            name='Profile one prot'),
+                                 row=1,
+                                 col=1)
                 figure.update_xaxes(title_text='Time', row=1, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
+                # Generate one track
                 x, y, y_number = generate_track(float(params[0]),
                                          float(params[1]),
                                          float(params[2]),
@@ -203,17 +205,29 @@ def register_callbacks(app):
                                          float(params[6]),
                                          params[7])
 
-                figure.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Profile'), row=2, col=1)
+                # Plot one track
+                figure.add_trace(go.Scatter(x=x, y=y,
+                                            mode='lines',
+                                            name='Profile track'),
+                                 row=2,
+                                 col=1)
                 figure.update_xaxes(title_text='Time', row=2, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=2, col=1)
 
-                figure.add_trace(go.Scatter(x=x, y=y_number, mode='lines',
-                                            name='Profile'), row=3, col=1)
+                # Plot number of translation
+                figure.add_trace(go.Scatter(x=x, y=y_number,
+                                            mode='lines',
+                                            name='Profile track'),
+                                 row=3,
+                                 col=1)
                 figure.update_xaxes(title_text='Time', row=3, col=1)
                 figure.update_yaxes(title_text='Number of translation', row=3,
                                     col=1)
+
+
                 figure.update_layout(width=1000, height=800,)
                 return figure
+
             except Exception as e:
                 print(e)
                 return {

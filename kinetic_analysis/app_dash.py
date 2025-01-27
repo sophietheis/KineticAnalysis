@@ -48,19 +48,14 @@ app.data = {
 
 app.layout = dbc.Container([
     html.H1("Kinetic Analysis"),
-    html.P("This tool is made to estimate the kinetic parameters of translation (initiation rate and elongation rate). "),
+    html.P("This tool is made to estimate the kinetic parameters of translation"
+           " (initiation rate and elongation rate). "),
     html.P("You can find different tabs: "),
     html.Li("Track generator: generate tracks to test parameters"),
-    html.Li("Track analysis simulation : analyse tracks simulation"),
+    html.Li("Track analysis simulation : analyse tracks from simulation"),
     html.Li("Track analysis in vivo : analyse tracks from in vivo "
             "experiments"),
     html.Br(),
-    # dcc.Tabs(id='tabs', value='tab-1', children=[
-    #     dcc.Tab(label='Generate tracks', value='tab-1'),
-    #     dcc.Tab(label='Analyse tracks simu', value='tab-2'),
-    #     dcc.Tab(label='Analyse tracks in vivo', value='tab-3'),
-    # ]),
-    # html.Div(id='tabs-content'),
 
     dbc.Tabs(id='tabs', active_tab='tab-1', children=[
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
