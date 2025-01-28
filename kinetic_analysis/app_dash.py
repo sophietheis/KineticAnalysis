@@ -27,7 +27,6 @@ from tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
 from tabs.tab_analyse_invivo import layout as tab3_layout
 from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
-
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 app.title = "Kinetic analysis app"
 
@@ -41,11 +40,11 @@ app.data = {
     'selected_file': None,
 }
 
-
 app.layout = dbc.Container([
     html.H1("Kinetic Analysis"),
-    html.P("This tool is made to estimate the kinetic parameters of translation"
-           " (initiation rate and elongation rate). "),
+    html.P(
+        "This tool is made to estimate the kinetic parameters of translation"
+        " (initiation rate and elongation rate). "),
     html.P("You can find different tabs: "),
     html.Li("Track generator: generate tracks to test parameters"),
     html.Li("Track analysis simulation : analyse tracks from simulation"),
@@ -61,6 +60,7 @@ app.layout = dbc.Container([
     html.Div(id='tabs-content')
 ])
 
+
 @app.callback(
     Output('tabs-content', 'children'),
     Input('tabs', 'active_tab')
@@ -73,16 +73,16 @@ def render_content(tab):
     elif tab == 'tab-3':
         return tab3_layout()
 
+
 # Register callbacks
 tab1_callbacks(app)
 tab2_callbacks(app)
 tab3_callbacks(app)
 
 
-
-
 def run_app():
     app.run_server(debug=False, port=8080)
+
 
 if __name__ == '__main__':
     # app.run_server(debug=True, port=8080)
@@ -90,8 +90,8 @@ if __name__ == '__main__':
     t.daemon = True
     t.start()
 
-    window = webview.create_window('Kinetic analysis', 'http://127.0.0.1:8080/',
+    window = webview.create_window('Kinetic analysis',
+                                   'http://127.0.0.1:8080/',
                                    width=1800, height=1000,
-)
+                                   )
     webview.start(debug=False)
-
