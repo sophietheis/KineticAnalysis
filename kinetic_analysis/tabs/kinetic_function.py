@@ -70,6 +70,22 @@ def fit_function(x, t, c):
 
 import sympy as sp
 
+def validate_equation(equation):
+    # Define symbols
+    x, t, c = sp.symbols("x t c")
+    try:
+        # Sympify using sympy's full namespace
+        expr = sp.sympify(equation, locals=sp.__dict__)
+
+        # Convert the sympy expression to a callable function
+        func_ = sp.lambdify((x, t, c), expr, modules=["numpy"])
+    except (sp.SympifyError, SyntaxError) as e:
+        return False, f"Error parsing the equation: {e}"
+
+    except Exception as e:
+        return False, f"An unexpected error occurred: {e}"
+
+    return True, ""
 
 def fit_function_string(equation):
     # Define symbols

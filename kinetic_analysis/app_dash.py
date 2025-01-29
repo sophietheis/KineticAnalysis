@@ -28,7 +28,8 @@ from tabs.tab_analyse_invivo import layout as tab3_layout
 from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME])
+app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
+           )
 app.title = "Kinetic analysis app"
 
 # Global variables to store states
@@ -53,7 +54,7 @@ app.layout = dbc.Container([
             "experiments"),
     html.Br(),
 
-    dbc.Tabs(id='tabs', active_tab='tab-1', children=[
+    dbc.Tabs(id='tabs', active_tab='tab-3', children=[
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
         dbc.Tab(label="Analyse tracks simu", tab_id="tab-2"),
         dbc.Tab(label="Analyse tracks in vivo", tab_id="tab-3"),

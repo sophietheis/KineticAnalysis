@@ -215,6 +215,7 @@ def layout():
                 html.Div(id='gen-tracks-output'),
             ], width=3),
 
+            # Show plot profile
             dbc.Col([
                 dbc.Button('Show Profile', id='show-profile-btn',
                            className="mr-1"),
