@@ -28,6 +28,21 @@ from .app_function import (browse_directory)
 
 def layout():
     return (html.Div([
+        # Explanation at the begining of the page
+        dbc.Row([
+            html.P([
+                "In this tab, you will be able to generate tracks according "
+                "to a set of parameters. By default, tracks are make with a "
+                "time step of 0.1sec. ",
+                html.Br(),
+                "You can see the fluorescence profile according to the "
+                "parameters below. ",
+                html.Br(),
+                "When happy you can generate a csv file with all the "
+                "tracks."]),
+            html.Br(),
+        ]),
+        # Choose directory
         dbc.Row([
             html.Label("Choose Directory to Store Output"),
             html.Br(),
@@ -36,59 +51,120 @@ def layout():
                        style={"width": "150px"}, ),
             html.Div(id='directory-output', style={'margin-top': '10px'}),
             html.Br(),
-            html.Br(),
+        ]),
+        # Define parameter of the simulation
+        dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.P("Protein length (aa)", style={"height": "auto",
-                                                         "margin-bottom": "auto"}),
+                    html.P(["Protein length (aa) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param1",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}
+                           ),
+                    dbc.Tooltip("Length of the protein in amino acid. This "
+                                "value will be added to suntag length.",
+                                target="faq_param1"),
                     dcc.Input(id='param1', type='number', value=490,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Suntag length (aa)", style={"height": "auto",
-                                                        "margin-bottom": "auto"}),
+                    html.P(["Suntag length (aa) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param2",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Length of the suntag in amino acid. This "
+                                "value will be added to protein length.",
+                                target="faq_param2"),
                     dcc.Input(id='param2', type='number', value=796,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Number of suntag", style={"height": "auto",
-                                                      "margin-bottom": "auto"}),
+                    html.P(["Number of suntag ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param3",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Number of suntag repetition",
+                                target="faq_param3"),
                     dcc.Input(id='param3', type='number', value=32,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Fluorescence one suntag",
+                    html.P(["Fluorescence one suntag ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param4",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
+                    dbc.Tooltip("Fluorescence of one suntag, use as "
+                                "reference for fluorescence profile.",
+                                target="faq_param4"),
                     dcc.Input(id='param4', type='number', value=4,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Translation rate (aa/sec)", style={"height":
-                                                                   "auto",
-                                                               "margin-bottom": "auto"}),
+                    html.P(["Translation rate (aa/sec) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param5",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height":
+                                      "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Translation rate.",
+                                target="faq_param5"),
                     dcc.Input(id='param5', type='number', value=24,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Initiation rate (ribosome/sec)", style={
-                        "height":
-                            "auto",
-                        "margin-bottom": "auto"}),
+                    html.P(["Initiation rate (ribosome/sec) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param6",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={
+                               "height":
+                                   "auto",
+                               "margin-bottom": "auto"}),
+                    dbc.Tooltip("Initiation rate.",
+                                target="faq_param6"),
                     dcc.Input(id='param6', type='number', value=1,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Retention time (sec)", style={"height":
-                                                              "auto",
-                                                          "margin-bottom": "auto"}),
+                    html.P(["Retention time (sec) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param7",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height":
+                                      "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Protein stay at the RNA for some time",
+                                target="faq_param7"),
                     dcc.Input(id='param7', type='number', value=0,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("Suntag position (begin or end)",
+                    html.P(["Suntag position (begin or end) ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param8",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
+                    dbc.Tooltip("Choose if Suntag is before or after the "
+                                "protein.",
+                                target="faq_param8"),
                     dcc.Dropdown(id='param8',
                                  options=[
                                      {'label': 'Begin', 'value': 'begin'},
@@ -101,8 +177,15 @@ def layout():
                                  ),
                 ]),
                 html.Div([
-                    html.P("Number of tracks", style={"height": "auto",
-                                                      "margin-bottom": "auto"}),
+                    html.P(["Number of tracks ",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param9",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Number of tracks to be generated.",
+                                target="faq_param9"),
                     dcc.Input(id='param9', type='number', value=100,
                               style={'width': '200px'}),
                 ]),
@@ -185,9 +268,9 @@ def register_callbacks(app):
                 figure = make_subplots(rows=3,
                                        cols=1,
                                        subplot_titles=(
-                                       'One protein fluo profile',
-                                       'One track fluo profile',
-                                       'Number of translation'))
+                                           'One protein fluo profile',
+                                           'One track fluo profile',
+                                           'Number of translation'))
 
                 # Plot one protein profile
                 figure.add_trace(go.Scatter(x=x, y=y,
@@ -200,13 +283,13 @@ def register_callbacks(app):
 
                 # Generate one track
                 x, y, y_number = generate_one_track(float(params[0]),
-                                                float(params[1]),
-                                                float(params[2]),
-                                                float(params[3]),
-                                                float(params[4]),
-                                                float(params[5]),
-                                                float(params[6]),
-                                                params[7])
+                                                    float(params[1]),
+                                                    float(params[2]),
+                                                    float(params[3]),
+                                                    float(params[4]),
+                                                    float(params[5]),
+                                                    float(params[6]),
+                                                    params[7])
 
                 # Plot one track
                 figure.add_trace(go.Scatter(x=x, y=y,

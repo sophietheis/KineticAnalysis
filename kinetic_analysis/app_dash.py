@@ -27,7 +27,8 @@ from tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
 from tabs.tab_analyse_invivo import layout as tab3_layout
 from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
+FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
+app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME])
 app.title = "Kinetic analysis app"
 
 # Global variables to store states
