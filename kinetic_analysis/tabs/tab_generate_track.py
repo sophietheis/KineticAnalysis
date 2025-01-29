@@ -211,7 +211,6 @@ def layout():
                         )
                     ], width="auto"),
                 ], align="center", style={"margin-top": "10px"}),
-
                 html.Div(id='gen-tracks-output'),
             ], width=3),
 

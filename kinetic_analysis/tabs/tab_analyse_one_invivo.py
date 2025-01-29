@@ -35,28 +35,28 @@ def layout():
                     html.Label("Choose Directory where your file is"),
                     html.Br(),
                     dbc.Button("Select folder",
-                               id="browse_directory_analyze_vivo",
+                               id="browse_directory_analyze_vivo2",
                                className="mr-2",
                                style={"width": "150px"}, ),
-                    html.Div(id='directory-analyze-output-vivo', style={
+                    html.Div(id='directory-analyze-output-vivo2', style={
                         'margin-top': '10px'}),
                     html.Br(),
                     # Select a file inside the directory
-                    dcc.Dropdown(id='file-dropdown-vivo', options=[],
+                    dcc.Dropdown(id='file-dropdown-vivo2', options=[],
                                  placeholder="Select a file...",
                                  style={"width": "150px"}, ),
                     html.Br(),
                     dbc.Row([
                         dbc.Col([
                             dbc.Button('Validate file',
-                                       id='select-file-btn-vivo',
+                                       id='select-file-btn-vivo2',
                                        className="mr-2",
                                        style={"width": "150px"}, ),
                         ], width="auto"),
                         dbc.Col([
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_vivo")],
+                                    html.Div(id="loading_data_vivo2")],
                                 size="sm",
                                 color="primary",
                                 type="border",
@@ -64,12 +64,12 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-vivo'),
+                    html.Div(id='selected-file-output-vivo2'),
                 ]),
             ], width=3),
             dbc.Col([
                 html.Label("DataFrame Visualisation"),
-                html.Div(id="table-container", children=[]),
+                html.Div(id="table-container2", children=[]),
             ], width=5)
         ]),
         dbc.Row([
@@ -87,7 +87,7 @@ def layout():
                     html.P("Track ID column",
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dcc.Input(id='col_track',
+                    dcc.Input(id='col_track2',
                               type='text',
                               value="TRACK_ID",
                               style={'width': '200px'}),
@@ -98,7 +98,7 @@ def layout():
                     html.P("Time column",
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dcc.Input(id='col_time',
+                    dcc.Input(id='col_time2',
                               type='text',
                               value="FRAME",
                               style={'width': '200px'}),
@@ -109,7 +109,7 @@ def layout():
                     html.P("Intensity column",
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dcc.Input(id='col_intensity',
+                    dcc.Input(id='col_intensity2',
                               type='text',
                               value="MEAN_INTENSITY_CH1",
                               style={'width': '200px'}),
@@ -130,7 +130,7 @@ def layout():
                              $$ \\frac{T - x}{cT^2} 
                              H(T - x), $$
                              where $$c$$ is the initiation rate, and $$T$$ is the residence time. 
-                             
+
                              $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the 
                              elongation rate. 
                             ''',
@@ -151,7 +151,7 @@ def layout():
                          target="faq_equation"),
                      dbc.Row([
                          dbc.Col([
-                             dbc.Input(id='equation', type='string', value="",
+                             dbc.Input(id='equation2', type='string', value="",
                                        style={'width': '300px'}),
                              dbc.FormFeedback('Valid equation input!',
                                               type='valid'),
@@ -160,7 +160,7 @@ def layout():
                          ], width=3),
                          dbc.Col([
                              dbc.Button('Valid equation',
-                                        id='submit-button-equation',
+                                        id='submit-button-equation2',
                                         className="mr-2",
                                         style={"width": "150px"}, ),
                          ], width=3),
@@ -181,23 +181,25 @@ def layout():
                 html.Div([
                     html.P("dt (sec)", style={"height": "auto",
                                               "margin-bottom": "auto"}),
-                    dcc.Input(id='dt-param-vivo', type='number', value=3),
+                    dcc.Input(id='dt-param-vivo2', type='number', value=3),
                 ]),
             ]),
             dbc.Col([
                 html.Div([
                     html.P("Protein length (aa)", style={"height": "auto",
                                                          "margin-bottom": "auto"}),
-                    dcc.Input(id='prot-length-param-vivo', type='number',
+                    dcc.Input(id='prot-length-param-vivo2', type='number',
                               value=800),
                 ]),
             ]),
             dbc.Col([
                 html.Div([
-                    html.P("File name to save", style={"height": "auto",
-                                                       "margin-bottom": "auto"}),
-                    dcc.Input(id='save-results-name-vivo', type='text',
-                              value='datas_results'),
+                    html.P("id of the track to analyse",
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dcc.Input(id='id_track2',
+                              type='number',
+                              value=0),
                 ]),
             ]),
             html.Br(),
@@ -208,53 +210,54 @@ def layout():
         ]),
         # Generate Button and Spinner Side by Side
         dbc.Row([
-            html.Br(),
-            html.Br(),
             dbc.Col([
-                dbc.Button('Start Analyse Tracks',
-                           id='start-analyze-btn-vivo',
-                           className="mr-2",
-                           style={"width": "300px"}, ),
+                dbc.Button('Analyse and show one track',
+                           id='analyse_show_button2'),
             ], width="auto"),
 
             dbc.Col([
                 dbc.Spinner(
-                    children=[html.Div(id="loading_analysis_vivo")],
-                    size="sm",
-                    color="primary",
-                    type="border",
+                    children=[html.Div(id="loading_track_plot")],
+                    size="sm", color="primary", type="border",
                     spinner_style={"margin-left": "10px"}
                 )
             ], width="auto"),
-            html.Div(id='analyze-output-vivo'),
-        ])
-
+        ], align="center", style={"margin-top": "10px"}),
+        html.Div(id='loading_output1'),
+        html.Div(id='loading_output2'),
+        dbc.Row([
+            dcc.Graph(id='plot_results'),
+        ]),
+        dbc.Row([
+            html.Br(),
+            html.Br(),
+        ]),
     )
 
 
 def register_callbacks(app):
     @app.callback(
-        Output('directory-analyze-output-vivo', 'children'),
-        Input('browse_directory_analyze_vivo', 'n_clicks'),
+        Output('directory-analyze-output-vivo2', 'children'),
+        Input('browse_directory_analyze_vivo2', 'n_clicks'),
     )
-    def browse_directory_analyze_vivo(n_clicks):
+    def browse_directory_analyze_vivo2(n_clicks):
         return browse_directory(n_clicks, 'directory_analysis_vivo', app)
 
     @app.callback(
-        Output('file-dropdown-vivo', 'options'),
-        Input('directory-analyze-output-vivo', 'children')
+        Output('file-dropdown-vivo2', 'options'),
+        Input('directory-analyze-output-vivo2', 'children')
     )
-    def load_csv_file_vivo(directory):
+    def load_csv_file_vivo2(directory):
         return list_csv_files(directory, 'directory_analysis_vivo', app)
 
     @app.callback(
-        Output('selected-file-output-vivo', 'children'),
-        Output("table-container", "children"),
-        Output('loading_data_vivo', 'children'),
-        Input('select-file-btn-vivo', 'n_clicks'),
-        State('file-dropdown-vivo', 'value')
+        Output('selected-file-output-vivo2', 'children'),
+        Output("table-container2", "children"),
+        Output('loading_data_vivo2', 'children'),
+        Input('select-file-btn-vivo2', 'n_clicks'),
+        State('file-dropdown-vivo2', 'value')
     )
-    def select_file(n_clicks, selected_file):
+    def select_file2(n_clicks, selected_file):
         if n_clicks and selected_file:
             app.data['selected_file_vivo'] = selected_file
             df = pd.read_csv(
@@ -272,14 +275,14 @@ def register_callbacks(app):
         raise PreventUpdate
 
     @app.callback(
-        Output('equation', 'valid'),
-        Output('equation', 'invalid'),
-        Input('submit-button-equation', 'n_clicks'),
-        Input('equation', 'value')
+        Output('equation2', 'valid'),
+        Output('equation2', 'invalid'),
+        Input('submit-button-equation2', 'n_clicks'),
+        State('equation', 'value')
     )
-    def validate_input(n_clicks, value):
-        if n_clicks :
-            if not value :
+    def validate_input2(n_clicks, value):
+        if n_clicks:
+            if not value:
                 return False, False
             v_bool, v_message = validate_equation(value)
             if value and v_bool:
@@ -288,20 +291,28 @@ def register_callbacks(app):
                 return False, True
         return False, False
 
+
     @app.callback(
-        Output('analyze-output-vivo', 'children'),
-        Output('loading_analysis_vivo', 'children'),
-        Input('start-analyze-btn-vivo', 'n_clicks'),
-        State('file-dropdown-vivo', 'value'),
-        State('col_track', 'value'),
-        State('col_time', 'value'),
-        State('col_intensity', 'value'),
-        State('dt-param-vivo', 'value'),
-        State('prot-length-param-vivo', 'value'),
-        State('save-results-name-vivo', 'value'),
-        State('equation', 'value'),
+        Output('plot_results', 'figure'),
+        Output('loading_output1', 'children'),
+        Output('loading_output2', 'children'),
+        Output('loading_track_plot', 'children'),
+        Input('analyse_show_button2', 'n_clicks'),
+        State('file-dropdown-vivo2', 'value'),
+        State('col_track2', 'value'),
+        State('col_time2', 'value'),
+        State('col_intensity2', 'value'),
+        State('dt-param-vivo2', 'value'),
+        State('prot-length-param-vivo2', 'value'),
+        State('id_track2', 'value'),
+        State('equation2', 'value'),
     )
-    def start_analyze_tracks(n_clicks, filename, *params):
+    def analyse_display_track(n_clicks,filename, *params):
+        figure = make_subplots(rows=2,
+                               cols=1,
+                               subplot_titles=["track profile",
+                                               "autocorrelation",
+                                               ])
         if n_clicks:
             try:
                 # Read csv file
@@ -309,6 +320,7 @@ def register_callbacks(app):
                                                      'directory_analysis_vivo'],
                                                  filename),
                                     index_col="Unnamed: 0")
+
                 datas.rename(columns={params[0]: 'TRACK_ID',
                                       params[1]: 'FRAME',
                                       params[2]: 'MEAN_INTENSITY_CH1',
@@ -317,55 +329,61 @@ def register_callbacks(app):
                 dt = float(params[3])
                 t = dt / 0.1
                 prot_length = float(params[4])
-                nb_track = len(np.unique(datas["TRACK_ID"]))
+                datas2 = datas[(datas["TRACK_ID"] == int(params[5]))][::int(t)]
+                (x,
+                 y,
+                 x_auto,
+                 y_auto,
+                 elongation_r,
+                 translation_init_r,
+                 perr) = single_track_analysis(datas2,
+                                               int(params[5]),
+                                               delta_t=dt,
+                                               protein_size=prot_length,
+                                               normalise_intensity=1,
+                                               normalise_auto=True,
+                                               mm=None,
+                                               lowpass_=False,
+                                               cutoff=100,
+                                               rtol=1e-1,
+                                               method="linear",
+                                               force_analysis=True,
+                                               first_dot=True,
+                                               simulation=False)
 
-                first_time = True
-                # Analyse all tracks and save it
-                for i in range(nb_track):
-                    datas2 = datas[(datas["TRACK_ID"] == i)][::int(t)]
 
-                    (x,
-                     y,
-                     x_auto,
-                     y_auto,
-                     elongation_r,
-                     translation_init_r,
-                     perr) = single_track_analysis(datas2,
-                                                   i,
-                                                   delta_t=dt,
-                                                   protein_size=prot_length,
-                                                   normalise_intensity=1,
-                                                   normalise_auto=True,
-                                                   mm=None,
-                                                   lowpass_=False,
-                                                   cutoff=100,
-                                                   rtol=1e-1,
-                                                   method="linear",
-                                                   force_analysis=True,
-                                                   first_dot=True,
-                                                   simulation=False)
-                    if first_time:
-                        results = pd.DataFrame({"elongation_r": elongation_r,
-                                                "init_translation_r": translation_init_r,
-                                                "dt": dt,
-                                                "id": i, },
-                                               index=[0])
-                        first_time = False
+                # plot track profile
+                figure.add_trace(go.Scatter(x=x,
+                                            y=y,
+                                            mode="lines",),
+                                            row=1,
+                                            col=1)
+                figure.update_xaxes(title_text='Time', row=1, col=1)
+                figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
-                    else:
-                        results = pd.concat([results,
-                                             pd.DataFrame(
-                                                 {"elongation_r": elongation_r,
-                                                  "init_translation_r": translation_init_r,
-                                                  "dt": dt,
-                                                  "id": i, }, index=[0])
-                                             ], ignore_index=True)
+                # plot track profile
+                figure.add_trace(go.Scatter(x=x_auto,
+                                            y=y_auto,
+                                            mode="lines",),
+                                            row=2,
+                                            col=1),
+                figure.update_xaxes(title_text='Time delay (tau)',
+                                    row=2,
+                                    col=1)
+                figure.update_yaxes(title_text='G(tau)', row=2, col=1)
+                figure.update_layout(width=1000, height=800, )
 
-                results.to_csv(
-                    os.path.join(app.data['directory_analysis_vivo'],
-                                 params[5] + ".csv"))
-
-                return "Analysis completed and saved successfully!", None
+                str_output1 = (f"elongation rate: "
+                              f"{elongation_r:.2f} aa/sec ")
+                str_output2 = (f"initiation rate: "
+                              f"{translation_init_r:.2f} rib/sec")
+                return figure, str_output1, str_output2, None
             except Exception as e:
-                return f"Error: {str(e)}", None
-        raise PreventUpdate
+                print(e)
+                return {
+                    'data': [],
+                    'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
+                                        yaxis={'title': 'Fluorescence'})
+                }, str(e), None
+            raise PreventUpdate
+        return figure, "", None

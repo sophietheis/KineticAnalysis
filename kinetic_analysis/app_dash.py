@@ -27,6 +27,9 @@ from tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
 from tabs.tab_analyse_invivo import layout as tab3_layout
 from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
+from tabs.tab_analyse_one_invivo import layout as tab4_layout
+from tabs.tab_analyse_one_invivo import register_callbacks as tab4_callbacks
+
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
            )
@@ -54,11 +57,14 @@ app.layout = dbc.Container([
             "experiments"),
     html.Br(),
 
-    dbc.Tabs(id='tabs', active_tab='tab-3', children=[
+    dbc.Tabs(children=[
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
         dbc.Tab(label="Analyse tracks simu", tab_id="tab-2"),
         dbc.Tab(label="Analyse tracks in vivo", tab_id="tab-3"),
-    ]),
+        dbc.Tab(label="Analyse one track in vivo - display", tab_id="tab-4"),
+    ],
+        id='tabs',
+        active_tab='tab-4'),
     html.Div(id='tabs-content')
 ])
 
@@ -74,12 +80,15 @@ def render_content(tab):
         return tab2_layout()
     elif tab == 'tab-3':
         return tab3_layout()
+    elif tab == 'tab-4':
+        return tab4_layout()
 
 
 # Register callbacks
 tab1_callbacks(app)
 tab2_callbacks(app)
 tab3_callbacks(app)
+tab4_callbacks(app)
 
 
 def run_app():
