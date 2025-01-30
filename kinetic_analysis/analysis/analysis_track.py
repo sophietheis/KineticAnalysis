@@ -3,6 +3,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import sympy as sp
 
 from scipy import optimize
 import scipy.signal
@@ -68,8 +69,6 @@ def fit_function(x, t, c):
     return ((t - x) / (c * t ** 2)) * np.heaviside((t - x), 0)
 
 
-import sympy as sp
-
 def validate_equation(equation):
     # Define symbols
     x, t, c = sp.symbols("x t c")
@@ -80,12 +79,13 @@ def validate_equation(equation):
         # Convert the sympy expression to a callable function
         func_ = sp.lambdify((x, t, c), expr, modules=["numpy"])
     except (sp.SympifyError, SyntaxError) as e:
-        return False, f"Error parsing the equation: {e}"
+        return False, f"Error parsing the equation: {e}", None
 
     except Exception as e:
-        return False, f"An unexpected error occurred: {e}"
+        return False, f"An unexpected error occurred: {e}", None,
 
-    return True, ""
+    return True, "", func_
+
 
 def fit_function_string(equation):
     # Define symbols
@@ -178,13 +178,12 @@ def single_track_analysis(df,
                           normalise_intensity=1,
                           normalise_auto=True,
                           mm=None,
-                          lowpass_=False,
-                          cutoff=50,
                           rtol=1e-4,
                           method="original",
                           force_analysis=False,
                           first_dot=True,
-                          simulation=False):
+                          simulation=False,
+                          func_=fit_function):
     """
     Analysis of one track inside a dataframe.
 
@@ -207,10 +206,6 @@ def single_track_analysis(df,
     mm : int
         defines the number of points on one level, must be an even integer,
         default value : None
-    lowpass_ : bool
-        low pass filter the data, default value : False
-    cutoff : int
-        frequency for the low pass filter, default value : 50
     rtol : float
         to check if time is continuous , default value : 1e-4
     method : str
@@ -252,6 +247,7 @@ def single_track_analysis(df,
     to rename column(s).
     """
 
+    #### METTRE CETTE PREMIERE PARTIE DANS UNE FONCTION A PART
     # Extract time point and multiply by delta_t to get the real time of
     # each frame
     x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
@@ -285,11 +281,6 @@ def single_track_analysis(df,
                 warnings.warn("Analysis is forced for track " + str(id_track),
                               UserWarning)
 
-    # Apply a low pass filter
-    if lowpass_:
-        filtered = lowpass(y, cutoff, 1 / delta_t)
-        y = filtered
-
     # Perform the autocorrelation
     x_auto, y_auto = autocorrelation(y, delta_t, normalise_auto, mm)
 
@@ -299,7 +290,7 @@ def single_track_analysis(df,
          translation_init_r,
          perr) = fit_autocorrelation_original(x_auto,
                                               y_auto,
-                                              fit_function,
+                                              func_,
                                               protein_size=protein_size,
                                               first_dot=first_dot)
     elif method == "linear":
@@ -333,36 +324,3 @@ def check_continuous_time(x, dt, rtol=0.001):
     boolean, True if track is continuous, else False
     """
     return np.allclose(np.diff(x), dt, rtol=rtol)
-
-
-def lowpass(data: np.ndarray, cutoff: float, sample_rate: float,
-            poles: int = 5):
-    sos = scipy.signal.butter(poles, cutoff, 'lowpass', fs=sample_rate,
-                              output='sos')
-    filtered_data = scipy.signal.sosfiltfilt(sos, data)
-    return filtered_data
-
-
-def calculate_msd(x, y, z):
-    """
-    Calculate mean square displacement of the track.
-
-    Parameters
-    ----------
-    x : np.array
-        position in x_axis
-    y : np.array
-        position in y_axis
-    z : np.array
-        position in z_axis
-
-    Returns
-    -------
-    msd : float
-        mean square displacement value
-    """
-    r = (x ** 2 + y ** 2 + z ** 2) ** 0.5
-    diff = np.diff(r)
-    diff_sq = diff ** 2
-    msd = [np.mean(diff_sq[0:i]) for i in range(1, len(diff_sq))]
-    return msd

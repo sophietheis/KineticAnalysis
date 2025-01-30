@@ -18,7 +18,8 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from .kinetic_function import (single_track_analysis, validate_equation)
+from analysis.analysis_track import (single_track_analysis,
+                                     validate_equation)
 
 from .app_function import (list_csv_files,
                            browse_directory)

@@ -18,8 +18,6 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from .kinetic_function import (single_track_analysis)
-
 
 def browse_directory(n_clicks, col_name, app):
     if n_clicks:

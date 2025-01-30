@@ -18,7 +18,9 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from .kinetic_function import (single_track_analysis, validate_equation)
+from analysis.analysis_track import (single_track_analysis,
+                                     validate_equation,
+                                     fit_function)
 
 from .app_function import (list_csv_files,
                            browse_directory)
@@ -278,14 +280,15 @@ def register_callbacks(app):
         Output('equation2', 'valid'),
         Output('equation2', 'invalid'),
         Input('submit-button-equation2', 'n_clicks'),
-        State('equation', 'value')
+        State('equation2', 'value')
     )
     def validate_input2(n_clicks, value):
         if n_clicks:
             if not value:
                 return False, False
-            v_bool, v_message = validate_equation(value)
+            v_bool, v_message, func_ = validate_equation(value)
             if value and v_bool:
+                app.data["equation_f"] = func_
                 return True, False
             else:
                 return False, True
@@ -343,13 +346,12 @@ def register_callbacks(app):
                                                normalise_intensity=1,
                                                normalise_auto=True,
                                                mm=None,
-                                               lowpass_=False,
-                                               cutoff=100,
                                                rtol=1e-1,
                                                method="linear",
-                                               force_analysis=True,
-                                               first_dot=True,
-                                               simulation=False)
+                                               force_analysis=False,
+                                               first_dot=False,
+                                               simulation=False,
+                                               func_ = app.data["equation_f"])
 
 
                 # plot track profile
@@ -367,6 +369,15 @@ def register_callbacks(app):
                                             mode="lines",),
                                             row=2,
                                             col=1),
+
+
+                # A verifier
+                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)][::10],
+                                            y=fit_function(x_auto, prot_length/elongation_r, translation_init_r)[:int(len(x_auto)/2)][::10],
+                                            mode="lines", ),
+                                 row=2,
+                                 col=1),
+
                 figure.update_xaxes(title_text='Time delay (tau)',
                                     row=2,
                                     col=1)
@@ -377,6 +388,7 @@ def register_callbacks(app):
                               f"{elongation_r:.2f} aa/sec ")
                 str_output2 = (f"initiation rate: "
                               f"{translation_init_r:.2f} rib/sec")
+
                 return figure, str_output1, str_output2, None
             except Exception as e:
                 print(e)
@@ -384,6 +396,6 @@ def register_callbacks(app):
                     'data': [],
                     'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
                                         yaxis={'title': 'Fluorescence'})
-                }, str(e), None
+                }, str(e),"",  None
             raise PreventUpdate
-        return figure, "", None
+        return figure, "", "", None

@@ -22,7 +22,6 @@ from generator.generator_track import (generate_one_track,
                                        generate_tracks,
                                        generate_profile)
 
-from .kinetic_function import (single_track_analysis)
 from .app_function import (browse_directory)
 
 
