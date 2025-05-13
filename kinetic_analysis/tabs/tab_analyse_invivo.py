@@ -21,6 +21,8 @@ from plotly.subplots import make_subplots
 from analysis.analysis_track import (single_track_analysis,
                                      validate_equation)
 
+from utils.utils import read_csv_file
+
 from .app_function import (list_csv_files,
                            browse_directory)
 
@@ -258,10 +260,10 @@ def register_callbacks(app):
     def select_file(n_clicks, selected_file):
         if n_clicks and selected_file:
             app.data['selected_file_vivo'] = selected_file
-            df = pd.read_csv(
+            df = read_csv_file(
                 os.path.join(app.data['directory_analysis_vivo'],
-                             app.data['selected_file_vivo']),
-                index_col="Unnamed: 0")
+                             app.data['selected_file_vivo']),)
+
             first_10_rows = df.head(10)
 
             return (f"You selected: {selected_file}",
@@ -306,25 +308,23 @@ def register_callbacks(app):
         if n_clicks:
             try:
                 # Read csv file
-                datas = pd.read_csv(os.path.join(app.data[
+                df = read_csv_file(os.path.join(app.data[
                                                      'directory_analysis_vivo'],
-                                                 filename),
-                                    index_col="Unnamed: 0")
-                datas.rename(columns={params[0]: 'TRACK_ID',
-                                      params[1]: 'FRAME',
-                                      params[2]: 'MEAN_INTENSITY_CH1',
-                                      },
-                             inplace=True)
+                                                 filename))
+                df.rename(columns={params[0]: 'TRACK_ID',
+                                   params[1]: 'FRAME',
+                                   params[2]: 'MEAN_INTENSITY_CH1',
+                                  },
+                         inplace=True)
                 dt = float(params[3])
                 t = dt / 0.1
                 prot_length = float(params[4])
-                nb_track = len(np.unique(datas["TRACK_ID"]))
+                ids_track = np.unique(df["TRACK_ID"])
 
                 first_time = True
                 # Analyse all tracks and save it
-                for i in range(nb_track):
-                    datas2 = datas[(datas["TRACK_ID"] == i)][::int(t)]
-
+                for i in ids_track:
+                    datas2 = df[(df["TRACK_ID"] == i)]
                     (x,
                      y,
                      x_auto,
@@ -338,13 +338,11 @@ def register_callbacks(app):
                                                    normalise_intensity=1,
                                                    normalise_auto=True,
                                                    mm=None,
-                                                   lowpass_=False,
-                                                   cutoff=100,
                                                    rtol=1e-1,
                                                    method="linear",
-                                                   force_analysis=True,
-                                                   first_dot=True,
-                                                   simulation=False)
+                                                   force_analysis=False,
+                                                   first_dot=False,
+                                                   simulation=False,)
                     if first_time:
                         results = pd.DataFrame({"elongation_r": elongation_r,
                                                 "init_translation_r": translation_init_r,

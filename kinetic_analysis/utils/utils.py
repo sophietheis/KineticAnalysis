@@ -7,8 +7,20 @@ from scipy import optimize
 import scipy.signal
 import scipy.io.wavfile
 
-
 def read_csv_file(f):
+    """
+    Read csv file of trajectories.
+    Drop first lines.
+    Switch some type columns (turn it into numeric values)
+    """
+    datas = pd.read_csv(f,
+                        sep=None,
+                        engine="python",
+                        index_col=0)
+    return datas
+
+
+def read_csv_file_v1(f):
     """
     Read csv file of trajectories.
     Drop first lines.

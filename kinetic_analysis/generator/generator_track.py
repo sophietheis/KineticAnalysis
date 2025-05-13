@@ -13,7 +13,7 @@ def generate_profile(prot_length,
                      suntag_pos="begin",
                      step=0.1,
                      noise=False,
-                     noise_std=1):
+                     noise_std=0):
     """
     Generate fluorescence profile of one protein.
 
@@ -74,7 +74,7 @@ def generate_profile(prot_length,
     y = (nb_suntag * fluo_one_suntag) / (
             suntag_length / translation_rate) * np.arange(
         suntag_length / translation_rate,
-        step=0.1)
+        step=step)
 
     if suntag_pos == 0:
         y_prim = np.repeat(y[-1], len(x) - len(y))
@@ -97,8 +97,11 @@ def generate_one_track(prot_length,
                        binding_rate,
                        retention_time=0,
                        suntag_pos="begin",
+                       noise=False,
+                       noise_std=0,
                        step=0.1,
-                       length=6000):
+                       length=6000,
+                       ):
     """
     Generate track according to one protein translation dynamics
 
@@ -120,6 +123,10 @@ def generate_one_track(prot_length,
         length of time the protein remains on the translation site in sec
     suntag_pos : str, "begin" or "end", default "begin"
         position of the suntag, before of after the protein
+    noise : bool, default False
+        add noise to the signal
+    noise_std : float, default 1
+        std of the normal distribution
     step : float, default 0.1
         time step between two point in sec
     length : int
@@ -145,7 +152,10 @@ def generate_one_track(prot_length,
                             translation_rate,
                             retention_time,
                             suntag_pos,
-                            step)
+                            step,
+                            noise,
+                            noise_std
+                            )
 
     # global signal
     x_global = np.arange(length, step=step)
@@ -180,6 +190,8 @@ def generate_tracks(n,
                     binding_rate,
                     retention_time=0,
                     suntag_pos="begin",
+                    noise=False,
+                    noise_std=0,
                     step=0.1,
                     length=6000):
     """
@@ -205,6 +217,10 @@ def generate_tracks(n,
         length of time the protein remains on the translation site in sec
     suntag_pos : str, "begin" or "end", default "begin"
         position of the suntag, before of after the protein
+    noise : bool, default False
+        add noise to the signal
+    noise_std : float, default 1
+        std of the normal distribution
     step : float, default 0.1
         time step between two point in sec
     length : int
@@ -233,7 +249,10 @@ def generate_tracks(n,
                                                               translation_rate,
                                                               binding_rate,
                                                               retention_time,
-                                                              suntag_pos, step,
+                                                              suntag_pos,
+                                                              noise,
+                                                              noise_std,
+                                                              step,
                                                               length)
         if first_time:
             datas = pd.DataFrame({"FRAME": x_global,

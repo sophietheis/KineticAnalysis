@@ -57,7 +57,7 @@ def layout():
                 html.Div([
                     html.P(["Protein length (aa) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param1",
+                                      id="faq_param_prot_length",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
@@ -65,69 +65,69 @@ def layout():
                            ),
                     dbc.Tooltip("Length of the protein in amino acid. This "
                                 "value will be added to suntag length.",
-                                target="faq_param1"),
-                    dcc.Input(id='param1', type='number', value=490,
+                                target="faq_param_prot_length"),
+                    dcc.Input(id='param_prot_length', type='number', value=490,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Suntag length (aa) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param2",
+                                      id="faq_param_suntag_length",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Length of the suntag in amino acid. This "
                                 "value will be added to protein length.",
-                                target="faq_param2"),
-                    dcc.Input(id='param2', type='number', value=796,
+                                target="faq_param_suntag_length"),
+                    dcc.Input(id='param_suntag_length', type='number', value=796,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Number of suntag ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param3",
+                                      id="faq_param_nb_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Number of suntag repetition",
-                                target="faq_param3"),
-                    dcc.Input(id='param3', type='number', value=32,
+                                target="faq_param_nb_suntag"),
+                    dcc.Input(id='param_nb_suntag', type='number', value=32,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Fluorescence one suntag ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param4",
+                                      id="faq_param_fluo_one_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Fluorescence of one suntag, use as "
                                 "reference for fluorescence profile.",
-                                target="faq_param4"),
-                    dcc.Input(id='param4', type='number', value=4,
+                                target="faq_param_fluo_one_suntag"),
+                    dcc.Input(id='param_fluo_one_suntag', type='number', value=4,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Translation rate (aa/sec) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param5",
+                                      id="faq_param_translation_rate",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height":
                                       "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Translation rate.",
-                                target="faq_param5"),
-                    dcc.Input(id='param5', type='number', value=24,
+                                target="faq_param_translation_rate"),
+                    dcc.Input(id='param_translation_rate', type='number', value=24,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Initiation rate (ribosome/sec) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param6",
+                                      id="faq_param_initiation_rate",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={
@@ -135,36 +135,36 @@ def layout():
                                    "auto",
                                "margin-bottom": "auto"}),
                     dbc.Tooltip("Initiation rate.",
-                                target="faq_param6"),
-                    dcc.Input(id='param6', type='number', value=1,
+                                target="faq_param_initiation_rate"),
+                    dcc.Input(id='param_initiation_rate', type='number', value=1,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Retention time (sec) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param7",
+                                      id="faq_param_retention_time",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height":
                                       "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Protein stay at the RNA for some time",
-                                target="faq_param7"),
-                    dcc.Input(id='param7', type='number', value=0,
+                                target="faq_param_retention_time"),
+                    dcc.Input(id='param_retention_time', type='number', value=0,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Suntag position (begin or end) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param8",
+                                      id="faq_param_pos_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Choose if Suntag is before or after the "
                                 "protein.",
-                                target="faq_param8"),
-                    dcc.Dropdown(id='param8',
+                                target="faq_param_pos_suntag"),
+                    dcc.Dropdown(id='param_pos_suntag',
                                  options=[
                                      {'label': 'Begin', 'value': 'begin'},
                                      {'label': 'End', 'value': 'end'}],
@@ -176,22 +176,70 @@ def layout():
                                  ),
                 ]),
                 html.Div([
+                    html.P(["Noise",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param_noise",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height":
+                                      "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Add random noise to the protein "
+                                "fluorescence profile. 0 if no noise. ",
+                                target="faq_param_noise"),
+                    dcc.Input(id='param_noise', type='number', value=0.,
+                              style={'width': '200px'}),
+                ]),
+                html.Div([
+                    html.P(["dt (sec)",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param_dt",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height":
+                                      "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip(
+                        "Time step use to generate track. This value "
+                        "should be quite small regarding the time step "
+                        "used for the analysis",
+                        target="faq_param_dt"),
+                    dcc.Input(id='param_dt', type='number', value=0.1,
+                              style={'width': '200px'}),
+                ]),
+                html.Div([
+                    html.P(["Length of one track (sec)",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_param_length",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height":
+                                      "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip(
+                        "Length duration of one track."
+                        "used for the analysis",
+                        target="faq_param_length"),
+                    dcc.Input(id='param_length', type='number', value=6000,
+                              style={'width': '200px'}),
+                ]),
+                html.Div([
                     html.P(["Number of tracks ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param9",
+                                      id="faq_param_nb_tracks",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Number of tracks to be generated.",
-                                target="faq_param9"),
-                    dcc.Input(id='param9', type='number', value=100,
+                                target="faq_param_nb_tracks"),
+                    dcc.Input(id='param_nb_tracks', type='number', value=100,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P("File name to save", style={"height": "auto",
                                                        "margin-bottom": "auto"}),
-                    dcc.Input(id='param10', type='text', value='datas',
+                    dcc.Input(id='param_filename', type='text', value='datas',
                               style={'width': '200px'}),
                 ]),
                 html.Br(),
@@ -240,14 +288,17 @@ def register_callbacks(app):
     @app.callback(
         Output('profile-plot', 'figure'),
         Input('show-profile-btn', 'n_clicks'),
-        State('param1', 'value'),
-        State('param2', 'value'),
-        State('param3', 'value'),
-        State('param4', 'value'),
-        State('param5', 'value'),
-        State('param6', 'value'),
-        State('param7', 'value'),
-        State('param8', 'value'),
+        State('param_prot_length', 'value'),
+        State('param_suntag_length', 'value'),
+        State('param_nb_suntag', 'value'),
+        State('param_fluo_one_suntag', 'value'),
+        State('param_translation_rate', 'value'),
+        State('param_initiation_rate', 'value'),
+        State('param_retention_time', 'value'),
+        State('param_pos_suntag', 'value'),
+        State('param_noise', 'value'),
+        State('param_dt', 'value'),
+        State('param_length', 'value'),
     )
     def update_profile_plot(n_clicks, *params):
         """
@@ -256,13 +307,19 @@ def register_callbacks(app):
         if n_clicks:
             try:
                 # Generate profile
-                x, y = generate_profile(float(params[0]),
-                                        float(params[1]),
-                                        float(params[2]),
-                                        float(params[3]),
-                                        float(params[4]),
-                                        float(params[6]),
-                                        params[7])
+                noise = False
+                if params[8] > 0:
+                    noise = True
+                x, y = generate_profile(prot_length=float(params[0]),
+                                        suntag_length=float(params[1]),
+                                        nb_suntag=float(params[2]),
+                                        fluo_one_suntag=float(params[3]),
+                                        translation_rate=float(params[4]),
+                                        retention_time=float(params[6]),
+                                        suntag_pos=params[7],
+                                        noise=noise,
+                                        noise_std=float(params[8]),
+                                        step=float(params[9]))
                 # Create the figure
                 figure = make_subplots(rows=3,
                                        cols=1,
@@ -277,18 +334,23 @@ def register_callbacks(app):
                                             name='Profile one prot'),
                                  row=1,
                                  col=1)
-                figure.update_xaxes(title_text='Time', row=1, col=1)
+                figure.update_xaxes(title_text='Time (sec)', row=1, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
                 # Generate one track
-                x, y, y_number = generate_one_track(float(params[0]),
-                                                    float(params[1]),
-                                                    float(params[2]),
-                                                    float(params[3]),
-                                                    float(params[4]),
-                                                    float(params[5]),
-                                                    float(params[6]),
-                                                    params[7])
+                x, y, y_number = generate_one_track(prot_length=float(params[0]),
+                                                    suntag_length=float(params[1]),
+                                                    nb_suntag=float(params[2]),
+                                                    fluo_one_suntag=float(params[3]),
+                                                    translation_rate=float(params[4]),
+                                                    binding_rate=float(params[5]),
+                                                    retention_time=float(params[6]),
+                                                    suntag_pos=params[7],
+                                                    noise=noise,
+                                                    noise_std=float(params[8]),
+                                                    step=float(params[9]),
+                                                    length=float(params[10])
+                                                    )
 
                 # Plot one track
                 figure.add_trace(go.Scatter(x=x, y=y,
@@ -296,7 +358,7 @@ def register_callbacks(app):
                                             name='Profile track'),
                                  row=2,
                                  col=1)
-                figure.update_xaxes(title_text='Time', row=2, col=1)
+                figure.update_xaxes(title_text='Time (sec)', row=2, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=2, col=1)
 
                 # Plot number of translation
@@ -305,7 +367,7 @@ def register_callbacks(app):
                                             name='Profile track'),
                                  row=3,
                                  col=1)
-                figure.update_xaxes(title_text='Time', row=3, col=1)
+                figure.update_xaxes(title_text='Time (sec)', row=3, col=1)
                 figure.update_yaxes(title_text='Number of translation', row=3,
                                     col=1)
 
@@ -325,33 +387,43 @@ def register_callbacks(app):
         Output('gen-tracks-output', 'children'),
         Output('loading_generate', 'children'),
         Input('start-gen-tracks-btn', 'n_clicks'),
-        State('param1', 'value'),
-        State('param2', 'value'),
-        State('param3', 'value'),
-        State('param4', 'value'),
-        State('param5', 'value'),
-        State('param6', 'value'),
-        State('param7', 'value'),
-        State('param8', 'value'),
-        State('param9', 'value'),
-        State('param10', 'value'),
+        State('param_prot_length', 'value'),
+        State('param_suntag_length', 'value'),
+        State('param_nb_suntag', 'value'),
+        State('param_fluo_one_suntag', 'value'),
+        State('param_translation_rate', 'value'),
+        State('param_initiation_rate', 'value'),
+        State('param_retention_time', 'value'),
+        State('param_pos_suntag', 'value'),
+        State('param_noise', 'value'),
+        State('param_dt', 'value'),
+        State('param_length', 'value'),
+        State('param_nb_tracks', 'value'),
+        State('param_filename', 'value'),
     )
     def start_generate_tracks(n_clicks, *params):
         # Generate all tracks and save it
         if n_clicks:
             try:
-                datas = generate_tracks(int(params[8]),
-                                        float(params[0]),
-                                        float(params[1]),
-                                        float(params[2]),
-                                        float(params[3]),
-                                        float(params[4]),
-                                        float(params[5]),
-                                        float(params[6]),
-                                        params[7],
+                noise = False
+                if params[8] > 0:
+                    noise = True
+                datas = generate_tracks(n=int(params[11]),
+                                        prot_length=float(params[0]),
+                                        suntag_length=float(params[1]),
+                                        nb_suntag=float(params[2]),
+                                        fluo_one_suntag=float(params[3]),
+                                        translation_rate=float(params[4]),
+                                        binding_rate=float(params[5]),
+                                        retention_time=float(params[6]),
+                                        suntag_pos=params[7],
+                                        noise=noise,
+                                        noise_std=float(params[8]),
+                                        step=float(params[9]),
+                                        length=float(params[10]),
                                         )
                 datas.to_csv(os.path.join(app.data['directory_generation'],
-                                          params[9] + ".csv"))
+                                          params[12] + ".csv"))
 
                 return "Tracks generated and saved successfully!", None
             except Exception as e:

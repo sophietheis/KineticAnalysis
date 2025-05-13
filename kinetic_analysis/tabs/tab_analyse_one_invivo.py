@@ -21,7 +21,7 @@ from plotly.subplots import make_subplots
 from analysis.analysis_track import (single_track_analysis,
                                      validate_equation,
                                      fit_function)
-
+from utils.utils import read_csv_file
 from .app_function import (list_csv_files,
                            browse_directory)
 
@@ -262,10 +262,9 @@ def register_callbacks(app):
     def select_file2(n_clicks, selected_file):
         if n_clicks and selected_file:
             app.data['selected_file_vivo'] = selected_file
-            df = pd.read_csv(
+            df = read_csv_file(
                 os.path.join(app.data['directory_analysis_vivo'],
-                             app.data['selected_file_vivo']),
-                index_col="Unnamed: 0")
+                             app.data['selected_file_vivo']))
             first_10_rows = df.head(10)
 
             return (f"You selected: {selected_file}",
@@ -318,21 +317,23 @@ def register_callbacks(app):
                                                ])
         if n_clicks:
             try:
-                # Read csv file
-                datas = pd.read_csv(os.path.join(app.data[
-                                                     'directory_analysis_vivo'],
-                                                 filename),
-                                    index_col="Unnamed: 0")
+                ## AJOUTER LA VERIFICATION QUE LA TRACK EXISTE,
+                # SINON AFFICHER UN MESSAGE D'ERREUR
 
-                datas.rename(columns={params[0]: 'TRACK_ID',
+                # Read csv file
+                df = read_csv_file(os.path.join(app.data[
+                                                     'directory_analysis_vivo'],
+                                                 filename))
+
+                df.rename(columns={params[0]: 'TRACK_ID',
                                       params[1]: 'FRAME',
                                       params[2]: 'MEAN_INTENSITY_CH1',
                                       },
                              inplace=True)
                 dt = float(params[3])
-                t = dt / 0.1
+
                 prot_length = float(params[4])
-                datas2 = datas[(datas["TRACK_ID"] == int(params[5]))][::int(t)]
+                datas2 = df[(df["TRACK_ID"] == int(params[5]))]
                 (x,
                  y,
                  x_auto,
@@ -351,22 +352,25 @@ def register_callbacks(app):
                                                force_analysis=False,
                                                first_dot=False,
                                                simulation=False,
-                                               func_ = app.data["equation_f"])
-
+                                               func_ = app.data["equation_f"]
+                                               )
 
                 # plot track profile
                 figure.add_trace(go.Scatter(x=x,
                                             y=y,
-                                            mode="lines",),
+                                            mode="lines",
+                                            name="Signal"),
                                             row=1,
-                                            col=1)
-                figure.update_xaxes(title_text='Time', row=1, col=1)
+                                            col=1,
+                                            )
+                figure.update_xaxes(title_text='Time (sec)', row=1, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
                 # plot track profile
                 figure.add_trace(go.Scatter(x=x_auto,
                                             y=y_auto,
-                                            mode="lines",),
+                                            mode="lines",
+                                            name="Autocorrelation"),
                                             row=2,
                                             col=1),
 
@@ -374,7 +378,8 @@ def register_callbacks(app):
                 # A verifier
                 figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)][::10],
                                             y=fit_function(x_auto, prot_length/elongation_r, translation_init_r)[:int(len(x_auto)/2)][::10],
-                                            mode="lines", ),
+                                            mode="lines",
+                                            name="Fit"),
                                  row=2,
                                  col=1),
 

@@ -20,6 +20,8 @@ from plotly.subplots import make_subplots
 
 from analysis.analysis_track import (single_track_analysis)
 
+from utils.utils import read_csv_file
+
 from .app_function import (list_csv_files,
                           browse_directory)
 
@@ -129,17 +131,17 @@ def register_callbacks(app):
         if n_clicks:
             try:
                 # Read csv file
-                datas = pd.read_csv(os.path.join(app.data['directory_analysis'], filename),
-                                    index_col="Unnamed: 0")
+                df = read_csv_file(os.path.join(app.data['directory_analysis'],
+                                                filename))
                 dt = float(params[0])
                 t = dt / 0.1
                 prot_length = float(params[1])
-                nb_track = len(np.unique(datas["TRACK_ID"]))
+                nb_track = len(np.unique(df["TRACK_ID"]))
 
                 first_time = True
                 # Analyse all tracks and save it
                 for i in range(nb_track):
-                    datas2 = datas[(datas["TRACK_ID"] == i)][::int(t)]
+                    datas2 = df[(df["TRACK_ID"] == i)][::int(t)]
 
                     (x,
                      y,
