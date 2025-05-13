@@ -31,6 +31,7 @@ jobs:
           pip install scipy multipletau 
           pip install pyqt5 pyqtwebengine
           pip install pywebview
+          pip install .
 
       - name: Create Executable with PyInstaller
         run: |

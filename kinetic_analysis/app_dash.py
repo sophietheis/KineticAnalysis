@@ -18,19 +18,19 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from tabs.tab_generate_track import layout as tab1_layout
-from tabs.tab_generate_track import register_callbacks as tab1_callbacks
+from kinetic_analysis.tabs.tab_generate_track import layout as tab1_layout
+from kinetic_analysis.tabs.tab_generate_track import register_callbacks as tab1_callbacks
 
-from tabs.tab_analyse_simu import layout as tab2_layout
-from tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
+from kinetic_analysis.tabs.tab_analyse_simu import layout as tab2_layout
+from kinetic_analysis.tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
 
-from tabs.tab_analyse_invivo import layout as tab3_layout
-from tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
+from kinetic_analysis.tabs.tab_analyse_invivo import layout as tab3_layout
+from kinetic_analysis.tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
 
-from tabs.tab_analyse_one_invivo import layout as tab4_layout
-from tabs.tab_analyse_one_invivo import register_callbacks as tab4_callbacks
+from kinetic_analysis.tabs.tab_analyse_one_invivo import layout as tab4_layout
+from kinetic_analysis.tabs.tab_analyse_one_invivo import register_callbacks as tab4_callbacks
 
-from analysis.analysis_track import fit_function
+from kinetic_analysis.analysis.analysis_track import fit_function
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
