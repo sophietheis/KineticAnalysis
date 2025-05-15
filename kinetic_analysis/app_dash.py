@@ -95,7 +95,8 @@ tab4_callbacks(app)
 
 
 def run_app():
-    app.run_server(debug=False, port=8080)
+    app.run_server(debug=False, port=8050)
+    # app.run_server(debug=True, use_reloader=False)
 
 
 if __name__ == '__main__':
@@ -105,7 +106,7 @@ if __name__ == '__main__':
     t.start()
 
     window = webview.create_window('Kinetic analysis',
-                                   'http://127.0.0.1:8080/',
+                                   'http://127.0.0.1:8050/',
                                    width=1800, height=1000,
                                    )
     webview.start(debug=False)
