@@ -1,8 +1,14 @@
 name: Deploy app
 run-name: Deploy HTML pages generated from Dash app
-on: [push]
-jobs:
+on:
+  push:
+    branches:
+      - main  # Runs the workflow every time code is pushed to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Runs the workflow for pull requests to the 'main' branch
 
+jobs:
   run_app:
     name: Run app
     runs-on: ubuntu-22.04
