@@ -2,6 +2,7 @@ import os
 import time
 import threading
 import webview
+import requests
 
 from threading import Thread
 
@@ -96,8 +97,17 @@ tab4_callbacks(app)
 
 def run_app():
     # app.run_server(debug=False, host="127.0.0.1", port=8050)
-    app.run_server(debug=False, host="localhost",  port=8050)
+    app.run_server(debug=False, host="127.0.0.1",  port=8050)
 
+def wait_until_server_is_ready(url, timeout=10):
+    for _ in range(timeout * 10):
+        try:
+            requests.get(url)
+            print(requests.get(url))
+            return True
+        except:
+            time.sleep(0.1)
+    return False
 
 if __name__ == '__main__':
     # app.run_server(debug=True, port=8080)
@@ -105,10 +115,13 @@ if __name__ == '__main__':
     t.daemon = True
     t.start()
 
+    if not wait_until_server_is_ready("http://127.0.0.1:8050/"):
+        print("Failed to connect to Dash server.")
 
+    print("ready")
     window = webview.create_window('Kinetic analysis',
-                                   'http://localhost:8050/',
-                                   server_args= 'SimpleHTTPServer',
+                                   'http://127.0.0.1:8050/',
+                                   # server_args='SimpleHTTPServer',
                                    width=1800, height=1000,
                                    )
     webview.start(debug=False)
