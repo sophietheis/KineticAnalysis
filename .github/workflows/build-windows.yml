@@ -20,7 +20,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
+          
+      - name: Create a file and write text
+        run: |
+          echo "from PyInstaller.utils.hooks import collect_data_files" > c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/PyInstaller/hooks/hook-seleniumwire.py
+          echo "datas = collect_data_files('seleniumwire')" >> c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/PyInstaller/hooks/hook-seleniumwire.py
+      
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
@@ -31,7 +36,7 @@ jobs:
           pip install scipy multipletau 
           pip install pyqt5 pyqtwebengine
           pip install pywebview
-
+          
       - name: Create Executable with PyInstaller
         run: |
           pyinstaller kinetic_analysis/app_dash_windows_gh.spec
