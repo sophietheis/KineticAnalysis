@@ -24,8 +24,8 @@ jobs:
       - name: Create a file and write text
         shell: powershell
         run: |
-          echo "from PyInstaller.utils.hooks import collect_data_files" > "C:\hostedtoolcache\windows\python\3.11.9\x64\lib\site-packages\PyInstaller\hooks\hook-seleniumwire.py"
-          echo "datas = collect_data_files('seleniumwire')" > "C:\hostedtoolcache\windows\python\3.11.9\x64\lib\site-packages\PyInstaller\hooks\hook-seleniumwire.py"
+          echo "from PyInstaller.utils.hooks import collect_data_files" > "C:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/PyInstaller/hooks/hook-seleniumwire.py"
+          echo "datas = collect_data_files('seleniumwire')" > "C:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/PyInstaller/hooks/hook-seleniumwire.py"
           
       - name: Install Dependencies
         run: |
