@@ -1,16 +1,24 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_data_files
+import sys
+import os
+
+# Collect seleniumwire data files
+datas = collect_data_files('seleniumwire')
+datas.extend([("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash", "dash"),
+	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_html_components", "dash_html_components"),
+	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_core_components", "dash_core_components"),
+	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_bootstrap_components", "dash_bootstrap_components"),
+	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_spinner", "dash_spinner"),
+	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_table", "dash_table"),])
+block_cipher = None
 
 a = Analysis(
     ['app_dash.py'],
     pathex=[],
     binaries=[],
-    datas=[("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash", "dash"),
-	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_html_components", "dash_html_components"),
-	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_core_components", "dash_core_components"),
-	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_bootstrap_components", "dash_bootstrap_components"),
-	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_spinner", "dash_spinner"),
-	    ("c:/hostedtoolcache/windows/python/3.11.9/x64/lib/site-packages/dash_table", "dash_table"),],
+    datas=datas,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
