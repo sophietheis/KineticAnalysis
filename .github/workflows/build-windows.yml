@@ -21,17 +21,6 @@ jobs:
         with:
           python-version: '3.11'
           
-      - name : create file
-        uses: actions/checkout@v2
-        with:
-          path: 'C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\PyInstaller\hooks'
-          isAbsolutePath: True
-          file:  'hook-seleniumwire.py'
-          content: |
-            from PyInstaller.utils.hooks import collect_data_files
-            datas = collect_data_files('seleniumwire')
-
-          
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
