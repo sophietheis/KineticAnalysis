@@ -20,24 +20,17 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          
+      - name : create file
+        uses: actions/checkout@v2
+        with:
+          path: 'C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\PyInstaller\hooks'
+          isAbsolutePath: True
+          file:  'hook-seleniumwire.py'
+          content: |
+            from PyInstaller.utils.hooks import collect_data_files
+            datas = collect_data_files('seleniumwire')
 
-      - name: Create a file and write text
-        shell: powershell
-        run: |
-          $hookPath = "C:\hostedtoolcache\windows\Python\3.11.9\x64\Lib\site-packages\PyInstaller\hooks"
-          $filePath = Join-Path $hookPath "hook-seleniumwire.py"
-
-          # Make sure the hooks directory exists
-          if (-not (Test-Path $hookPath)) {
-            New-Item -ItemType Directory -Path $hookPath -Force
-          }
-
-          # Write the required Python code
-          $content = @"
-               from PyInstaller.utils.hooks import collect_data_files
-               datas = collect_data_files('seleniumwire')
-               "@
-          $content | Out-File -FilePath $filePath -Encoding utf8 -Force
           
       - name: Install Dependencies
         run: |
