@@ -340,8 +340,8 @@ def register_callbacks(app):
                                                    mm=None,
                                                    rtol=1e-1,
                                                    method="linear",
-                                                   force_analysis=False,
-                                                   first_dot=False,
+                                                   force_analysis=True,
+                                                   first_dot=True,
                                                    simulation=False,)
                     if first_time:
                         results = pd.DataFrame({"elongation_r": elongation_r,

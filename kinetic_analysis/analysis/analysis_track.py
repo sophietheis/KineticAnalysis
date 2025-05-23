@@ -138,7 +138,7 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
     x : list
         time value
     y : list
-        intensity fluorescence value
+        aucorrelation value
     protein_size : int
         size of the protein in amino acid
 
@@ -159,9 +159,23 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
     signchange = ((np.roll(ysign, 1) - ysign) != 0).astype(int)
     signchange[0] = 0
     if len(np.where(signchange == 1)[0]) == 0:
-        t = -1
+        t_sign = -1
     else:
-        t = np.where(signchange == 1)[0][0]
+        t_sign = np.where(signchange == 1)[0][0]
+    print(t_sign)
+
+    # find when the curve cross the x axis
+    ysignvalue = np.sign(y)
+    t_xaxis = np.where(ysignvalue==-1)[0][0]
+    # If the sign change happen in a negative value
+    if t_sign < t_xaxis:
+        t = t_xaxis
+    else:
+        t = t_sign
+    print(t_xaxis)
+    print(t)
+    print(x[:t])
+    print(y[:t])
 
     elongation_r = protein_size / x[t]
     if len(x[:t]) < 2:
@@ -262,19 +276,19 @@ def single_track_analysis(df,
 
     # Check if time is continuous and fix it if gap not too big
     if not check_continuous_time(x, delta_t, rtol=rtol):
-        # print("Time not continuous")
+        print("Time not continuous")
         times_diff = np.diff(x)[
             np.where(np.isclose(np.diff(x), delta_t, rtol=rtol) == False)]
         if (times_diff < (5 * delta_t)).all():
             # fix the time difference if it misses less than 5 points
-            # print("to fix")
+            print("to fix")
             i = 0
             while i < (len(x) - 1):
                 if np.round(x[i] - x[i + 1], decimals=2) > delta_t:
                     x = x[:i + 1] + [(x[i] + x[i + 1]) / 2] + x[i + 1:]
                 i += 1
         else:
-            # print("not fix")
+            print("not fix")
             if not force_analysis:
                 return np.repeat(np.nan, 7)
             else:

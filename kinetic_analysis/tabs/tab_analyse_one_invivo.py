@@ -331,7 +331,6 @@ def register_callbacks(app):
                                       },
                              inplace=True)
                 dt = float(params[3])
-
                 prot_length = float(params[4])
                 datas2 = df[(df["TRACK_ID"] == int(params[5]))]
                 (x,
@@ -349,7 +348,7 @@ def register_callbacks(app):
                                                mm=None,
                                                rtol=1e-1,
                                                method="linear",
-                                               force_analysis=False,
+                                               force_analysis=True,
                                                first_dot=False,
                                                simulation=False,
                                                func_ = app.data["equation_f"]
@@ -374,10 +373,9 @@ def register_callbacks(app):
                                             row=2,
                                             col=1),
 
-
-                # A verifier
-                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)][::10],
-                                            y=fit_function(x_auto, prot_length/elongation_r, translation_init_r)[:int(len(x_auto)/2)][::10],
+                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)],
+                                            y=fit_function(x_auto,
+                                                           prot_length/elongation_r, 1/translation_init_r)[:int(len(x_auto)/2)],
                                             mode="lines",
                                             name="Fit"),
                                  row=2,
