@@ -1,0 +1,61 @@
+name: Build Windows Executable v2
+
+on:
+  push:
+    branches:
+      - main  # Runs the workflow every time code is pushed to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Runs the workflow for pull requests to the 'main' branch
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller==6.11.0
+          pip install dash dash-html-components dash-core-components dash-bootstrap-components 
+          pip install dash-spinner dash_table
+          pip install numpy pandas threaded tk plotly
+          pip install scipy multipletau 
+          pip install pyqt5 pyqtwebengine
+          pip install pywebview
+          pip install nuitka
+          pip install sympy
+          pip install .
+
+      - name: Create Executable with Nuika
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: kinetic_analysis/app_dash.py
+          mode: app
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }} Build
+          path: | # match what's created for the 3 OSes
+            build/*.exe
+            build/*.bin
+            build/*.app/**/*
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: KineticAnalysisWindows
+          path: D:\a\KineticAnalysis\KineticAnalysis\build\app_dash.exe
