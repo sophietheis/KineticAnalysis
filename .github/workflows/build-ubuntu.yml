@@ -34,7 +34,7 @@ jobs:
           pip install dash-html-components dash-core-components dash-bootstrap-components 
           pip install dash-spinner dash_table
           pip install numpy pandas threaded tk 
-          pip install plotly==5.3.2
+          pip install plotly==5.24.1
           pip install scipy multipletau 
           pip install pyqt5 pyqtwebengine
           pip install pywebview[qt]==5.3.2
