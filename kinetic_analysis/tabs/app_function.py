@@ -1,4 +1,6 @@
+import io
 import os
+import base64
 import time
 import threading
 import webview
@@ -17,6 +19,26 @@ import dash_spinner
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+
+from kinetic_analysis.utils.utils import read_csv_file
+
+def upload_csv(contents, app):
+    if contents is None:
+        return None, ""
+
+    # Decode and read the CSV content
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    try:
+        df = read_csv_file(io.StringIO(decoded.decode('utf-8')))
+
+    except Exception as e:
+        return None, f"Failed to parse CSV: {str(e)}"
+
+    # Save to app data
+    app.data['csv_to_analyse'] = df
+
+    return df, f"Success to parse CSV"
 
 
 def browse_directory(n_clicks, col_name, app):

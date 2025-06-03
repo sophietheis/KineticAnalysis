@@ -47,6 +47,7 @@ app.data = {
     'fig': None,
     'selected_file': None,
     'equation_f': fit_function,
+    'csv_to_analyse': None,
 }
 
 app.layout = dbc.Container([
@@ -96,7 +97,7 @@ tab4_callbacks(app)
 
 
 def run_app():
-    app.run_server(debug=False, host="127.0.0.1",  port=8050)
+    app.run_server(debug=False, host="0.0.0.0",  port=5001)
 
 def wait_until_server_is_ready(url, timeout=10):
     for _ in range(timeout * 10):
@@ -109,17 +110,18 @@ def wait_until_server_is_ready(url, timeout=10):
     return False
 
 if __name__ == '__main__':
-    t = Thread(target=run_app)
-    t.daemon = True
-    t.start()
-
-    # if not wait_until_server_is_ready("http://127.0.0.1:8050/"):
-    #     print("Failed to connect to Dash server.")
-
-    print("ready")
-    window = webview.create_window('Kinetic analysis',
-                                   'http://127.0.0.1:8050/',
-                                   # server_args='SimpleHTTPServer',
-                                   width=1800, height=1000,
-                                   )
-    webview.start(debug=False)
+    run_app()
+    # t = Thread(target=run_app)
+    # t.daemon = True
+    # t.start()
+    #
+    # # if not wait_until_server_is_ready("http://127.0.0.1:8050/"):
+    # #     print("Failed to connect to Dash server.")
+    #
+    # print("ready")
+    # window = webview.create_window('Kinetic analysis',
+    #                                'http://localhost:5001/',
+    #                                # server_args='SimpleHTTPServer',
+    #                                width=1800, height=1000,
+    #                                )
+    # webview.start(debug=False)

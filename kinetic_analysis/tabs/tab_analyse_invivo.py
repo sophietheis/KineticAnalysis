@@ -23,7 +23,8 @@ from kinetic_analysis.analysis.analysis_track import (single_track_analysis,
 
 from kinetic_analysis.utils.utils import read_csv_file
 
-from .app_function import (list_csv_files,
+from .app_function import (upload_csv,
+                           list_csv_files,
                            browse_directory)
 
 
@@ -32,29 +33,25 @@ def layout():
         # Analyse track in vivo tab
         # File selection and display
         dbc.Row([
+            html.H4("Upload data",
+                    style={"text-align": "center",
+                           "color": "#10D79B"}),
+            html.Br(),
             dbc.Col([
                 html.Div([
-                    # Choose a directory
-                    html.Label("Choose Directory where your file is"),
-                    html.Br(),
-                    dbc.Button("Select folder",
-                               id="browse_directory_analyze_vivo",
-                               className="mr-2",
-                               style={"width": "150px"}, ),
-                    html.Div(id='directory-analyze-output-vivo', style={
-                        'margin-top': '10px'}),
-                    html.Br(),
-                    # Select a file inside the directory
-                    dcc.Dropdown(id='file-dropdown-vivo', options=[],
-                                 placeholder="Select a file...",
-                                 style={"width": "150px"}, ),
+                    # Choose a csv file
+                    html.Label("Choose your csv file to analyse "),
                     html.Br(),
                     dbc.Row([
                         dbc.Col([
-                            dbc.Button('Validate file',
-                                       id='select-file-btn-vivo',
-                                       className="mr-2",
-                                       style={"width": "150px"}, ),
+                            dcc.Upload(
+                                id='browse_directory_analyze_vivo',
+                                children=dbc.Button('Select csv file',
+                                                    className="mr-2",
+                                                    style={"width": "150px"}
+                                                    ),
+                                multiple=False,
+                            ),
                         ], width="auto"),
                         dbc.Col([
                             dbc.Spinner(
@@ -123,57 +120,57 @@ def layout():
             html.Br(),
             html.Br(),
         ]),
-        # Choose equation for the analysis
-        dbc.Row([html.H4("Choose equation for the analysis",
-                         style={"text-align": "center",
-                                "color": "#10D79B"}),
-                 html.Br(),
-                 dcc.Markdown('''
-                             By default the model used for analyse track is : 
-                             $$ \\frac{T - x}{cT^2} 
-                             H(T - x), $$
-                             where $$c$$ is the initiation rate, and $$T$$ is the residence time. 
-                             
-                             $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the 
-                             elongation rate. 
-                            ''',
-                              mathjax=True),
-                 html.Div([
-                     html.P(["Equation ",
-                             html.Span(className="fas fa-question-circle",
-                                       id="faq_equation",
-                                       style={"cursor": "pointer",
-                                              "marginLeft": "5px"})],
-                            style={"height": "auto",
-                                   "margin-bottom": "auto"}),
-                     dbc.Tooltip(
-                         "You can change the equation. Symbols used are"
-                         " x (fluorescence input), t (elongation rate) and "
-                         "c (initiation rate). If you need other symbols, "
-                         "please contact the admin.",
-                         target="faq_equation"),
-                     dbc.Row([
-                         dbc.Col([
-                             dbc.Input(id='equation', type='string', value="",
-                                       style={'width': '300px'}),
-                             dbc.FormFeedback('Valid equation input!',
-                                              type='valid'),
-                             dbc.FormFeedback('Invalid equation input!',
-                                              type='invalid'),
-                         ], width=3),
-                         dbc.Col([
-                             dbc.Button('Valid equation',
-                                        id='submit-button-equation',
-                                        className="mr-2",
-                                        style={"width": "150px"}, ),
-                         ], width=3),
-                     ]),
-                 ]),
-                 ]),
-        dbc.Row([
-            html.Br(),
-            html.Br(),
-        ]),
+        # # Choose equation for the analysis
+        # dbc.Row([html.H4("Choose equation for the analysis",
+        #                  style={"text-align": "center",
+        #                         "color": "#10D79B"}),
+        #          html.Br(),
+        #          dcc.Markdown('''
+        #                      By default the model used for analyse track is :
+        #                      $$ \\frac{T - x}{cT^2}
+        #                      H(T - x), $$
+        #                      where $$c$$ is the initiation rate, and $$T$$ is the residence time.
+        #
+        #                      $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
+        #                      elongation rate.
+        #                     ''',
+        #                       mathjax=True),
+        #          html.Div([
+        #              html.P(["Equation ",
+        #                      html.Span(className="fas fa-question-circle",
+        #                                id="faq_equation",
+        #                                style={"cursor": "pointer",
+        #                                       "marginLeft": "5px"})],
+        #                     style={"height": "auto",
+        #                            "margin-bottom": "auto"}),
+        #              dbc.Tooltip(
+        #                  "You can change the equation. Symbols used are"
+        #                  " x (fluorescence input), t (elongation rate) and "
+        #                  "c (initiation rate). If you need other symbols, "
+        #                  "please contact the admin.",
+        #                  target="faq_equation"),
+        #              dbc.Row([
+        #                  dbc.Col([
+        #                      dbc.Input(id='equation', type='string', value="",
+        #                                style={'width': '300px'}),
+        #                      dbc.FormFeedback('Valid equation input!',
+        #                                       type='valid'),
+        #                      dbc.FormFeedback('Invalid equation input!',
+        #                                       type='invalid'),
+        #                  ], width=3),
+        #                  dbc.Col([
+        #                      dbc.Button('Valid equation',
+        #                                 id='submit-button-equation',
+        #                                 className="mr-2",
+        #                                 style={"width": "150px"}, ),
+        #                  ], width=3),
+        #              ]),
+        #          ]),
+        #          ]),
+        # dbc.Row([
+        #     html.Br(),
+        #     html.Br(),
+        # ]),
         # Choose parameters for the analysis
         dbc.Row([
             html.H4("Confirm parameters for the analysis",
@@ -230,6 +227,7 @@ def layout():
                 )
             ], width="auto"),
             html.Div(id='analyze-output-vivo'),
+            dcc.Download(id="download-csv")
         ])
 
     )
@@ -237,42 +235,25 @@ def layout():
 
 def register_callbacks(app):
     @app.callback(
-        Output('directory-analyze-output-vivo', 'children'),
-        Input('browse_directory_analyze_vivo', 'n_clicks'),
-    )
-    def browse_directory_analyze_vivo(n_clicks):
-        return browse_directory(n_clicks, 'directory_analysis_vivo', app)
-
-    @app.callback(
-        Output('file-dropdown-vivo', 'options'),
-        Input('directory-analyze-output-vivo', 'children')
-    )
-    def load_csv_file_vivo(directory):
-        return list_csv_files(directory, 'directory_analysis_vivo', app)
-
-    @app.callback(
         Output('selected-file-output-vivo', 'children'),
         Output("table-container", "children"),
         Output('loading_data_vivo', 'children'),
-        Input('select-file-btn-vivo', 'n_clicks'),
-        State('file-dropdown-vivo', 'value')
+        Input('browse_directory_analyze_vivo', 'contents'),
     )
-    def select_file(n_clicks, selected_file):
-        if n_clicks and selected_file:
-            app.data['selected_file_vivo'] = selected_file
-            df = read_csv_file(
-                os.path.join(app.data['directory_analysis_vivo'],
-                             app.data['selected_file_vivo']),)
+    def browse_directory_analyze_vivo(contents):
+        df, output =  upload_csv(contents, app)
+        if df is None:
+            return output, None, None
 
-            first_10_rows = df.head(10)
+        table = dash_table.DataTable(
+                    data=df.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in
+                             df.columns],
+                    page_size=15,
+                    style_table={'width': '800px', 'overflowX': 'auto'},
+        )
+        return None, table, None
 
-            return (f"You selected: {selected_file}",
-                    dash_table.DataTable(
-                        data=first_10_rows.to_dict('records'),
-                        columns=[{"name": i, "id": i} for i in
-                                 first_10_rows.columns]
-                    ), None)
-        raise PreventUpdate
 
     @app.callback(
         Output('equation', 'valid'),
@@ -294,23 +275,26 @@ def register_callbacks(app):
     @app.callback(
         Output('analyze-output-vivo', 'children'),
         Output('loading_analysis_vivo', 'children'),
+        Output('download-csv', 'data'),
         Input('start-analyze-btn-vivo', 'n_clicks'),
-        State('file-dropdown-vivo', 'value'),
         State('col_track', 'value'),
         State('col_time', 'value'),
         State('col_intensity', 'value'),
         State('dt-param-vivo', 'value'),
         State('prot-length-param-vivo', 'value'),
         State('save-results-name-vivo', 'value'),
-        State('equation', 'value'),
+        # State('equation', 'value'),
     )
-    def start_analyze_tracks(n_clicks, filename, *params):
+    def start_analyze_tracks(n_clicks, *params):
+
         if n_clicks:
+            if app.data['csv_to_analyse'] is None:
+                return "No CSV file uploaded.", None, None
+
             try:
+
                 # Read csv file
-                df = read_csv_file(os.path.join(app.data[
-                                                     'directory_analysis_vivo'],
-                                                 filename))
+                df = app.data['csv_to_analyse']
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
@@ -359,12 +343,16 @@ def register_callbacks(app):
                                                   "dt": dt,
                                                   "id": i, }, index=[0])
                                              ], ignore_index=True)
+                
+                output_path = params[5] + ".csv"
+                results.to_csv(output_path, index=False)
+                # results.to_csv(
+                #     os.path.join(app.data['directory_analysis_vivo'],
+                #                  params[5] + ".csv"))
 
-                results.to_csv(
-                    os.path.join(app.data['directory_analysis_vivo'],
-                                 params[5] + ".csv"))
-
-                return "Analysis completed and saved successfully!", None
+                return "Analysis completed and saved successfully!", None, dcc.send_file(output_path)
             except Exception as e:
-                return f"Error: {str(e)}", None
+                return f"Error: {str(e)}", None, None
         raise PreventUpdate
+
+
