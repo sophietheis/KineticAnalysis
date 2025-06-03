@@ -11,6 +11,9 @@ notebook/__pycache__/
 
 *.eps
 
+build/
+KineticAnalysis.egg-info
+
 notebook/build/
 notebook/dist/
 
