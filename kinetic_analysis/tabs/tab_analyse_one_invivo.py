@@ -22,7 +22,8 @@ from kinetic_analysis.analysis.analysis_track import (single_track_analysis,
                                      validate_equation,
                                      fit_function)
 from kinetic_analysis.utils.utils import read_csv_file
-from .app_function import (list_csv_files,
+from .app_function import (upload_csv,
+                           list_csv_files,
                            browse_directory)
 
 
@@ -33,27 +34,19 @@ def layout():
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    # Choose a directory
-                    html.Label("Choose Directory where your file is"),
-                    html.Br(),
-                    dbc.Button("Select folder",
-                               id="browse_directory_analyze_vivo2",
-                               className="mr-2",
-                               style={"width": "150px"}, ),
-                    html.Div(id='directory-analyze-output-vivo2', style={
-                        'margin-top': '10px'}),
-                    html.Br(),
-                    # Select a file inside the directory
-                    dcc.Dropdown(id='file-dropdown-vivo2', options=[],
-                                 placeholder="Select a file...",
-                                 style={"width": "150px"}, ),
+                    # Choose a csv file
+                    html.Label("Choose your csv file to analyse "),
                     html.Br(),
                     dbc.Row([
                         dbc.Col([
-                            dbc.Button('Validate file',
-                                       id='select-file-btn-vivo2',
-                                       className="mr-2",
-                                       style={"width": "150px"}, ),
+                            dcc.Upload(
+                                id='browse_directory_analyze_vivo2',
+                                children=dbc.Button('Select csv file',
+                                                    className="mr-2",
+                                                    style={"width": "150px"}
+                                                    ),
+                                multiple=False,
+                            ),
                         ], width="auto"),
                         dbc.Col([
                             dbc.Spinner(
@@ -122,57 +115,57 @@ def layout():
             html.Br(),
             html.Br(),
         ]),
-        # Choose equation for the analysis
-        dbc.Row([html.H4("Choose equation for the analysis",
-                         style={"text-align": "center",
-                                "color": "#10D79B"}),
-                 html.Br(),
-                 dcc.Markdown('''
-                             By default the model used for analyse track is : 
-                             $$ \\frac{T - x}{cT^2} 
-                             H(T - x), $$
-                             where $$c$$ is the initiation rate, and $$T$$ is the residence time. 
-
-                             $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the 
-                             elongation rate. 
-                            ''',
-                              mathjax=True),
-                 html.Div([
-                     html.P(["Equation ",
-                             html.Span(className="fas fa-question-circle",
-                                       id="faq_equation",
-                                       style={"cursor": "pointer",
-                                              "marginLeft": "5px"})],
-                            style={"height": "auto",
-                                   "margin-bottom": "auto"}),
-                     dbc.Tooltip(
-                         "You can change the equation. Symbols used are"
-                         " x (fluorescence input), t (elongation rate) and "
-                         "c (initiation rate). If you need other symbols, "
-                         "please contact the admin.",
-                         target="faq_equation"),
-                     dbc.Row([
-                         dbc.Col([
-                             dbc.Input(id='equation2', type='string', value="",
-                                       style={'width': '300px'}),
-                             dbc.FormFeedback('Valid equation input!',
-                                              type='valid'),
-                             dbc.FormFeedback('Invalid equation input!',
-                                              type='invalid'),
-                         ], width=3),
-                         dbc.Col([
-                             dbc.Button('Valid equation',
-                                        id='submit-button-equation2',
-                                        className="mr-2",
-                                        style={"width": "150px"}, ),
-                         ], width=3),
-                     ]),
-                 ]),
-                 ]),
-        dbc.Row([
-            html.Br(),
-            html.Br(),
-        ]),
+        # # Choose equation for the analysis
+        # dbc.Row([html.H4("Choose equation for the analysis",
+        #                  style={"text-align": "center",
+        #                         "color": "#10D79B"}),
+        #          html.Br(),
+        #          dcc.Markdown('''
+        #                      By default the model used for analyse track is :
+        #                      $$ \\frac{T - x}{cT^2}
+        #                      H(T - x), $$
+        #                      where $$c$$ is the initiation rate, and $$T$$ is the residence time.
+        #
+        #                      $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
+        #                      elongation rate.
+        #                     ''',
+        #                       mathjax=True),
+        #          html.Div([
+        #              html.P(["Equation ",
+        #                      html.Span(className="fas fa-question-circle",
+        #                                id="faq_equation",
+        #                                style={"cursor": "pointer",
+        #                                       "marginLeft": "5px"})],
+        #                     style={"height": "auto",
+        #                            "margin-bottom": "auto"}),
+        #              dbc.Tooltip(
+        #                  "You can change the equation. Symbols used are"
+        #                  " x (fluorescence input), t (elongation rate) and "
+        #                  "c (initiation rate). If you need other symbols, "
+        #                  "please contact the admin.",
+        #                  target="faq_equation"),
+        #              dbc.Row([
+        #                  dbc.Col([
+        #                      dbc.Input(id='equation2', type='string', value="",
+        #                                style={'width': '300px'}),
+        #                      dbc.FormFeedback('Valid equation input!',
+        #                                       type='valid'),
+        #                      dbc.FormFeedback('Invalid equation input!',
+        #                                       type='invalid'),
+        #                  ], width=3),
+        #                  dbc.Col([
+        #                      dbc.Button('Valid equation',
+        #                                 id='submit-button-equation2',
+        #                                 className="mr-2",
+        #                                 style={"width": "150px"}, ),
+        #                  ], width=3),
+        #              ]),
+        #          ]),
+        #          ]),
+        # dbc.Row([
+        #     html.Br(),
+        #     html.Br(),
+        # ]),
         # Choose parameters for the analysis
         dbc.Row([
             html.H4("Confirm parameters for the analysis",
@@ -239,41 +232,25 @@ def layout():
 
 def register_callbacks(app):
     @app.callback(
-        Output('directory-analyze-output-vivo2', 'children'),
-        Input('browse_directory_analyze_vivo2', 'n_clicks'),
-    )
-    def browse_directory_analyze_vivo2(n_clicks):
-        return browse_directory(n_clicks, 'directory_analysis_vivo', app)
-
-    @app.callback(
-        Output('file-dropdown-vivo2', 'options'),
-        Input('directory-analyze-output-vivo2', 'children')
-    )
-    def load_csv_file_vivo2(directory):
-        return list_csv_files(directory, 'directory_analysis_vivo', app)
-
-    @app.callback(
         Output('selected-file-output-vivo2', 'children'),
         Output("table-container2", "children"),
         Output('loading_data_vivo2', 'children'),
-        Input('select-file-btn-vivo2', 'n_clicks'),
-        State('file-dropdown-vivo2', 'value')
+        Input('browse_directory_analyze_vivo2', 'contents'),
     )
-    def select_file2(n_clicks, selected_file):
-        if n_clicks and selected_file:
-            app.data['selected_file_vivo'] = selected_file
-            df = read_csv_file(
-                os.path.join(app.data['directory_analysis_vivo'],
-                             app.data['selected_file_vivo']))
-            first_10_rows = df.head(10)
+    def browse_directory_analyze_vivo2(contents):
+        df, output = upload_csv(contents, app)
+        if df is None:
+            return output, None, None
 
-            return (f"You selected: {selected_file}",
-                    dash_table.DataTable(
-                        data=first_10_rows.to_dict('records'),
-                        columns=[{"name": i, "id": i} for i in
-                                 first_10_rows.columns]
-                    ), None)
-        raise PreventUpdate
+        table = dash_table.DataTable(
+            data=df.to_dict('records'),
+            columns=[{"name": i, "id": i} for i in
+                     df.columns],
+            page_size=15,
+            style_table={'width': '800px', 'overflowX': 'auto'},
+        )
+        return None, table, None
+
 
     @app.callback(
         Output('equation2', 'valid'),
@@ -300,16 +277,15 @@ def register_callbacks(app):
         Output('loading_output2', 'children'),
         Output('loading_track_plot', 'children'),
         Input('analyse_show_button2', 'n_clicks'),
-        State('file-dropdown-vivo2', 'value'),
         State('col_track2', 'value'),
         State('col_time2', 'value'),
         State('col_intensity2', 'value'),
         State('dt-param-vivo2', 'value'),
         State('prot-length-param-vivo2', 'value'),
         State('id_track2', 'value'),
-        State('equation2', 'value'),
+        # State('equation2', 'value'),
     )
-    def analyse_display_track(n_clicks,filename, *params):
+    def analyse_display_track(n_clicks, *params):
         figure = make_subplots(rows=2,
                                cols=1,
                                subplot_titles=["track profile",
@@ -317,19 +293,18 @@ def register_callbacks(app):
                                                ])
         if n_clicks:
             try:
-                ## AJOUTER LA VERIFICATION QUE LA TRACK EXISTE,
-                # SINON AFFICHER UN MESSAGE D'ERREUR
-
                 # Read csv file
-                df = read_csv_file(os.path.join(app.data[
-                                                     'directory_analysis_vivo'],
-                                                 filename))
+                df = app.data['csv_to_analyse']
 
                 df.rename(columns={params[0]: 'TRACK_ID',
                                       params[1]: 'FRAME',
                                       params[2]: 'MEAN_INTENSITY_CH1',
                                       },
                              inplace=True)
+
+                if int(params[5]) not in np.unique(df["TRACK_ID"]):
+                    return figure, "This ID does not exist.", "", None
+
                 dt = float(params[3])
                 prot_length = float(params[4])
                 datas2 = df[(df["TRACK_ID"] == int(params[5]))]

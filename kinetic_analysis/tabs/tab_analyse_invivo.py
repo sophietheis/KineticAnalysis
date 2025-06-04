@@ -343,12 +343,9 @@ def register_callbacks(app):
                                                   "dt": dt,
                                                   "id": i, }, index=[0])
                                              ], ignore_index=True)
-                
+
                 output_path = params[5] + ".csv"
                 results.to_csv(output_path, index=False)
-                # results.to_csv(
-                #     os.path.join(app.data['directory_analysis_vivo'],
-                #                  params[5] + ".csv"))
 
                 return "Analysis completed and saved successfully!", None, dcc.send_file(output_path)
             except Exception as e:
