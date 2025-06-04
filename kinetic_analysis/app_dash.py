@@ -64,9 +64,9 @@ app.layout = dbc.Container([
 
     dbc.Tabs(children=[
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
-        dbc.Tab(label="Analyse tracks simu", tab_id="tab-2"),
-        dbc.Tab(label="Analyse tracks in vivo", tab_id="tab-3"),
-        dbc.Tab(label="Analyse one track in vivo - display", tab_id="tab-4"),
+        # dbc.Tab(label="Analyse tracks simu", tab_id="tab-2"),
+        dbc.Tab(label="Analyse tracks", tab_id="tab-3"),
+        dbc.Tab(label="Analyse one track - display", tab_id="tab-4"),
     ],
         id='tabs',
         active_tab='tab-4'),
@@ -81,8 +81,8 @@ app.layout = dbc.Container([
 def render_content(tab):
     if tab == 'tab-1':
         return tab1_layout()
-    elif tab == 'tab-2':
-        return tab2_layout()
+    # elif tab == 'tab-2':
+    #     return tab2_layout()
     elif tab == 'tab-3':
         return tab3_layout()
     elif tab == 'tab-4':
@@ -91,7 +91,7 @@ def render_content(tab):
 
 # Register callbacks
 tab1_callbacks(app)
-tab2_callbacks(app)
+# tab2_callbacks(app)
 tab3_callbacks(app)
 tab4_callbacks(app)
 

@@ -206,6 +206,23 @@ def layout():
             html.Br(),
             html.Br(),
         ]),
+        dbc.Row([
+            html.Div([
+                dcc.Checklist(
+                    id='checkbox_simu',
+                    options=[
+                        {'label': 'Tracks from simulation', 'value':
+                            'checked'}],
+                    value=[],  # default is unchecked
+                    labelStyle={'display': 'inline-block',
+                                'margin-right': '10px'}
+                )
+            ])
+        ]),
+        dbc.Row([
+            html.Br(),
+            html.Br(),
+        ]),
         # Generate Button and Spinner Side by Side
         dbc.Row([
             html.Br(),
@@ -283,6 +300,7 @@ def register_callbacks(app):
         State('dt-param-vivo', 'value'),
         State('prot-length-param-vivo', 'value'),
         State('save-results-name-vivo', 'value'),
+        State('checkbox_simu', 'value')
         # State('equation', 'value'),
     )
     def start_analyze_tracks(n_clicks, *params):
@@ -292,7 +310,6 @@ def register_callbacks(app):
                 return "No CSV file uploaded.", None, None
 
             try:
-
                 # Read csv file
                 df = app.data['csv_to_analyse']
                 df.rename(columns={params[0]: 'TRACK_ID',
@@ -304,7 +321,8 @@ def register_callbacks(app):
                 t = dt / 0.1
                 prot_length = float(params[4])
                 ids_track = np.unique(df["TRACK_ID"])
-
+                check_simu = 'checked' in params[6]
+                
                 first_time = True
                 # Analyse all tracks and save it
                 for i in ids_track:
@@ -326,7 +344,7 @@ def register_callbacks(app):
                                                    method="linear",
                                                    force_analysis=True,
                                                    first_dot=True,
-                                                   simulation=False,)
+                                                   simulation=check_simu,)
                     if first_time:
                         results = pd.DataFrame({"elongation_r": elongation_r,
                                                 "init_translation_r": translation_init_r,
