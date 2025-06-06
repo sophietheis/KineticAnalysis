@@ -16,7 +16,8 @@ def read_csv_file(f):
     datas = pd.read_csv(f,
                         sep=None,
                         engine="python",
-                        index_col=0)
+                        # index_col=0
+                        )
     return datas
 
 

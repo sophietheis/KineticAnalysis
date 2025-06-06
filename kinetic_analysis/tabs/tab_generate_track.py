@@ -41,16 +41,6 @@ def layout():
                 "tracks."]),
             html.Br(),
         ]),
-        # Choose directory
-        dbc.Row([
-            html.Label("Choose Directory to Store Output"),
-            html.Br(),
-            dbc.Button("Select folder", id="select_directory",
-                       className="mr-2",
-                       style={"width": "150px"}, ),
-            html.Div(id='directory-output', style={'margin-top': '10px'}),
-            html.Br(),
-        ]),
         # Define parameter of the simulation
         dbc.Row([
             dbc.Col([
@@ -259,7 +249,9 @@ def layout():
                     ], width="auto"),
                 ], align="center", style={"margin-top": "10px"}),
                 html.Div(id='gen-tracks-output'),
+                dcc.Download(id="download-csv2"),
             ], width=3),
+
 
             # Show plot profile
             dbc.Col([
@@ -386,6 +378,7 @@ def register_callbacks(app):
     @app.callback(
         Output('gen-tracks-output', 'children'),
         Output('loading_generate', 'children'),
+        Output('download-csv2', 'data'),
         Input('start-gen-tracks-btn', 'n_clicks'),
         State('param_prot_length', 'value'),
         State('param_suntag_length', 'value'),
@@ -422,10 +415,12 @@ def register_callbacks(app):
                                         step=float(params[9]),
                                         length=float(params[10]),
                                         )
-                datas.to_csv(os.path.join(app.data['directory_generation'],
-                                          params[12] + ".csv"))
 
-                return "Tracks generated and saved successfully!", None
+                output_path = str(params[12]) + ".csv"
+                datas.to_csv(output_path, index=False)
+
+
+                return "Tracks generated and saved successfully!", None, dcc.send_file(output_path)
             except Exception as e:
-                return f"Error: {str(e)}", None
+                return f"Error: {str(e)}", None, None
         raise PreventUpdate

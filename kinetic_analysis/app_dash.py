@@ -69,7 +69,7 @@ app.layout = dbc.Container([
         dbc.Tab(label="Analyse one track - display", tab_id="tab-4"),
     ],
         id='tabs',
-        active_tab='tab-4'),
+        active_tab='tab-1'),
     html.Div(id='tabs-content')
 ])
 
