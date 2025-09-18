@@ -18,16 +18,18 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_analysis.analysis.analysis_track import (single_track_analysis,
+from kineticanalysis.analysis.analysis_track import (single_track_analysis,
                                      validate_equation,
                                      fit_function)
-from kinetic_analysis.utils.utils import read_csv_file
+from kineticanalysis.utils.utils import read_csv_file
 from .app_function import (upload_csv,
                            list_csv_files,
                            browse_directory)
 
 
 def layout():
+    items = [dbc.DropdownMenuItem("((t - x) / (c * t ** 2)) * heaviside((t - x), 0)"),
+             dbc.DropdownMenuItem("ax+b")]
     return (
         # Analyse track in vivo tab
         # File selection and display
@@ -52,7 +54,7 @@ def layout():
                             dbc.Spinner(
                                 children=[
                                     html.Div(id="loading_data_vivo2")],
-                                size="sm",
+                                size="lm", #"sm"
                                 color="primary",
                                 type="border",
                                 spinner_style={"margin-left": "10px"}
@@ -115,63 +117,102 @@ def layout():
             html.Br(),
             html.Br(),
         ]),
-        # # Choose equation for the analysis
-        # dbc.Row([html.H4("Choose equation for the analysis",
-        #                  style={"text-align": "center",
-        #                         "color": "#10D79B"}),
-        #          html.Br(),
-        #          dcc.Markdown('''
-        #                      By default the model used for analyse track is :
-        #                      $$ \\frac{T - x}{cT^2}
-        #                      H(T - x), $$
-        #                      where $$c$$ is the initiation rate, and $$T$$ is the residence time.
-        #
-        #                      $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
-        #                      elongation rate.
-        #                     ''',
-        #                       mathjax=True),
-        #          html.Div([
-        #              html.P(["Equation ",
-        #                      html.Span(className="fas fa-question-circle",
-        #                                id="faq_equation",
-        #                                style={"cursor": "pointer",
-        #                                       "marginLeft": "5px"})],
-        #                     style={"height": "auto",
-        #                            "margin-bottom": "auto"}),
-        #              dbc.Tooltip(
-        #                  "You can change the equation. Symbols used are"
-        #                  " x (fluorescence input), t (elongation rate) and "
-        #                  "c (initiation rate). If you need other symbols, "
-        #                  "please contact the admin.",
-        #                  target="faq_equation"),
-        #              dbc.Row([
-        #                  dbc.Col([
-        #                      dbc.Input(id='equation2', type='string', value="",
-        #                                style={'width': '300px'}),
-        #                      dbc.FormFeedback('Valid equation input!',
-        #                                       type='valid'),
-        #                      dbc.FormFeedback('Invalid equation input!',
-        #                                       type='invalid'),
-        #                  ], width=3),
-        #                  dbc.Col([
-        #                      dbc.Button('Valid equation',
-        #                                 id='submit-button-equation2',
-        #                                 className="mr-2",
-        #                                 style={"width": "150px"}, ),
-        #                  ], width=3),
-        #              ]),
-        #          ]),
-        #          ]),
-        # dbc.Row([
-        #     html.Br(),
-        #     html.Br(),
-        # ]),
+        # Choose equation for the analysis
+        dbc.Row([html.H4("Choose equation for the analysis",
+                         style={"text-align": "center",
+                                "color": "#10D79B"}),
+                 html.Br(),
+                 dcc.Markdown('''
+                             By default the model used for analyse track is :
+                             $$ \\frac{T - x}{cT^2}
+                             H(T - x), $$
+                             where $$c$$ is the initiation rate, and $$T$$ is the residence time.
+
+                             $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
+                             elongation rate.
+                            ''',
+                              mathjax=True),
+                 html.Div([
+                     html.P(["Equation ",
+                             html.Span(className="fas fa-question-circle",
+                                       id="faq_equation",
+                                       style={"cursor": "pointer",
+                                              "marginLeft": "5px"})],
+                            style={"height": "auto",
+                                   "margin-bottom": "auto"}),
+                     dbc.Tooltip(
+                         "You can change the equation. Symbols used are"
+                         " x (fluorescence input), t (elongation rate) and "
+                         "c (initiation rate). If you need other symbols, "
+                         "please contact the admin.",
+                         target="faq_equation"),
+
+                     dbc.Row([
+                         dbc.Col([
+                             dbc.Select(["None",
+                                         "((t - x) / (c * t ** 2)) * "
+                                          "heaviside((t - x), 0)",
+                                        "ax+b (not working"],
+                                        "None",
+                                               id="equation1",
+                                               className="mr-2",
+                                              style={"width": 350,
+                                                    }, )
+                         ], width=4),
+                         dbc.Col([
+                             dbc.Button('Valid equation',
+                                        id='submit-button-equation1',
+                                        className="mr-2",
+                                        style={"width": "150px"}, ),
+                         ], width=3),
+                     ]),
+                     html.Br(),
+                     dbc.Row([
+                         dbc.Col([
+                             dbc.Input(id='equation2',
+                                       type='string',
+                                       value="",
+                                       placeholder="Enter equation",
+                                       style={'width': '350px'}),
+                             dbc.FormFeedback('Valid equation input!',
+                                              type='valid'),
+                             dbc.FormFeedback('Invalid equation input!',
+                                              type='invalid'),
+                         ], width=4),
+                         dbc.Col([
+                             dbc.Button('Valid equation',
+                                        id='submit-button-equation2',
+                                        className="mr-2",
+                                        style={"width": "150px"}, ),
+                         ], width=3),
+                     ]),
+                     # display the chosen equation and that it is valid
+                     dbc.Row([
+                         html.Div(id='loading_equation_output'),
+                     ]),
+                 ]),
+                 ]),
+        dbc.Row([
+            html.Br(),
+            html.Br(),
+        ]),
+
         # Choose parameters for the analysis
         dbc.Row([
             html.H4("Confirm parameters for the analysis",
                     style={"text-align": "center",
                            "color": "#10D79B"}),
-            html.Br(),
+        ]),
+        # html.Br(),
+        # Put here the chosen equation
+        dbc.Row([
+            dbc.Col(html.P("The chosen equation is :", className="mb-0"),
+                    width="auto"),
+            dbc.Col(html.Div(id='equation_select'), width="auto"),
+            dbc.Col(html.Div(id='equation_select1'), width="auto"),
+        ]),
+        # html.Br(),
+        dbc.Row([
             dbc.Col([
                 html.Div([
                     html.P("dt (sec)", style={"height": "auto",
@@ -253,22 +294,45 @@ def register_callbacks(app):
 
 
     @app.callback(
+        Output("equation_select1", "children"),
+        Input('submit-button-equation1', 'n_clicks'),
+        Input('equation1', 'value')
+    )
+    def validate_input2(n_clicks, value):
+        if n_clicks:
+            if value is None:
+                return "None"
+            else:
+                v_bool, v_message, func_, expr_ = validate_equation(value)
+                if value and v_bool:
+                    app.data["equation_f"] = func_
+
+                    return str(expr_)
+                else:
+                    return ""
+        return ""
+
+
+    @app.callback(
         Output('equation2', 'valid'),
         Output('equation2', 'invalid'),
+        Output("loading_equation_output", "children"),
+        Output("equation_select", "children"),
         Input('submit-button-equation2', 'n_clicks'),
         State('equation2', 'value')
     )
     def validate_input2(n_clicks, value):
         if n_clicks:
             if not value:
-                return False, False
-            v_bool, v_message, func_ = validate_equation(value)
+                return False, False, f"Write an equation.", ""
+            v_bool, v_message, func_, expr_ = validate_equation(value)
             if value and v_bool:
                 app.data["equation_f"] = func_
-                return True, False
+                print(v_message)
+                return True, False, v_message, str(expr_)
             else:
-                return False, True
-        return False, False
+                return False, True, v_message, ""
+        return False, False, "", ""
 
 
     @app.callback(

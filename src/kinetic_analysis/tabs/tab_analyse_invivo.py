@@ -18,10 +18,10 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_analysis.analysis.analysis_track import (single_track_analysis,
+from kineticanalysis.analysis.analysis_track import (single_track_analysis,
                                      validate_equation)
 
-from kinetic_analysis.utils.utils import read_csv_file
+from kineticanalysis.utils.utils import read_csv_file
 
 from .app_function import (upload_csv,
                            list_csv_files,

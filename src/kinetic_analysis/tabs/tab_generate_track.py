@@ -18,7 +18,7 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_analysis.generator.generator_track import (generate_one_track,
+from kineticanalysis.generator.generator_track import (generate_one_track,
                                        generate_tracks,
                                        generate_profile)
 

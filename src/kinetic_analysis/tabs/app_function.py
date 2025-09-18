@@ -20,7 +20,7 @@ import dash_spinner
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kinetic_analysis.utils.utils import read_csv_file
+from kineticanalysis.utils.utils import read_csv_file
 
 def upload_csv(contents, app):
     if contents is None:

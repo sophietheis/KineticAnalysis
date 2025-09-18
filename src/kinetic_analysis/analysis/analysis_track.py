@@ -76,15 +76,20 @@ def validate_equation(equation):
         # Sympify using sympy's full namespace
         expr = sp.sympify(equation, locals=sp.__dict__)
 
+        # Check letters in the equation
+        if expr.free_symbols != {x,t,c}:
+            return (False, f"Too much or not enough letters, expected x, t, "
+                           f"c",
+                    None, None)
         # Convert the sympy expression to a callable function
         func_ = sp.lambdify((x, t, c), expr, modules=["numpy"])
     except (sp.SympifyError, SyntaxError) as e:
-        return False, f"Error parsing the equation: {e}", None
+        return False, f"Error parsing the equation: {e}", None, None
 
     except Exception as e:
-        return False, f"An unexpected error occurred: {e}", None,
+        return False, f"An unexpected error occurred: {e}", None, None
 
-    return True, "", func_
+    return True, "", func_, expr
 
 
 def fit_function_string(equation):
