@@ -196,7 +196,7 @@ def layout():
             html.Br(),
             html.Br(),
         ]),
-
+        html.Br(),
         # Choose parameters for the analysis
         dbc.Row([
             html.H4("Confirm parameters for the analysis",
@@ -294,9 +294,10 @@ def register_callbacks(app):
 
 
     @app.callback(
-        Output("equation_select1", "children"),
+        Output("equation_select", "children", allow_duplicate=True),
         Input('submit-button-equation1', 'n_clicks'),
-        Input('equation1', 'value')
+        Input('equation1', 'value'),
+        prevent_initial_call=True,
     )
     def validate_input2(n_clicks, value):
         if n_clicks:
@@ -368,7 +369,7 @@ def register_callbacks(app):
 
                 if int(params[5]) not in np.unique(df["TRACK_ID"]):
                     return figure, "This ID does not exist.", "", None
-
+                print(app.data["equation_f"])
                 dt = float(params[3])
                 prot_length = float(params[4])
                 datas2 = df[(df["TRACK_ID"] == int(params[5]))]
@@ -386,7 +387,7 @@ def register_callbacks(app):
                                                normalise_auto=True,
                                                mm=None,
                                                rtol=1e-1,
-                                               method="linear",
+                                               method="original",
                                                force_analysis=True,
                                                first_dot=False,
                                                simulation=False,
