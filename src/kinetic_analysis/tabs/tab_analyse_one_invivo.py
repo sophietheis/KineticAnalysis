@@ -1,30 +1,16 @@
-import os
-import time
-import threading
-import webview
-
-from threading import Thread
-
 import numpy as np
-import pandas as pd
-import tkinter as tk
-from tkinter import filedialog
 
-from dash import Dash, html, dcc, Input, Output, State, dash_table
-from dash.exceptions import PreventUpdate
+from dash import  html, dcc, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc
-import dash_spinner
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kineticanalysis.analysis.analysis_track import (single_track_analysis,
-                                     validate_equation,
-                                     fit_function)
-from kineticanalysis.utils.utils import read_csv_file
-from .app_function import (upload_csv,
-                           list_csv_files,
-                           browse_directory)
+from .app_function import (upload_csv)
+from ..analysis.analysis_track import (single_track_analysis,
+                                       validate_equation,
+                                       fit_function,
+                                       check_track_validity)
 
 
 def layout():
@@ -92,13 +78,21 @@ def layout():
             ]),
             dbc.Col([
                 html.Div([
-                    html.P("Time column",
+                    html.P(["Time column",
+                            html.Span(className="fas fa-question-circle",
+                                       id="faq_time_col",
+                                       style={"cursor": "pointer",
+                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dcc.Input(id='col_time2',
                               type='text',
                               value="FRAME",
                               style={'width': '200px'}),
+                    dbc.Tooltip(
+                        "It corresponds to a FRAME column. This will be "
+                        "multiply by the dt time step.",
+                        target="faq_time_col"),
                 ]),
             ]),
             dbc.Col([
@@ -192,11 +186,11 @@ def layout():
                      ]),
                  ]),
                  ]),
+
         dbc.Row([
             html.Br(),
             html.Br(),
         ]),
-        html.Br(),
         # Choose parameters for the analysis
         dbc.Row([
             html.H4("Confirm parameters for the analysis",
@@ -222,8 +216,16 @@ def layout():
             ]),
             dbc.Col([
                 html.Div([
-                    html.P("Protein length (aa)", style={"height": "auto",
-                                                         "margin-bottom": "auto"}),
+                    html.P(["Protein length (aa)",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_prot_length",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                            style={"height": "auto",
+                                "margin-bottom": "auto"}),
+                    dbc.Tooltip("Length of the protein + SunTag in amino "
+                                "acid.",
+                                target="faq_prot_length"),
                     dcc.Input(id='prot-length-param-vivo2', type='number',
                               value=800),
                 ]),
@@ -238,10 +240,56 @@ def layout():
                               value=0),
                 ]),
             ]),
-            html.Br(),
+            # html.Br(),
         ]),
         dbc.Row([
+            dbc.Col([
+                html.Div([
+                    html.P(["Missing point",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_missing_point",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("How many continuous missing point can "
+                                "we recover. If it is too much the track will "
+                                "not be analysed. For now, missing point are "
+                                "created by calculated the mean value.",
+                                target="faq_missing_point"),
+                    dcc.Input(id='missing_point_param_vivo',
+                              type='number',
+                              value=5),
+                ]),
+            ]),
+        ]),
+
+        dbc.Row([
             html.Br(),
+        ]),
+
+        # Tick box to choose if we use the first dot for the analysis
+        dbc.Row(
+            [
+                # dbc.Label(" "),
+                dbc.Checklist(options=[{"label": "Include the first dot of "
+                                                 "the autocorrelation curve "
+                                                 "in the fit.",
+                                        "value": 0}],
+                              id="switches_first_dot",
+                              switch=False, ),
+            ]),
+        dbc.Row(
+            [
+                # dbc.Label(" "),
+                dbc.Checklist(options=[{"label": "Force the analysis even if "
+                                                 "time is not continuous.",
+                                        "value": 0}],
+                              id="switches_force_analysis",
+                              switch=False, ),
+            ]),
+
+        dbc.Row([
             html.Br(),
         ]),
         # Generate Button and Spinner Side by Side
@@ -259,8 +307,10 @@ def layout():
                 )
             ], width="auto"),
         ], align="center", style={"margin-top": "10px"}),
+        html.Div(id="loading_output_track"),
         html.Div(id='loading_output1'),
         html.Div(id='loading_output2'),
+        html.Div(id='loading_output3'),
         dbc.Row([
             dcc.Graph(id='plot_results'),
         ]),
@@ -338,8 +388,10 @@ def register_callbacks(app):
 
     @app.callback(
         Output('plot_results', 'figure'),
+        Output('loading_output_track', 'children'),
         Output('loading_output1', 'children'),
         Output('loading_output2', 'children'),
+        Output('loading_output3', 'children'),
         Output('loading_track_plot', 'children'),
         Input('analyse_show_button2', 'n_clicks'),
         State('col_track2', 'value'),
@@ -348,7 +400,9 @@ def register_callbacks(app):
         State('dt-param-vivo2', 'value'),
         State('prot-length-param-vivo2', 'value'),
         State('id_track2', 'value'),
-        # State('equation2', 'value'),
+        State("missing_point_param_vivo", 'value'),
+        State("switches_first_dot", "value"),
+        State("switches_force_analysis", "value"),
     )
     def analyse_display_track(n_clicks, *params):
         figure = make_subplots(rows=2,
@@ -358,6 +412,7 @@ def register_callbacks(app):
                                                ])
         if n_clicks:
             try:
+                str_output_force = ""
                 # Read csv file
                 df = app.data['csv_to_analyse']
 
@@ -368,40 +423,88 @@ def register_callbacks(app):
                              inplace=True)
 
                 if int(params[5]) not in np.unique(df["TRACK_ID"]):
-                    return figure, "This ID does not exist.", "", None
-                print(app.data["equation_f"])
+                    return figure, "", "This ID does not exist.", "", "", None
+
                 dt = float(params[3])
-                prot_length = float(params[4])
+                prot_length = int(params[4])
                 datas2 = df[(df["TRACK_ID"] == int(params[5]))]
-                (x,
-                 y,
-                 x_auto,
-                 y_auto,
-                 elongation_r,
-                 translation_init_r,
-                 perr) = single_track_analysis(datas2,
-                                               int(params[5]),
-                                               delta_t=dt,
-                                               protein_size=prot_length,
-                                               normalise_intensity=1,
-                                               normalise_auto=True,
-                                               mm=None,
-                                               rtol=1e-1,
-                                               method="original",
-                                               force_analysis=True,
-                                               first_dot=False,
-                                               simulation=False,
-                                               func_ = app.data["equation_f"]
-                                               )
+                first_dot = bool(params[-2])
+                force_analysis = bool(params[-1])
+
+                valid, x, y, x_fix, y_fix = check_track_validity(datas2,
+                                            int(params[5]),
+                                            normalise_intensity=1,
+                                            delta_t = dt,
+                                            rtol=1e-1,
+                                            nb_missing_point=int(params[6]),
+                                            )
+
+                # if valid, track can be analysed
+                if valid:
+                    (x_auto,
+                     y_auto,
+                     elongation_r,
+                     translation_init_r,
+                     perr) = single_track_analysis(x_fix,
+                                                   y_fix,
+                                                   delta_t=dt,
+                                                   protein_size=prot_length,
+                                                   mm=None,
+                                                   normalise_auto=True,
+                                                   method="original",
+                                                   first_dot=first_dot,
+                                                   simulation=False,
+                                                   func_=app.data["equation_f"]
+                                                   )
+                else:
+                    if force_analysis:
+                        (x_auto,
+                         y_auto,
+                         elongation_r,
+                         translation_init_r,
+                         perr) = single_track_analysis(x_fix,
+                                                       y_fix,
+                                                       delta_t=dt,
+                                                       protein_size=prot_length,
+                                                       mm=None,
+                                                       normalise_auto=True,
+                                                       method="original",
+                                                       first_dot=first_dot,
+                                                       simulation=False,
+                                                       func_=app.data[
+                                                           "equation_f"]
+                                                       )
+                        str_output_force = f"Analysis has been forced!"
+                    else:
+                        return (figure, "This track can't be analysed, "
+                                        "there is too much missing point. "
+                                        "If you want to force the analysis, "
+                                        "you can either increase the missing "
+                                        "point value or tick the force "
+                                        "analysis box.",
+                                "", "","", None)
+
+
+
 
                 # plot track profile
-                figure.add_trace(go.Scatter(x=x,
+                figure.add_trace(go.Scatter(x=x*dt,
                                             y=y,
                                             mode="lines",
-                                            name="Signal"),
+                                            name="Signal",
+                                            line_color="#1A51DB"), #Blue
                                             row=1,
                                             col=1,
                                             )
+
+                figure.add_trace(go.Scatter(x=x_fix*dt,
+                                            y=y_fix,
+                                            mode="lines+markers",
+                                            name="Signal correct",
+                                            line_color="#DBA41A"), #Orange
+                                 row=1,
+                                 col=1,
+                                 )
                 figure.update_xaxes(title_text='Time (sec)', row=1, col=1)
                 figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
@@ -409,7 +512,8 @@ def register_callbacks(app):
                 figure.add_trace(go.Scatter(x=x_auto,
                                             y=y_auto,
                                             mode="lines",
-                                            name="Autocorrelation"),
+                                            name="Autocorrelation",
+                                            line_color="#000000"), #Black
                                             row=2,
                                             col=1),
 
@@ -417,7 +521,8 @@ def register_callbacks(app):
                                             y=fit_function(x_auto,
                                                            prot_length/elongation_r, 1/translation_init_r)[:int(len(x_auto)/2)],
                                             mode="lines",
-                                            name="Fit"),
+                                            name="Fit",
+                                            line_color="#B80909"), #Red
                                  row=2,
                                  col=1),
 
@@ -432,13 +537,14 @@ def register_callbacks(app):
                 str_output2 = (f"initiation rate: "
                               f"{translation_init_r:.2f} rib/sec")
 
-                return figure, str_output1, str_output2, None
+                str_output3 = (f"perr: "
+                               f"{perr} ")
+                return figure, str_output_force, str_output1, str_output2, str_output3, None
             except Exception as e:
                 print(e)
                 return {
                     'data': [],
                     'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
                                         yaxis={'title': 'Fluorescence'})
-                }, str(e),"",  None
-            raise PreventUpdate
-        return figure, "", "", None
+                },"",  str(e),"", "", None
+        return figure, "",  "", "", "", None

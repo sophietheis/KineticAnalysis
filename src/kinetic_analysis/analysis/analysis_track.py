@@ -1,13 +1,10 @@
 import multipletau
-import warnings
+# import warnings
 
 import numpy as np
-import pandas as pd
 import sympy as sp
 
 from scipy import optimize
-import scipy.signal
-import scipy.io.wavfile
 
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
@@ -169,9 +166,9 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
         t_sign = np.where(signchange == 1)[0][0]
     print(t_sign)
 
-    # find when the curve cross the x axis
-    ysignvalue = np.sign(y)
-    t_xaxis = np.where(ysignvalue==-1)[0][0]
+    # find when the curve cross the x_axis
+    y_sign_value = np.sign(y)
+    t_xaxis = np.where(y_sign_value==-1)[0][0]
     # If the sign change happen in a negative value
     if t_sign < t_xaxis:
         t = t_xaxis
@@ -190,16 +187,68 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
     return elongation_r, translation_init_r, [-1, -1]
 
 
-def single_track_analysis(df,
-                          id_track=0,
+def check_track_validity(df,
+                         id_track,
+                         delta_t,
+                         normalise_intensity=1,
+                         simulation=False,
+                         rtol=1e-4,
+                         nb_missing_point=5):
+    # Extract time point and multiply by delta_t to get the real time of
+    # each frame
+    x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+             'FRAME'].values -
+         min(df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+                 'FRAME'].values))
+
+    # Extract intensity value
+    y = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+             'MEAN_INTENSITY_CH1'].values / normalise_intensity)
+    x_orig = x
+    y_orig = y
+
+    if not simulation:
+        x = x * delta_t
+
+    # Check if time is continuous and fix it if gap not too big
+    if not check_continuous_time(x, delta_t, rtol=rtol):
+
+        if (np.diff(x) < (nb_missing_point * delta_t)).all():
+            # fix the time difference if it misses less than nb_missing_point
+            i = 0
+            while i < (len(x) - 1):
+
+                if np.round(x[i + 1] - x[i], decimals=2) > delta_t:
+
+                    # How many points to add
+                    x_add = [x[i]+delta_t]
+                    y_add = [(y[i]+y[i+1]) /2]
+
+                    while x_add[-1]<(x[i+1]-delta_t):
+                        x_add.append(x_add[-1]+delta_t)
+                        y_add.append((y_add[-1]+y[i+1])/2)
+
+                    x = np.concatenate((x[:i+1],
+                                        np.array(x_add),
+                                        x[i+1:]))
+                    y = np.concatenate((y[:i+1],
+                                        np.array(y_add),
+                                        y[i+1:]))
+                i += 1
+            i += 1
+        else:
+            print("Gap is too big - not fix")
+            return False, x_orig, y_orig, x/delta_t, y
+
+    return True, x_orig, y_orig, x/delta_t, y
+
+def single_track_analysis(x,
+                          y,
                           delta_t=0.5,
                           protein_size=1500,
-                          normalise_intensity=1,
                           normalise_auto=True,
                           mm=None,
-                          rtol=1e-4,
                           method="original",
-                          force_analysis=False,
                           first_dot=True,
                           simulation=False,
                           func_=fit_function):
@@ -208,9 +257,9 @@ def single_track_analysis(df,
 
     Parameters
     ----------
-    df : pd.df
+    x : pd.df
         dataframe that contains tracks
-    id_track : int
+    y : int
         id of the track that will be analysed
     delta_t : float
         time between two time point in sec
@@ -236,6 +285,8 @@ def single_track_analysis(df,
     simulation : bool
         define if the track come from a simulation (True) or an experiment
         (False), default value : False
+    func_ : function
+        contains the function that is used for the fit
 
     Returns
     -------
@@ -266,39 +317,8 @@ def single_track_analysis(df,
     to rename column(s).
     """
 
-    #### METTRE CETTE PREMIERE PARTIE DANS UNE FONCTION A PART
-    # Extract time point and multiply by delta_t to get the real time of
-    # each frame
-    x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-             'FRAME'].values -
-         min(df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-                 'FRAME'].values))
     if not simulation:
         x = x * delta_t
-    # Extract intensity value
-    y = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-             'MEAN_INTENSITY_CH1'].values / normalise_intensity)
-
-    # Check if time is continuous and fix it if gap not too big
-    if not check_continuous_time(x, delta_t, rtol=rtol):
-        print("Time not continuous")
-        times_diff = np.diff(x)[
-            np.where(np.isclose(np.diff(x), delta_t, rtol=rtol) == False)]
-        if (times_diff < (5 * delta_t)).all():
-            # fix the time difference if it misses less than 5 points
-            print("to fix")
-            i = 0
-            while i < (len(x) - 1):
-                if np.round(x[i] - x[i + 1], decimals=2) > delta_t:
-                    x = x[:i + 1] + [(x[i] + x[i + 1]) / 2] + x[i + 1:]
-                i += 1
-        else:
-            print("not fix")
-            if not force_analysis:
-                return np.repeat(np.nan, 7)
-            else:
-                warnings.warn("Analysis is forced for track " + str(id_track),
-                              UserWarning)
 
     # Perform the autocorrelation
     x_auto, y_auto = autocorrelation(y, delta_t, normalise_auto, mm)
@@ -321,7 +341,7 @@ def single_track_analysis(df,
     else:
         (elongation_r, translation_init_r, perr) = np.nan, np.nan, np.nan
 
-    return x, y, x_auto, y_auto, elongation_r, translation_init_r, perr
+    return x_auto, y_auto, elongation_r, translation_init_r, perr
 
 
 def check_continuous_time(x, dt, rtol=0.001):

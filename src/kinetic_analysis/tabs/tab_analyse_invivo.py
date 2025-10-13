@@ -186,8 +186,16 @@ def layout():
             ]),
             dbc.Col([
                 html.Div([
-                    html.P("Protein length (aa)", style={"height": "auto",
-                                                         "margin-bottom": "auto"}),
+                    html.P(["Protein length (aa)",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_prot_length",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Length of the protein + SunTag in amino "
+                                "acid.",
+                                target="faq_prot_length"),
                     dcc.Input(id='prot-length-param-vivo', type='number',
                               value=800),
                 ]),
@@ -349,7 +357,8 @@ def register_callbacks(app):
                         results = pd.DataFrame({"elongation_r": elongation_r,
                                                 "init_translation_r": translation_init_r,
                                                 "dt": dt,
-                                                "id": i, },
+                                                "id": i,
+                                                "perr":perr},
                                                index=[0])
                         first_time = False
 
@@ -359,7 +368,8 @@ def register_callbacks(app):
                                                  {"elongation_r": elongation_r,
                                                   "init_translation_r": translation_init_r,
                                                   "dt": dt,
-                                                  "id": i, }, index=[0])
+                                                  "id": i,
+                                                  "perr":perr}, index=[0])
                                              ], ignore_index=True)
 
                 output_path = params[5] + ".csv"
