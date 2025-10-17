@@ -14,12 +14,17 @@ from ..analysis.analysis_track import (single_track_analysis,
 
 
 def layout():
-    items = [dbc.DropdownMenuItem("((t - x) / (c * t ** 2)) * heaviside((t - x), 0)"),
+    items = [dbc.DropdownMenuItem(
+        "((t - x) / (c * t ** 2)) * heaviside((t - x), 0)"),
              dbc.DropdownMenuItem("ax+b")]
     return (
         # Analyse track in vivo tab
         # File selection and display
         dbc.Row([
+            html.H4("Upload data",
+                    style={"text-align": "center",
+                           "color": "#10D79B"}),
+            html.Br(),
             dbc.Col([
                 html.Div([
                     # Choose a csv file
@@ -182,7 +187,7 @@ def layout():
                      ]),
                      # display the chosen equation and that it is valid
                      dbc.Row([
-                         html.Div(id='loading_equation_output'),
+                         html.Div(id='loading_equation_output2'),
                      ]),
                  ]),
                  ]),
@@ -202,8 +207,8 @@ def layout():
         dbc.Row([
             dbc.Col(html.P("The chosen equation is :", className="mb-0"),
                     width="auto"),
-            dbc.Col(html.Div(id='equation_select'), width="auto"),
-            dbc.Col(html.Div(id='equation_select1'), width="auto"),
+            dbc.Col(html.Div(id='equation_select0'), width="auto"),
+            # dbc.Col(html.Div(id='equation_select1'), width="auto"),
         ]),
         # html.Br(),
         dbc.Row([
@@ -257,17 +262,22 @@ def layout():
                                 "not be analysed. For now, missing point are "
                                 "created by calculated the mean value.",
                                 target="faq_missing_point"),
-                    dcc.Input(id='missing_point_param_vivo',
+                    dcc.Input(id='missing_point_param_vivo2',
                               type='number',
                               value=5),
                 ]),
             ]),
         ]),
 
-        dbc.Row([
-            html.Br(),
-        ]),
-
+        dbc.Row(
+            [
+                # dbc.Label(" "),
+                dbc.Checklist(options=[{"label": "Force the analysis even if "
+                                                 "time is not continuous.",
+                                        "value": 0}],
+                              id="switches_force_analysis2",
+                              switch=False, ),
+            ]),
         # Tick box to choose if we use the first dot for the analysis
         dbc.Row(
             [
@@ -276,16 +286,7 @@ def layout():
                                                  "the autocorrelation curve "
                                                  "in the fit.",
                                         "value": 0}],
-                              id="switches_first_dot",
-                              switch=False, ),
-            ]),
-        dbc.Row(
-            [
-                # dbc.Label(" "),
-                dbc.Checklist(options=[{"label": "Force the analysis even if "
-                                                 "time is not continuous.",
-                                        "value": 0}],
-                              id="switches_force_analysis",
+                              id="switches_first_dot2",
                               switch=False, ),
             ]),
 
@@ -344,7 +345,7 @@ def register_callbacks(app):
 
 
     @app.callback(
-        Output("equation_select", "children", allow_duplicate=True),
+        Output("equation_select0", "children", allow_duplicate=True),
         Input('submit-button-equation1', 'n_clicks'),
         Input('equation1', 'value'),
         prevent_initial_call=True,
@@ -367,8 +368,8 @@ def register_callbacks(app):
     @app.callback(
         Output('equation2', 'valid'),
         Output('equation2', 'invalid'),
-        Output("loading_equation_output", "children"),
-        Output("equation_select", "children"),
+        Output("loading_equation_output2", "children"),
+        Output("equation_select0", "children"),
         Input('submit-button-equation2', 'n_clicks'),
         State('equation2', 'value')
     )
@@ -400,9 +401,9 @@ def register_callbacks(app):
         State('dt-param-vivo2', 'value'),
         State('prot-length-param-vivo2', 'value'),
         State('id_track2', 'value'),
-        State("missing_point_param_vivo", 'value'),
-        State("switches_first_dot", "value"),
-        State("switches_force_analysis", "value"),
+        State("missing_point_param_vivo2", 'value'),
+        State("switches_first_dot2", "value"),
+        State("switches_force_analysis2", "value"),
     )
     def analyse_display_track(n_clicks, *params):
         figure = make_subplots(rows=2,
