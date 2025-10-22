@@ -174,10 +174,10 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
         t = t_xaxis
     else:
         t = t_sign
-    print(t_xaxis)
-    print(t)
-    print(x[:t])
-    print(y[:t])
+    # print(t_xaxis)
+    # print(t)
+    # print(x[:t])
+    # print(y[:t])
 
     elongation_r = protein_size / x[t]
     if len(x[:t]) < 2:
@@ -248,7 +248,7 @@ def single_track_analysis(x,
                           protein_size=1500,
                           normalise_auto=True,
                           mm=None,
-                          method="original",
+                          method="curve",
                           first_dot=True,
                           simulation=False,
                           func_=fit_function):
@@ -324,7 +324,8 @@ def single_track_analysis(x,
     x_auto, y_auto = autocorrelation(y, delta_t, normalise_auto, mm)
 
     # Apply the method of analysis
-    if method == "original":
+    if method == "curve":
+        print("curve")
         (elongation_r,
          translation_init_r,
          perr) = fit_autocorrelation_original(x_auto,
@@ -333,6 +334,7 @@ def single_track_analysis(x,
                                               protein_size=protein_size,
                                               first_dot=first_dot)
     elif method == "linear":
+        print("linear")
         (elongation_r,
          translation_init_r,
          perr) = fit_autocorrelation_linear(x_auto,

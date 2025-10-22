@@ -46,7 +46,9 @@ app.data = {
     'csv_files': [],
     'fig': None,
     'selected_file': None,
+    'solver': "curve fit",
     'equation_f': fit_function,
+    'equation_display': fit_function,
     'csv_to_analyse': None,
 }
 
