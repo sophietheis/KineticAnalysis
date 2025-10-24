@@ -1,6 +1,8 @@
 import numpy as np
+import pandas as pd
 
 from dash import  html, dcc, Input, Output, State, dash_table
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
 import plotly.graph_objs as go
@@ -221,9 +223,9 @@ def layout():
             dbc.Col(html.P("The chosen equation is :", className="mb-0"),
                     width="auto"),
             dbc.Col(html.Div(id='equation_select0'), width="auto"),
-            # dbc.Col(html.Div(id='equation_select1'), width="auto"),
+
         ]),
-        # html.Br(),
+
         dbc.Row([
             dbc.Col([
                 html.Div([
@@ -248,17 +250,6 @@ def layout():
                               value=800),
                 ]),
             ]),
-            dbc.Col([
-                html.Div([
-                    html.P("id of the track to analyse",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='id_track2',
-                              type='number',
-                              value=0),
-                ]),
-            ]),
-            # html.Br(),
         ]),
         dbc.Row([
             dbc.Col([
@@ -303,35 +294,93 @@ def layout():
                               switch=False, ),
             ]),
 
-        dbc.Row([
-            html.Br(),
-        ]),
+        html.Br(),
+
         # Generate Button and Spinner Side by Side
         dbc.Row([
+            # Analysis ONE track and ID of the track
             dbc.Col([
-                dbc.Button('Analyse and show one track',
-                           id='analyse_show_button2'),
-            ], width="auto"),
+                html.H5("Display of one track",
+                        style={"text-align": "center"}),
+                dbc.Row([
+                    html.Div([
+                        html.P("id of the track to analyse",
+                               style={"height": "auto",
+                                      "margin-bottom": "auto"}),
+                        dcc.Input(id='id_track2',
+                                  type='number',
+                                  value=0),
+                    ]),
+                ]),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button('Analyse and display ONE track',
+                                   id='analyse_show_button2',
+                                   className="mr-2",
+                                   style={"width": "300px"}, ),
+                    ], width="auto"),
 
+                    dbc.Col([
+                        dbc.Spinner(
+                            children=[html.Div(id="loading_track_plot")],
+                            size="sm", color="primary", type="border",
+                            spinner_style={"margin-left": "10px"}
+                        )
+                    ], width="auto"),
+                ], align="center", style={"margin-top": "10px"}),
+                html.Div(id="loading_output_track"),
+                html.Div(id='loading_output1'),
+                html.Div(id='loading_output2'),
+                html.Div(id='loading_output3'),
+            ], style={'border': 'ridge',
+                      'background-color': '#defffb'}),
+
+            # Analysis ALL tracks and filename
             dbc.Col([
-                dbc.Spinner(
-                    children=[html.Div(id="loading_track_plot")],
-                    size="sm", color="primary", type="border",
-                    spinner_style={"margin-left": "10px"}
-                )
-            ], width="auto"),
-        ], align="center", style={"margin-top": "10px"}),
-        html.Div(id="loading_output_track"),
-        html.Div(id='loading_output1'),
-        html.Div(id='loading_output2'),
-        html.Div(id='loading_output3'),
+                html.H5("Analyse all tracks",
+                        style={"text-align": "center"}),
+                dbc.Row([
+                    html.Div([
+                        html.P("File name to save", style={"height": "auto",
+                                                           "margin-bottom": "auto"}),
+                        dcc.Input(id='save-results-name-vivo', type='text',
+                                  value='datas_results'),
+                    ]),
+                ]),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button('Analyse ALL Tracks',
+                                   id='start-analyze-btn-vivo',
+                                   className="mr-2",
+                                   style={"width": "300px"}, ),
+                    ], width="auto"),
+
+                    dbc.Col([
+                        dbc.Spinner(
+                            children=[html.Div(id="loading_analysis_vivo")],
+                            size="sm", color="primary", type="border",
+                            spinner_style={"margin-left": "10px"}
+                        )
+                    ], width="auto"),
+                ], align="center", style={"margin-top": "10px",}),
+                html.Div(id='analyze-output-vivo'),
+                dcc.Download(id="download-csv"),
+            ], style={'border': 'ridge',
+                      'background-color': '#e6ffde'}),
+        ]),
+
+        html.Br(),
+        html.Br(),
+
         dbc.Row([
+            html.H5("Display of one track",
+                    style={"text-align": "center"}),
             dcc.Graph(id='plot_results'),
         ]),
-        dbc.Row([
-            html.Br(),
-            html.Br(),
-        ]),
+
+        html.Br(),
+        html.Br(),
+
     )
 
 
@@ -631,3 +680,162 @@ def register_callbacks(app):
                                         yaxis={'title': 'Fluorescence'})
                 },"",  str(e),"", "", None
         return figure, "",  "", "", "", None
+
+
+    @app.callback(
+        Output('analyze-output-vivo', 'children'),
+        Output('loading_analysis_vivo', 'children'),
+        Output('download-csv', 'data'),
+        Input('start-analyze-btn-vivo', 'n_clicks'),
+
+        State('col_track2', 'value'), #0
+        State('col_time2', 'value'), #1
+        State('col_intensity2', 'value'), #2
+        State('dt-param-vivo2', 'value'), #3
+        State('prot-length-param-vivo2', 'value'), #4
+        State("missing_point_param_vivo2", 'value'), #5
+        State("switches_first_dot2", "value"), #6
+        State("switches_force_analysis2", "value"), #7
+        State('save-results-name-vivo', 'value'), #8
+        # State('checkbox_simu', 'value') #9
+    )
+    def start_analyze_all_tracks(n_clicks, *params):
+
+        if n_clicks:
+            print("click")
+            if app.data['csv_to_analyse'] is None:
+                return "No CSV file uploaded.", None, None
+
+            try:
+                print("start")
+                # Read csv file
+                df = app.data['csv_to_analyse']
+                df.rename(columns={params[0]: 'TRACK_ID',
+                                   params[1]: 'FRAME',
+                                   params[2]: 'MEAN_INTENSITY_CH1',
+                                  },
+                         inplace=True)
+                dt = float(params[3])
+                prot_length = int(params[4])
+                nb_missing_point = int(params[5])
+
+                first_dot = bool(params[6])
+                force_analysis = bool(params[7])
+                # check_simu = 'checked' in params[9]
+
+                # Check solver/equation parameters are present
+                # if valid, track can be analysed
+                if app.data["solver"] == "curve fit":
+                    method = "curve"
+                    # TODO : check equation are selected
+
+                elif app.data["solver"] == "linear fit":
+                    method = "linear"
+
+                ids_track = np.unique(df["TRACK_ID"])
+                first_time = True
+                # Analyse all tracks and save it
+                for i in ids_track:
+                    print(i)
+                    datas2 = df[(df["TRACK_ID"] == i)]
+
+                    (valid,
+                     x,
+                     y,
+                     x_fix,
+                     y_fix) = check_track_validity(datas2,
+                                                   i,
+                                                   normalise_intensity=1,
+                                                   delta_t=dt,
+                                                   rtol=1e-1,
+                                                   nb_missing_point=nb_missing_point,
+                                                   )
+
+                    if valid or force_analysis:
+                        comment = ""
+                        if force_analysis:
+                            comment = "analysis forced"
+                        (x_auto,
+                         y_auto,
+                         elongation_r,
+                         translation_init_r,
+                         perr) = single_track_analysis(x_fix,
+                                                       y_fix,
+                                                       delta_t=dt,
+                                                       protein_size=prot_length,
+                                                       mm=None,
+                                                       normalise_auto=True,
+                                                       method=method,
+                                                       first_dot=first_dot,
+                                                       simulation=False,
+                                                       func_=app.data["equation_f"]
+                                                       )
+                        print(elongation_r, translation_init_r)
+                        if first_time:
+                            results = pd.DataFrame({
+                                                    "id": i,
+                                                    "dt": dt,
+                                                    "length": len(x_fix),
+                                                    "elongation_r": elongation_r,
+                                                    "init_translation_r": translation_init_r,
+                                                    "perr0":perr[0],
+                                                    "perr1": perr[1],
+                                                    "comment": comment},
+                                                   index=[0])
+                            first_time = False
+
+                        else:
+                            results = pd.concat([results,
+                                                 pd.DataFrame(
+                                                     {
+                                                        "id": i,
+                                                        "dt": dt,
+                                                        "length": len(x_fix),
+                                                        "elongation_r": elongation_r,
+                                                        "init_translation_r": translation_init_r,
+                                                        "perr0":perr[0],
+                                                        "perr1": perr[1],
+                                                        "comment":comment},
+                                                     index=[0])
+                                                 ], ignore_index=True)
+                    else:
+                        if first_time:
+                            results = pd.DataFrame(
+                                {
+                                 "id": i,
+                                 "dt": np.nan,
+                                 "length": len(x_fix),
+                                 "elongation_r": np.nan,
+                                 "init_translation_r": np.nan,
+                                 "perr0": np.nan,
+                                 "perr1": np.nan,
+                                 "comment":"cant be analysed"},
+                                index=[0])
+                            first_time = False
+
+                        else:
+                            results = pd.concat([results,
+                                                 pd.DataFrame(
+                                                     {
+                                                         "id": i,
+                                                         "dt": np.nan,
+                                                         "length": len(x_fix),
+                                                         "elongation_r":
+                                                             np.nan,
+                                                         "init_translation_r": np.nan,
+                                                         "perr0": np.nan,
+                                                         "perr1": np.nan,
+                                                     "comment":"cant be "
+                                                               "analysed"},
+                                                     index=[0])
+                                                 ], ignore_index=True)
+
+
+
+                output_path = params[8] + ".csv"
+                results.to_csv(output_path, index=False)
+
+                return "Analysis completed and saved successfully!", None, dcc.send_file(output_path)
+            except Exception as e:
+                return f"Error: {str(e)}", None, None
+        raise PreventUpdate

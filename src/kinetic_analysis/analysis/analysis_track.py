@@ -341,7 +341,8 @@ def single_track_analysis(x,
                                             y_auto,
                                             protein_size=protein_size)
     else:
-        (elongation_r, translation_init_r, perr) = np.nan, np.nan, np.nan
+        (elongation_r, translation_init_r, perr) = np.nan, np.nan, [np.nan,
+                                                                    np.nan]
 
     return x_auto, y_auto, elongation_r, translation_init_r, perr
 
