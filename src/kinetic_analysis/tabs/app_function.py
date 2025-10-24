@@ -1,26 +1,11 @@
 import io
 import os
 import base64
-import time
-import threading
-import webview
 
-from threading import Thread
-
-import numpy as np
-import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 
-from dash import Dash, html, dcc, Input, Output, State, dash_table
-from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
-import dash_spinner
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-
-from kineticanalysis.utils.utils import read_csv_file
+from ..utils.utils import read_csv_file
 
 def upload_csv(contents, app):
     if contents is None:
