@@ -15,4 +15,4 @@ COPY . .
 RUN pip install .
 
 EXPOSE 5001
-CMD [ "python", "kinetic_analysis/app_dash.py"]
+CMD [ "python", "src/kinetic_analysis/app_dash.py"]
