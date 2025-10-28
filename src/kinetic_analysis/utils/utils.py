@@ -87,3 +87,28 @@ def rename_columns(df, old_columns, new_columns):
         raise "lengths of old_columns is different of new_columns"
     for i in range(len(old_columns)):
         df.rename(columns={old_columns[i]: new_columns[i]}, inplace=True)
+
+
+def calculate_msd(x, y, z):
+    """
+    Calculate mean square displacement of the track.
+
+    Parameters
+    ----------
+    x : np.array
+        position in x_axis
+    y : np.array
+        position in y_axis
+    z : np.array
+        position in z_axis
+
+    Returns
+    -------
+    msd : float
+        mean square displacement value
+    """
+    r = (x ** 2 + y ** 2 + z ** 2) ** 0.5
+    diff = np.diff(r)
+    diff_sq = diff ** 2
+    msd = [np.mean(diff_sq[0:i]) for i in range(1, len(diff_sq))]
+    return msd
