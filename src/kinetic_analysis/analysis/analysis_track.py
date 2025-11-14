@@ -1,9 +1,13 @@
 import multipletau
 # import warnings
+import lmfit
 
 import numpy as np
 import sympy as sp
 
+from math import factorial
+
+from pandas.core.groupby.base import transformation_kernels
 from scipy import optimize
 
 
@@ -101,9 +105,25 @@ def fit_function_string(equation):
 
     return func_
 
+def fit_function_exact(x, k, c, N):
+    return (k/c)*(2/3)*(1/((N*(N+1))**2)) * np.exp(-k*x) * (
+        sum((N-n)*(N-n+1)*((2*N)+n+1)*(((k*x)**n)/factorial(n)) for n in range (0, int(N)))
+    )
+
+def fit_autocorrelation_exact(x, y, N=32):
+    model = lmfit.Model(fit_function_exact)
+    params = lmfit.Parameters()
+    params.add('N', value=N, vary=False)
+    params.add('k', value=1, min=0)
+    params.add('c', value=1, min=0)
+
+    result = model.fit(y, params, x=x)
+
+    return (result.params["k"].value, result.params["c"].value,
+            [result.params["k"].stderr, result.params["c"].stderr] )
 
 # old fit_autocorrelation
-def fit_autocorrelation_original(x, y, func_=fit_function, method='lm',
+def fit_autocorrelation_approx(x, y, func_=fit_function, method='lm',
                                  protein_size=1500, first_dot=True):
     """
     Fit autocorrelation curve with func_
@@ -124,11 +144,11 @@ def fit_autocorrelation_original(x, y, func_=fit_function, method='lm',
                                     y,
                                     method=method)
 
-    elongation_r = protein_size / popt[0]
-    translation_init_r = 1 / popt[1]
+    # elongation_r = protein_size / popt[0]
+    # translation_init_r = 1 / popt[1]
 
-    return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
-
+    # return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
+    return popt[0], popt[1], np.sqrt(np.diag(pcov))
 
 # old fit_autocorrelation_v2
 def fit_autocorrelation_linear(x, y, protein_size=1200):
@@ -164,7 +184,7 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
         t_sign = -1
     else:
         t_sign = np.where(signchange == 1)[0][0]
-    print(t_sign)
+
 
     # find when the curve cross the x_axis
     y_sign_value = np.sign(y)
@@ -174,18 +194,13 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
         t = t_xaxis
     else:
         t = t_sign
-    # print(t_xaxis)
-    # print(t)
-    # print(x[:t])
-    # print(y[:t])
-
-    elongation_r = protein_size / x[t]
+    # print(t_sign, t)
+    # elongation_r = protein_size / x[t]
     if len(x[:t]) < 2:
         return -1, -1, [-1, -1]
     res_fit = np.polyfit(x[:t], y[:t], 1)
-    translation_init_r = (res_fit[1] * x[t])
-    return elongation_r, translation_init_r, [-1, -1]
-
+    # translation_init_r = (res_fit[1] * x[t])
+    return(res_fit[0], res_fit[1], [np.nan, np.nan])
 
 def check_track_validity(df,
                          id_track,
@@ -246,6 +261,8 @@ def single_track_analysis(x,
                           y,
                           delta_t=0.5,
                           protein_size=1500,
+                          suntag_size=800,
+                          repetition_suntag=32,
                           normalise_auto=True,
                           mm=None,
                           method="curve",
@@ -324,27 +341,45 @@ def single_track_analysis(x,
     x_auto, y_auto = autocorrelation(y, delta_t, normalise_auto, mm)
 
     # Apply the method of analysis
-    if method == "curve":
-        print("curve")
-        (elongation_r,
-         translation_init_r,
-         perr) = fit_autocorrelation_original(x_auto,
+    if method =="exact" :
+        print("exact")
+        (k, c, perr) = fit_autocorrelation_exact(x_auto,
+                                                 y_auto,
+                                                 N = repetition_suntag)
+        elongation_r = (suntag_size/repetition_suntag)/(1/k)
+        translation_init_r = c
+
+
+
+    elif method == "approx":
+        print("approx")
+        (k, c, perr) = fit_autocorrelation_approx(x_auto,
                                               y_auto,
-                                              func_,
-                                              protein_size=protein_size,
+                                              fit_function, #func_,
+                                              protein_size=(protein_size+suntag_size),
                                               first_dot=first_dot)
+
+        # elongation_r = ((protein_size+suntag_size)) / k
+        print(k, c, )
+        elongation_r =( (suntag_size) / k )
+        translation_init_r = (1 / (c * k))
+
     elif method == "linear":
         print("linear")
-        (elongation_r,
-         translation_init_r,
-         perr) = fit_autocorrelation_linear(x_auto,
+        (k, c, perr) = fit_autocorrelation_linear(x_auto,
                                             y_auto,
-                                            protein_size=protein_size)
-    else:
-        (elongation_r, translation_init_r, perr) = np.nan, np.nan, [np.nan,
-                                                                    np.nan]
+                                            protein_size=(protein_size+suntag_size))
 
-    return x_auto, y_auto, elongation_r, translation_init_r, perr
+        T = -c/k
+        elongation_r = suntag_size / T
+        translation_init_r = 1/(c*T)
+
+    else:
+        (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
+                                                          np.nan, np.nan,
+                                                         [np.nan, np.nan])
+
+    return x_auto, y_auto, k, c , elongation_r, translation_init_r, perr
 
 
 def check_continuous_time(x, dt, rtol=0.001):

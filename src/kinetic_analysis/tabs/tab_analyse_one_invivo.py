@@ -12,6 +12,7 @@ from .app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
                                        validate_equation,
                                        fit_function,
+                                       fit_function_exact,
                                        check_track_validity)
 
 
@@ -20,7 +21,8 @@ def layout():
                       "((t - x) / (c * t ** 2)) * heaviside((t - x), 0)",
                       ]
     items_solver = ["",
-                    "curve fit",
+                    "exact_fit",
+                    "approximation fit",
                     "linear fit"]
 
     return (
@@ -132,10 +134,9 @@ def layout():
             dbc.Col([
                 html.H5("Solver"),
                 dcc.Markdown('''
-                     Choose the solver. You can choose between 
-                     curve_fit and linear solver. Curve_fit solver 
-                     will use the equation, while linear fit don't 
-                     use the equation. 
+                     Choose the solver. \n
+                     You can choose between exact_fit, approximation_fit 
+                     and linear_fit. \n 
                     ''',
                              mathjax=True),
 
@@ -143,22 +144,33 @@ def layout():
                            id="choose-solver1",
                            className="mr-2",
                            style={"width":350},),
+
+                dcc.Markdown('''
+                            If you choose exact_fit, the default the 
+                             equation used is :
+                             $$ G(T) = \\frac{k}{c}(\\frac{2}{3})\\frac{
+                             1}{(N(N+1))^2}e^{-kT} \\sum_{n=0}^N(N-n)(
+                             N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} $$
+                             where $$c$$ is the initiation rate, $$k$$ 
+                             the elongation rate and $$T$$ is 
+                             the residence time.
+
+                             If you choose approximation_fit, the default the 
+                             equation used is :
+                             $$ G(x) = \\frac{T - x}{cT^2}
+                             H(T - x), $$
+                             where $$c$$ is the initiation rate, and $$T$$ is the residence time.
+
+                             $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
+                             elongation rate.
+                            ''',
+                             mathjax=True),
             ]),
 
             # Equation
             dbc.Col([
                 html.H5("Equation"),
-                dcc.Markdown('''
-                         If you choose curve_fit, the default the equation 
-                         used is :
-                         $$ \\frac{T - x}{cT^2}
-                         H(T - x), $$
-                         where $$c$$ is the initiation rate, and $$T$$ is the residence time.
-                
-                         $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
-                         elongation rate.
-                        ''',
-                          mathjax=True),
+
                 dcc.Markdown('''
                 You can change the equation. Symbols used are: 
                 * x (fluorescence input), 
@@ -167,7 +179,9 @@ def layout():
                 
                 If you need other symbols, please contact the admin.
                 '''),
-
+                dcc.Markdown(''' This part is not working (and it is not 
+                useful) ''',
+                             style={'color': 'red', }),
                 dbc.Select(options=items_equation,
                             id="equation1",
                             className="mr-2",
@@ -197,7 +211,6 @@ def layout():
                 dbc.Row([
                      html.Div(id='loading_equation_output2'),
                 ]),
-
             ]),
 
         ]),
@@ -219,12 +232,12 @@ def layout():
                     width="auto"),
             dbc.Col(html.Div(id="choosen-solver1"), width="auto"),
         ]),
-        dbc.Row([
-            dbc.Col(html.P("The chosen equation is :", className="mb-0"),
-                    width="auto"),
-            dbc.Col(html.Div(id='equation_select0'), width="auto"),
-
-        ]),
+        # dbc.Row([
+        #     dbc.Col(html.P("The chosen equation is :", className="mb-0"),
+        #             width="auto"),
+        #     dbc.Col(html.Div(id='equation_select0'), width="auto"),
+        #
+        # ]),
 
         dbc.Row([
             dbc.Col([
@@ -236,6 +249,22 @@ def layout():
             ]),
             dbc.Col([
                 html.Div([
+                    html.P(["Suntag length (aa)",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_prot_length",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Length of the SunTag in amino "
+                                "acid.",
+                                target="faq_prot_length"),
+                    dcc.Input(id='suntag-length-param-vivo2', type='number',
+                              value=800),
+                ]),
+            ]),
+            dbc.Col([
+                html.Div([
                     html.P(["Protein length (aa)",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_prot_length",
@@ -243,7 +272,7 @@ def layout():
                                              "marginLeft": "5px"})],
                             style={"height": "auto",
                                 "margin-bottom": "auto"}),
-                    dbc.Tooltip("Length of the protein + SunTag in amino "
+                    dbc.Tooltip("Length of the protein in amino "
                                 "acid.",
                                 target="faq_prot_length"),
                     dcc.Input(id='prot-length-param-vivo2', type='number',
@@ -271,6 +300,27 @@ def layout():
                               value=5),
                 ]),
             ]),
+            dbc.Col([
+                html.Div([
+                    html.P(["Number of suntag",
+                            html.Span(className="fas fa-question-circle",
+                                      id="faq_prot_length",
+                                      style={"cursor": "pointer",
+                                             "marginLeft": "5px"})],
+                           style={"height": "auto",
+                                  "margin-bottom": "auto"}),
+                    dbc.Tooltip("Number of suntag repetition.",
+                                target="faq_prot_length"),
+                    dcc.Input(id='repetition-suntag-param-vivo2',
+                              type='number',
+                              value=32),
+                ]),
+            ]),
+
+            dbc.Col([
+
+            ]),
+
         ]),
 
         dbc.Row(
@@ -287,7 +337,7 @@ def layout():
             [
                 # dbc.Label(" "),
                 dbc.Checklist(options=[{"label": "Include the first dot of "
-                                                 "the autocorrelation curve "
+                                                 "the autocorrelation "
                                                  "in the fit.",
                                         "value": 0}],
                               id="switches_first_dot2",
@@ -407,16 +457,16 @@ def register_callbacks(app):
 
     @app.callback(
         Output("choosen-solver1", "children"),
-        Output("equation_select0", "children", allow_duplicate=True),
+        # Output("equation_select0", "children", allow_duplicate=True),
         Input('choose-solver1', 'value'),
         prevent_initial_call=True,
     )
     def validate_solver2(value):
         app.data["solver"] = value
-        if value == "linear fit":
-            app.data["equation_f"] = None
-            app.data["equation_display"] = None
-        return value, str(app.data["equation_display"])
+        # if value == "linear fit":
+        #     app.data["equation_f"] = None
+        #     app.data["equation_display"] = None
+        return value #, str(app.data["equation_display"])
 
 
     @app.callback(
@@ -469,15 +519,17 @@ def register_callbacks(app):
         Output('loading_output3', 'children'),
         Output('loading_track_plot', 'children'),
         Input('analyse_show_button2', 'n_clicks'),
-        State('col_track2', 'value'),
-        State('col_time2', 'value'),
-        State('col_intensity2', 'value'),
-        State('dt-param-vivo2', 'value'),
-        State('prot-length-param-vivo2', 'value'),
-        State('id_track2', 'value'),
-        State("missing_point_param_vivo2", 'value'),
-        State("switches_first_dot2", "value"),
-        State("switches_force_analysis2", "value"),
+        State('col_track2', 'value'), #0
+        State('col_time2', 'value'), #1
+        State('col_intensity2', 'value'), #2
+        State('dt-param-vivo2', 'value'), #3
+        State('prot-length-param-vivo2', 'value'), #4
+        State('suntag-length-param-vivo2', 'value'), #5
+        State('repetition-suntag-param-vivo2', 'value'), #6
+        State('id_track2', 'value'), #7
+        State("missing_point_param_vivo2", 'value'), #8
+        State("switches_first_dot2", "value"), #9
+        State("switches_force_analysis2", "value"), #10
     )
     def analyse_display_track(n_clicks, *params):
         figure = make_subplots(rows=3,
@@ -498,30 +550,35 @@ def register_callbacks(app):
                                       },
                              inplace=True)
 
-                if int(params[5]) not in np.unique(df["TRACK_ID"]):
+                if int(params[7]) not in np.unique(df["TRACK_ID"]):
                     return figure, "", "This ID does not exist.", "", "", None
 
                 dt = float(params[3])
                 prot_length = int(params[4])
-                datas2 = df[(df["TRACK_ID"] == int(params[5]))]
+                suntag_length = int(params[5])
+                repetition_suntag = int(params[6])
+                datas2 = df[(df["TRACK_ID"] == int(params[7]))]
                 first_dot = bool(params[-2])
                 force_analysis = bool(params[-1])
 
                 # Check solver/equation parameters are present
                 # if valid, track can be analysed
-                if app.data["solver"] == "curve fit":
-                    method = "curve"
+                if app.data["solver"] == "exact_fit":
+                    method = "exact"
+
+                elif app.data["solver"] == "approximation fit":
+                    method = "approx"
                     # TODO : check equation are selected
 
                 elif app.data["solver"] == "linear fit":
                     method = "linear"
 
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
-                                            int(params[5]),
+                                            int(params[7]),
                                             normalise_intensity=1,
                                             delta_t = dt,
                                             rtol=1e-1,
-                                            nb_missing_point=int(params[6]),
+                                            nb_missing_point=int(params[-3]),
                                             )
 
 
@@ -529,12 +586,15 @@ def register_callbacks(app):
                 if valid:
                     (x_auto,
                      y_auto,
+                     k, c,
                      elongation_r,
                      translation_init_r,
                      perr) = single_track_analysis(x_fix,
                                                    y_fix,
                                                    delta_t=dt,
                                                    protein_size=prot_length,
+                                                   suntag_size=suntag_length,
+                                                   repetition_suntag=repetition_suntag,
                                                    mm=None,
                                                    normalise_auto=True,
                                                    method=method,
@@ -546,6 +606,7 @@ def register_callbacks(app):
                     if force_analysis:
                         (x_auto,
                          y_auto,
+                         k,c,
                          elongation_r,
                          translation_init_r,
                          perr) = single_track_analysis(x_fix,
@@ -610,26 +671,67 @@ def register_callbacks(app):
                                             line_color="#000000"),  # Black
                                  row=2,
                                  col=1),
+                if method == "exact":
+                    figure.add_trace(
+                        go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
+                                   y=fit_function_exact(x_auto,
+                                                        k, c, repetition_suntag)[
+                                       :int(len(x_auto) / 2)],
+                                   mode="lines",
+                                   name="Fit",
+                                   line_color="#B80909"),  # Red
+                        row=2,
+                        col=1),
 
-                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)],
-                                            y=fit_function(x_auto,
-                                                           prot_length/elongation_r, 1/translation_init_r)[:int(len(x_auto)/2)],
-                                            mode="lines",
-                                            name="Fit",
-                                            line_color="#B80909"), #Red
-                                 row=2,
-                                 col=1),
+                    figure.add_trace(
+                        go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
+                                   y=fit_function_exact(x_auto,
+                                                        k, c, repetition_suntag)[
+                                       :int(len(x_auto) / 2)],
+                                   mode="markers",
+                                   name="Fit",
+                                   line_color="#B80909"),  # Red
+                        row=2,
+                        col=1),
 
-                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                            y=fit_function(x_auto,
-                                                           prot_length / elongation_r,
-                                                           1 / translation_init_r)[
-                                                :int(len(x_auto) / 2)],
-                                            mode="markers",
-                                            name="Fit",
-                                            line_color="#B80909"),  # Red
-                                 row=2,
-                                 col=1),
+                elif method =="approx" :
+                    figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)],
+                                                y=fit_function(x_auto,
+                                                               k, c)[:int(len(
+                                                    x_auto)/2)],
+                                                mode="lines",
+                                                name="Fit",
+                                                line_color="#B80909"), #Red
+                                     row=2,
+                                     col=1),
+
+                    figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
+                                                y=fit_function(x_auto,
+                                                               k, c)[:int(len(
+                                                    x_auto) / 2)],
+                                                mode="markers",
+                                                name="Fit",
+                                                line_color="#B80909"),  # Red
+                                     row=2,
+                                     col=1),
+
+                else :
+                    figure.add_trace(go.Scatter(x=x_auto[:int(-c/k)+1],
+                                                y=(x_auto*k+c)[:int(-c/k)+1],
+                                                mode="lines",
+                                                name="Fit",
+                                                line_color="#B80909"), #Red
+                                     row=2,
+                                     col=1),
+
+                    figure.add_trace(go.Scatter(x=x_auto[:int(-c/k)+1],
+                                                y=(x_auto*k+c)[:int(-c/k)+1],
+                                                mode="markers",
+                                                name="Fit",
+                                                line_color="#B80909"),  # Red
+                                     row=2,
+                                     col=1),
+
 
                 figure.update_xaxes(title_text='Time delay (tau)',
                                     row=2,
@@ -693,10 +795,12 @@ def register_callbacks(app):
         State('col_intensity2', 'value'), #2
         State('dt-param-vivo2', 'value'), #3
         State('prot-length-param-vivo2', 'value'), #4
-        State("missing_point_param_vivo2", 'value'), #5
-        State("switches_first_dot2", "value"), #6
-        State("switches_force_analysis2", "value"), #7
-        State('save-results-name-vivo', 'value'), #8
+        State('suntag-length-param-vivo2', 'value'), #5
+        State('repetition-suntag-param-vivo2', 'value'), #6
+        State("missing_point_param_vivo2", 'value'), #7
+        State("switches_first_dot2", "value"), #8
+        State("switches_force_analysis2", "value"), #9
+        State('save-results-name-vivo', 'value'), #10
         # State('checkbox_simu', 'value') #9
     )
     def start_analyze_all_tracks(n_clicks, *params):
@@ -717,16 +821,20 @@ def register_callbacks(app):
                          inplace=True)
                 dt = float(params[3])
                 prot_length = int(params[4])
-                nb_missing_point = int(params[5])
+                suntag_length = int(params[5])
+                repetition_suntag = int(params[6])
+                nb_missing_point = int(params[7])
 
-                first_dot = bool(params[6])
-                force_analysis = bool(params[7])
+                first_dot = bool(params[8])
+                force_analysis = bool(params[9])
                 # check_simu = 'checked' in params[9]
 
                 # Check solver/equation parameters are present
                 # if valid, track can be analysed
-                if app.data["solver"] == "curve fit":
-                    method = "curve"
+                if app.data["solver"] == "exact_fit":
+                    method = "exact"
+                elif app.data["solver"] == "approximation fit":
+                    method = "approx"
                     # TODO : check equation are selected
 
                 elif app.data["solver"] == "linear fit":
@@ -757,12 +865,15 @@ def register_callbacks(app):
                             comment = "analysis forced"
                         (x_auto,
                          y_auto,
+                         k,c,
                          elongation_r,
                          translation_init_r,
                          perr) = single_track_analysis(x_fix,
                                                        y_fix,
                                                        delta_t=dt,
                                                        protein_size=prot_length,
+                                                       suntag_size=suntag_length,
+                                                       repetition_suntag=repetition_suntag,
                                                        mm=None,
                                                        normalise_auto=True,
                                                        method=method,
@@ -770,12 +881,14 @@ def register_callbacks(app):
                                                        simulation=False,
                                                        func_=app.data["equation_f"]
                                                        )
-                        print(elongation_r, translation_init_r)
+                        print(k, c, elongation_r, translation_init_r)
                         if first_time:
                             results = pd.DataFrame({
                                                     "id": i,
                                                     "dt": dt,
                                                     "length": len(x_fix),
+                                                    "k":k,
+                                                    "c":c,
                                                     "elongation_r": elongation_r,
                                                     "init_translation_r": translation_init_r,
                                                     "perr0":perr[0],
@@ -791,6 +904,8 @@ def register_callbacks(app):
                                                         "id": i,
                                                         "dt": dt,
                                                         "length": len(x_fix),
+                                                        "k": k,
+                                                        "c": c,
                                                         "elongation_r": elongation_r,
                                                         "init_translation_r": translation_init_r,
                                                         "perr0":perr[0],
@@ -805,6 +920,8 @@ def register_callbacks(app):
                                  "id": i,
                                  "dt": np.nan,
                                  "length": len(x_fix),
+                                 "k": np.nan,
+                                 "c": np.nan,
                                  "elongation_r": np.nan,
                                  "init_translation_r": np.nan,
                                  "perr0": np.nan,
@@ -820,6 +937,8 @@ def register_callbacks(app):
                                                          "id": i,
                                                          "dt": np.nan,
                                                          "length": len(x_fix),
+                                                         "k": np.nan,
+                                                         "c": np.nan,
                                                          "elongation_r":
                                                              np.nan,
                                                          "init_translation_r": np.nan,
@@ -832,7 +951,7 @@ def register_callbacks(app):
 
 
 
-                output_path = params[8] + ".csv"
+                output_path = params[-1] + ".csv"
                 results.to_csv(output_path, index=False)
 
                 return "Analysis completed and saved successfully!", None, dcc.send_file(output_path)
