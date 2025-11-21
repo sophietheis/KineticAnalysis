@@ -7,7 +7,7 @@ from tkinter import filedialog
 
 from ..utils.utils import read_csv_file
 
-def upload_csv(contents, app):
+def upload_csv(contents, app, name="csv_to_analyse"):
     if contents is None:
         return None, ""
 
@@ -21,7 +21,7 @@ def upload_csv(contents, app):
         return None, f"Failed to parse CSV: {str(e)}"
 
     # Save to app data
-    app.data['csv_to_analyse'] = df
+    app.data[name] = df
 
     return df, f"Success to parse CSV"
 

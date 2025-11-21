@@ -7,14 +7,15 @@ import dash_bootstrap_components as dbc
 from kineticanalysis.tabs.tab_generate_track import layout as tab1_layout
 from kineticanalysis.tabs.tab_generate_track import register_callbacks as tab1_callbacks
 
-from kineticanalysis.tabs.tab_analyse_simu import layout as tab2_layout
-from kineticanalysis.tabs.tab_analyse_simu import register_callbacks as tab2_callbacks
+from kineticanalysis.tabs.tab_equation_choice import layout as tab2_layout
+from kineticanalysis.tabs.tab_equation_choice import register_callbacks as tab2_callbacks
 
-from kineticanalysis.tabs.tab_analyse_invivo import layout as tab3_layout
-from kineticanalysis.tabs.tab_analyse_invivo import register_callbacks as tab3_callbacks
+from kineticanalysis.tabs.tab_analyse_one_invivo import layout as tab3_layout
+from kineticanalysis.tabs.tab_analyse_one_invivo import (register_callbacks as tab3_callbacks)
 
-from kineticanalysis.tabs.tab_analyse_one_invivo import layout as tab4_layout
-from kineticanalysis.tabs.tab_analyse_one_invivo import register_callbacks as tab4_callbacks
+from kineticanalysis.tabs.tab_count_ribosome import layout as tab4_layout
+from kineticanalysis.tabs.tab_count_ribosome import (register_callbacks as
+                                                     tab4_callbacks)
 
 from kineticanalysis.analysis.analysis_track import fit_function
 
@@ -51,9 +52,9 @@ app.layout = dbc.Container([
 
     dbc.Tabs(children=[
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
-        # dbc.Tab(label="Analyse tracks simu", tab_id="tab-2"),
-        # dbc.Tab(label="Analyse tracks", tab_id="tab-3"),
-        dbc.Tab(label="Analyse track - display & all tracks", tab_id="tab-4"),
+        dbc.Tab(label="Choose the equation", tab_id="tab-2"),
+        dbc.Tab(label="Track Analysis - display & all tracks", tab_id="tab-3"),
+        dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
     ],
         id='tabs',
         active_tab='tab-1'),
@@ -68,18 +69,18 @@ app.layout = dbc.Container([
 def render_content(tab):
     if tab == 'tab-1':
         return tab1_layout()
-    # elif tab == 'tab-2':
-    #     return tab2_layout()
-    # elif tab == 'tab-3':
-    #     return tab3_layout()
+    elif tab == 'tab-2':
+        return tab2_layout()
+    elif tab == 'tab-3':
+        return tab3_layout()
     elif tab == 'tab-4':
         return tab4_layout()
 
 
 # Register callbacks
 tab1_callbacks(app)
-# tab2_callbacks(app)
-# tab3_callbacks(app)
+tab2_callbacks(app)
+tab3_callbacks(app)
 tab4_callbacks(app)
 
 

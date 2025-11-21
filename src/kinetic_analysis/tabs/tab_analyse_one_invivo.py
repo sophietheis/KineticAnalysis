@@ -442,7 +442,7 @@ def register_callbacks(app):
         Input('browse_directory_analyze_vivo2', 'contents'),
     )
     def browse_directory_analyze_vivo2(contents):
-        df, output = upload_csv(contents, app)
+        df, output = upload_csv(contents, app, "csv_to_analyse")
         if df is None:
             return output, None, None
 
