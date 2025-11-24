@@ -1,8 +1,10 @@
 import time
 import requests
 
-from dash import Dash, html, Input, Output
+from dash import Dash, html, Input, Output, dcc
 import dash_bootstrap_components as dbc
+
+from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
 
 from kineticanalysis.tabs.tab_generate_track import layout as tab1_layout
 from kineticanalysis.tabs.tab_generate_track import register_callbacks as tab1_callbacks
@@ -22,6 +24,8 @@ from kineticanalysis.analysis.analysis_track import fit_function
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
            )
+app.css.append_css({"external_url": "/assets/main.css"})
+app.server.static_folder = "assets"
 app.title = "Kinetic analysis app"
 
 # Global variables to store states
@@ -40,24 +44,17 @@ app.data = {
 
 app.layout = dbc.Container([
     html.H1("Kinetic Analysis"),
-    html.P(
-        "This tool is made to estimate the kinetic parameters of translation"
-        " (initiation rate and elongation rate). "),
-    html.P("You can find different tabs: "),
-    html.Li("Track generator: generate tracks to test parameters"),
-    html.Li("Track analysis simulation : analyse tracks from simulation"),
-    html.Li("Track analysis in vivo : analyse tracks from in vivo "
-            "experiments"),
-    html.Br(),
+    dcc.Markdown("*Tool to estimate the kinetic parameters of translation.*"),
 
     dbc.Tabs(children=[
+        dbc.Tab(label="Introduction", tab_id="tab-0"),
         dbc.Tab(label="Generate tracks", tab_id="tab-1"),
         dbc.Tab(label="Choose the equation", tab_id="tab-2"),
         dbc.Tab(label="Track Analysis - display & all tracks", tab_id="tab-3"),
         dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
     ],
         id='tabs',
-        active_tab='tab-4'),
+        active_tab='tab-0'),
     html.Div(id='tabs-content')
 ])
 
@@ -67,7 +64,9 @@ app.layout = dbc.Container([
     Input('tabs', 'active_tab')
 )
 def render_content(tab):
-    if tab == 'tab-1':
+    if tab == 'tab-0':
+        return tab0_layout()
+    elif tab == 'tab-1':
         return tab1_layout()
     elif tab == 'tab-2':
         return tab2_layout()
@@ -75,6 +74,8 @@ def render_content(tab):
         return tab3_layout()
     elif tab == 'tab-4':
         return tab4_layout()
+    else:
+        return None
 
 
 # Register callbacks

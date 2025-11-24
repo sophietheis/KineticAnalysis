@@ -356,14 +356,34 @@ def register_callbacks(app):
                 # Plot number of translation
                 figure.add_trace(go.Scatter(x=x, y=y_number,
                                             mode='lines',
-                                            name='Profile track'),
+                                            name='Number of protein being '
+                                                 'translated'),
                                  row=3,
                                  col=1)
                 figure.update_xaxes(title_text='Time (sec)', row=3, col=1)
                 figure.update_yaxes(title_text='Number of translation', row=3,
                                     col=1)
 
-                figure.update_layout(width=1000, height=800, )
+                for i in range(1,4):
+                    figure.update_xaxes(mirror=True,
+                                        ticks='outside',
+                                        showline=True,
+                                        linecolor='black',
+                                        gridcolor='lightgrey',
+                                        row=i,
+                                        col=1)
+                    figure.update_yaxes(mirror=True,
+                                        ticks='outside',
+                                        showline=True,
+                                        linecolor='black',
+                                        gridcolor='lightgrey',
+                                        row=i,
+                                        col=1)
+
+                figure.update_layout(width=1000,
+                                     height=800,
+                                     plot_bgcolor="white",
+                                     )
                 return figure
 
             except Exception as e:

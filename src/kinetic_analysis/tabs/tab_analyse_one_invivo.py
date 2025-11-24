@@ -764,7 +764,27 @@ def register_callbacks(app):
                                     row=3,
                                     col=1)
                 figure.update_yaxes(title_text='Delta', row=3, col=1)
-                figure.update_layout(width=1000, height=800, )
+
+                for i in range(1, 4):
+                    figure.update_xaxes(mirror=True,
+                                        ticks='outside',
+                                        showline=True,
+                                        linecolor='black',
+                                        gridcolor='lightgrey',
+                                        row=i,
+                                        col=1)
+                    figure.update_yaxes(mirror=True,
+                                        ticks='outside',
+                                        showline=True,
+                                        linecolor='black',
+                                        gridcolor='lightgrey',
+                                        row=i,
+                                        col=1)
+
+                figure.update_layout(width=1000,
+                                     height=800,
+                                     plot_bgcolor="white"
+                                     )
 
                 str_output1 = (f"elongation rate: "
                               f"{elongation_r:.2f} aa/sec ")

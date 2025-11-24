@@ -82,7 +82,7 @@ def layout():
                 html.Label("Single protein fluorescence dataFrame visualisation"),
                 html.Div(id="table_container_single", children=[]),
                 html.Br(),
-            ], width=5),
+            ], width=6),
 
             dbc.Col([
                 html.H5("Polysome fluorescence", ),
@@ -121,7 +121,7 @@ def layout():
                     "Polysome fluorescence dataFrame visualisation"),
                 html.Div(id="table_container_polysome", children=[]),
 
-            ], width=5),
+            ], width=6),
         ]),
         html.Br(),
         html.Br(),
