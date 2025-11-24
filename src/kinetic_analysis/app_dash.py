@@ -57,7 +57,7 @@ app.layout = dbc.Container([
         dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
     ],
         id='tabs',
-        active_tab='tab-1'),
+        active_tab='tab-4'),
     html.Div(id='tabs-content')
 ])
 
