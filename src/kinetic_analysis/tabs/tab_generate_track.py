@@ -1,18 +1,5 @@
-from uuid import uuid4
-
-from dash import html, dcc, Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash import html, dcc
 import dash_bootstrap_components as dbc
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-
-from ..generator.generator_track import (generate_one_track,
-                                       generate_tracks,
-                                       generate_profile)
-
-from .app_function import (browse_directory)
-
 
 def layout():
     return (html.Div([
@@ -34,65 +21,67 @@ def layout():
 
         # Define parameter of the simulation
         dbc.Row([
-            dbc.Col([
+            dbc.Col(children =[
                 html.Div([
-                    html.P(["Protein length (aa) ",
-                            html.Span(className="fas fa-question-circle",
-                                      id="faq_param_prot_length",
-                                      style={"cursor": "pointer",
-                                             "marginLeft": "5px"})],
+                    html.P(children = ["Protein length (aa) ",
+                                       html.Span(className="fas fa-question-circle",
+                                                 id="faq_param_prot_length",
+                                                 style={"cursor": "pointer",
+                                                        "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}
                            ),
-                    dbc.Tooltip("Length of the protein in amino acid. This "
+                    dbc.Tooltip(children = "Length of the protein in amino acid. This "
                                 "value will be added to suntag length.",
                                 target="faq_param_prot_length"),
+
                     dcc.Input(id='param_prot_length', type='number', value=490,
                               style={'width': '200px'}),
                 ]),
+
                 html.Div([
-                    html.P(["Suntag length (aa) ",
+                    html.P(children = ["Suntag length (aa) ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_suntag_length",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Length of the suntag in amino acid. This "
+                    dbc.Tooltip(children = "Length of the suntag in amino acid. This "
                                 "value will be added to protein length.",
                                 target="faq_param_suntag_length"),
                     dcc.Input(id='param_suntag_length', type='number', value=796,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Number of suntag ",
+                    html.P(children = ["Number of suntag ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_nb_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Number of suntag repetition",
+                    dbc.Tooltip(children = "Number of suntag repetition",
                                 target="faq_param_nb_suntag"),
                     dcc.Input(id='param_nb_suntag', type='number', value=32,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Fluorescence one suntag ",
+                    html.P(children = ["Fluorescence one suntag ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_fluo_one_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Fluorescence of one suntag, use as "
+                    dbc.Tooltip(children = "Fluorescence of one suntag, use as "
                                 "reference for fluorescence profile.",
                                 target="faq_param_fluo_one_suntag"),
                     dcc.Input(id='param_fluo_one_suntag', type='number', value=4,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Translation rate (aa/sec) ",
+                    html.P(children = ["Translation rate (aa/sec) ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_translation_rate",
                                       style={"cursor": "pointer",
@@ -100,13 +89,13 @@ def layout():
                            style={"height":
                                       "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Translation rate.",
+                    dbc.Tooltip(children = "Translation rate.",
                                 target="faq_param_translation_rate"),
                     dcc.Input(id='param_translation_rate', type='number', value=24,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Initiation rate (ribosome/sec) ",
+                    html.P(children = ["Initiation rate (ribosome/sec) ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_initiation_rate",
                                       style={"cursor": "pointer",
@@ -115,13 +104,13 @@ def layout():
                                "height":
                                    "auto",
                                "margin-bottom": "auto"}),
-                    dbc.Tooltip("Initiation rate.",
+                    dbc.Tooltip(children = "Initiation rate.",
                                 target="faq_param_initiation_rate"),
                     dcc.Input(id='param_initiation_rate', type='number', value=1,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Retention time (sec) ",
+                    html.P(children = ["Retention time (sec) ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_retention_time",
                                       style={"cursor": "pointer",
@@ -129,20 +118,20 @@ def layout():
                            style={"height":
                                       "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Protein stay at the RNA for some time",
+                    dbc.Tooltip(children = "Protein stay at the RNA for some time",
                                 target="faq_param_retention_time"),
                     dcc.Input(id='param_retention_time', type='number', value=0,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Suntag position (begin or end) ",
+                    html.P(children = ["Suntag position (begin or end) ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_pos_suntag",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Choose if Suntag is before or after the "
+                    dbc.Tooltip(children = "Choose if Suntag is before or after the "
                                 "protein.",
                                 target="faq_param_pos_suntag"),
                     dcc.Dropdown(id='param_pos_suntag',
@@ -157,7 +146,7 @@ def layout():
                                  ),
                 ]),
                 html.Div([
-                    html.P(["Noise",
+                    html.P(children = ["Noise",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_noise",
                                       style={"cursor": "pointer",
@@ -165,14 +154,14 @@ def layout():
                            style={"height":
                                       "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Add random noise to the protein "
+                    dbc.Tooltip(children = "Add random noise to the protein "
                                 "fluorescence profile. 0 if no noise. ",
                                 target="faq_param_noise"),
                     dcc.Input(id='param_noise', type='number', value=0.,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["dt (sec)",
+                    html.P(children = ["dt (sec)",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_dt",
                                       style={"cursor": "pointer",
@@ -181,7 +170,7 @@ def layout():
                                       "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip(
-                        "Time step use to generate track. This value "
+                        children = "Time step use to generate track. This value "
                         "should be quite small regarding the time step "
                         "used for the analysis",
                         target="faq_param_dt"),
@@ -189,7 +178,7 @@ def layout():
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Length of one track (sec)",
+                    html.P(children = ["Length of one track (sec)",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_length",
                                       style={"cursor": "pointer",
@@ -198,27 +187,27 @@ def layout():
                                       "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip(
-                        "Length duration of one track."
+                        children = "Length duration of one track."
                         "used for the analysis",
                         target="faq_param_length"),
                     dcc.Input(id='param_length', type='number', value=6000,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P(["Number of tracks ",
+                    html.P(children = ["Number of tracks ",
                             html.Span(className="fas fa-question-circle",
                                       id="faq_param_nb_tracks",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
-                    dbc.Tooltip("Number of tracks to be generated.",
+                    dbc.Tooltip(children = "Number of tracks to be generated.",
                                 target="faq_param_nb_tracks"),
                     dcc.Input(id='param_nb_tracks', type='number', value=100,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
-                    html.P("File name to save", style={"height": "auto",
+                    html.P(children = "File name to save", style={"height": "auto",
                                                        "margin-bottom": "auto"}),
                     dcc.Input(id='param_filename', type='text', value='datas',
                               style={'width': '200px'}),
@@ -226,7 +215,7 @@ def layout():
             ], width=4),
 
             # Graph area
-            dbc.Col([
+            dbc.Col(children = [
                 dcc.Graph(id='profile-plot'),
             ], width=8),
         ]),
@@ -237,7 +226,7 @@ def layout():
         # Button row
         dbc.Row([
             # Show plot profile button
-            dbc.Col([
+            dbc.Col(children = [
                 dbc.Button(children='Show Profile',
                            id='show-profile-btn',
                            className="mr-1"),
@@ -246,11 +235,11 @@ def layout():
             # Generate track Button and Spinner Side by Side
             dbc.Col([
                 html.Div([
-                    dbc.Col([
+                    dbc.Col(children = [
                         dcc.Store(id="start", data=""),
                         dcc.Store(id="complete", data=""),
                         dbc.Button(dbc.Spinner(
-                            html.Span("Generate tracks", id="loading_generate")),
+                            html.Span(children = "Generate tracks", id="loading_generate")),
                                    id="start-gen-tracks-btn"),
                     ], width=3),
                 ]),

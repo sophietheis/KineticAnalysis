@@ -1,17 +1,7 @@
 import numpy as np
-import pandas as pd
-import tkinter as tk
-from tkinter import filedialog
 
 from dash import  html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
-import dash_spinner
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-
-from ..tabs.app_function import (browse_directory)
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.analyse_density import calculate_ribosome_density

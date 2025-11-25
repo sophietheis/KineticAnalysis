@@ -1,16 +1,5 @@
-import numpy as np
-
-from dash import html, dcc, Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash import html, dcc
 import dash_bootstrap_components as dbc
-
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-
-
-from ..analysis.contribution import calculate_contribution
-
 
 def layout():
     return (html.Div([

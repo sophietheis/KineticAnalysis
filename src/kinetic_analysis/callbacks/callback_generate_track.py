@@ -1,8 +1,7 @@
 from uuid import uuid4
 
-from dash import html, dcc, Input, Output, State
+from dash import dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
