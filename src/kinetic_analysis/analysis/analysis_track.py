@@ -1,15 +1,13 @@
 import multipletau
-# import warnings
 import lmfit
 
 import numpy as np
-import sympy as sp
 
-from math import factorial
-
-from pandas.core.groupby.base import transformation_kernels
 from scipy import optimize
 
+from .fit_funtions import (fit_function_exact,
+                           fit_function_approx,
+                           fit_function_epitope)
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
@@ -45,86 +43,33 @@ def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     return autocor.flatten()[0::2], autocor.flatten()[1::2]
 
 
-def fit_function(x, t, c):
-    """
-    Function used in the autocorrelation fit
 
-    Parameters
-    ----------
-    x : float
-        intensity signal
-    t : float
-        residence time T = M/k where M = protein aa size and k is the
-    elongation rate
-    c : float
-        translation initiation rate
-
-    Returns
-    -------
-
-    Description
-    -----------
-    The function used is function : (((T-x)/(c*T**2)) * np.heaviside((T-x),0))
-
-    """
-    return ((t - x) / (c * t ** 2)) * np.heaviside((t - x), 0)
-
-
-def validate_equation(equation):
-    # Define symbols
-    x, t, c = sp.symbols("x t c")
-    try:
-        # Sympify using sympy's full namespace
-        expr = sp.sympify(equation, locals=sp.__dict__)
-
-        # Check letters in the equation
-        if expr.free_symbols != {x,t,c}:
-            return (False, f"Too much or not enough letters, expected x, t, "
-                           f"c",
-                    None, None)
-        # Convert the sympy expression to a callable function
-        func_ = sp.lambdify((x, t, c), expr, modules=["numpy"])
-    except (sp.SympifyError, SyntaxError) as e:
-        return False, f"Error parsing the equation: {e}", None, None
-
-    except Exception as e:
-        return False, f"An unexpected error occurred: {e}", None, None
-
-    return True, "", func_, expr
-
-
-def fit_function_string(equation):
-    # Define symbols
-    x, t, c = sp.symbols("x t c")
-
-    # Sympify using sympy's full namespace
-    expr = sp.sympify(equation, locals=sp.__dict__)
-
-    # Convert the sympy expression to a callable function
-    func_ = sp.lambdify((x, t, c), expr, modules=["numpy"])
-
-    return func_
-
-def fit_function_exact(x, k, c, N):
-    return (k/c)*(2/3)*(1/((N*(N+1))**2)) * np.exp(-k*x) * (
-        sum((N-n)*(N-n+1)*((2*N)+n+1)*(((k*x)**n)/factorial(n)) for n in range (0, int(N)))
-    )
-
-def fit_autocorrelation_exact(x, y, N=32):
+def fit_autocorrelation_exact(x, y, M=56, N=32):
     model = lmfit.Model(fit_function_exact)
     params = lmfit.Parameters()
     params.add('N', value=N, vary=False)
-    params.add('k', value=1, min=0)
-    params.add('c', value=1, min=0)
+    params.add('M', value=M, vary=False)
+    params.add('k', value=np.float128(0.6), min=0)
+    params.add('c', value=np.float128(0.1), min=0)
 
     result = model.fit(y, params, x=x)
 
     return (result.params["k"].value, result.params["c"].value,
             [result.params["k"].stderr, result.params["c"].stderr] )
 
-# old fit_autocorrelation
-def fit_autocorrelation_approx(x, y, func_=fit_function, method='lm',
-                                 protein_size=1500, first_dot=True):
+def fit_autocorrelation_epitope(x, y, N=32):
+    model = lmfit.Model(fit_function_epitope)
+    params = lmfit.Parameters()
+    params.add('N', value=N, vary=False)
+    params.add('k', value=np.float128(0.6), min=0)
+    params.add('c', value=np.float128(0.1), min=0)
+
+    result = model.fit(y, params, x=x, nan_policy='raise')
+
+    return (result.params["k"].value, result.params["c"].value,
+            [result.params["k"].stderr, result.params["c"].stderr] )
+
+def fit_autocorrelation_approx(x, y, method='lm', first_dot=True):
     """
     Fit autocorrelation curve with func_
     Parameters
@@ -138,20 +83,17 @@ def fit_autocorrelation_approx(x, y, func_=fit_function, method='lm',
     if not first_dot:
         x = x[1:]
         y = y[1:]
-    # print("original method")
-    popt, pcov = optimize.curve_fit(func_,
+    popt, pcov = optimize.curve_fit(fit_function_approx,
                                     x,
                                     y,
                                     method=method)
 
     # elongation_r = protein_size / popt[0]
     # translation_init_r = 1 / popt[1]
-
     # return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
     return popt[0], popt[1], np.sqrt(np.diag(pcov))
 
-# old fit_autocorrelation_v2
-def fit_autocorrelation_linear(x, y, protein_size=1200):
+def fit_autocorrelation_linear(x, y):
     """
     Fit autocorrelation using a linear method.
 
@@ -202,60 +144,6 @@ def fit_autocorrelation_linear(x, y, protein_size=1200):
     # translation_init_r = (res_fit[1] * x[t])
     return(res_fit[0], res_fit[1], [np.nan, np.nan])
 
-def check_track_validity(df,
-                         id_track,
-                         delta_t,
-                         normalise_intensity=1,
-                         simulation=False,
-                         rtol=1e-4,
-                         nb_missing_point=5):
-    # Extract time point and multiply by delta_t to get the real time of
-    # each frame
-    x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-             'FRAME'].values -
-         min(df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-                 'FRAME'].values))
-
-    # Extract intensity value
-    y = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
-             'MEAN_INTENSITY_CH1'].values / normalise_intensity)
-    x_orig = x
-    y_orig = y
-
-    if not simulation:
-        x = x * delta_t
-
-    # Check if time is continuous and fix it if gap not too big
-    if not check_continuous_time(x, delta_t, rtol=rtol):
-
-        if (np.diff(x) < (nb_missing_point * delta_t)).all():
-            # fix the time difference if it misses less than nb_missing_point
-            i = 0
-            while i < (len(x) - 1):
-
-                if np.round(x[i + 1] - x[i], decimals=2) > delta_t:
-
-                    # How many points to add
-                    x_add = [x[i]+delta_t]
-                    y_add = [(y[i]+y[i+1]) /2]
-
-                    while x_add[-1]<(x[i+1]-delta_t):
-                        x_add.append(x_add[-1]+delta_t)
-                        y_add.append((y_add[-1]+y[i+1])/2)
-
-                    x = np.concatenate((x[:i+1],
-                                        np.array(x_add),
-                                        x[i+1:]))
-                    y = np.concatenate((y[:i+1],
-                                        np.array(y_add),
-                                        y[i+1:]))
-                i += 1
-            i += 1
-        else:
-            print("Gap is too big - not fix")
-            return False, x_orig, y_orig, x/delta_t, y
-
-    return True, x_orig, y_orig, x/delta_t, y
 
 def single_track_analysis(x,
                           y,
@@ -267,8 +155,7 @@ def single_track_analysis(x,
                           mm=None,
                           method="curve",
                           first_dot=True,
-                          simulation=False,
-                          func_=fit_function):
+                          simulation=False,):
     """
     Analysis of one track inside a dataframe.
 
@@ -345,7 +232,9 @@ def single_track_analysis(x,
         print("exact")
         (k, c, perr) = fit_autocorrelation_exact(x_auto,
                                                  y_auto,
-                                                 N = repetition_suntag)
+                                                 N = repetition_suntag,
+                                                 M=int(prot_size/(int(
+                                                     suntag_size/repetition_suntag))))
         elongation_r = (suntag_size/repetition_suntag)/(1/k)
         translation_init_r = c
 
@@ -354,25 +243,34 @@ def single_track_analysis(x,
     elif method == "approx":
         print("approx")
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
-                                              y_auto,
-                                              fit_function, #func_,
-                                              protein_size=(protein_size+suntag_size),
-                                              first_dot=first_dot)
+                                                  y_auto,
+                                                  first_dot=first_dot)
+
+        # elongation_r = ((protein_size+suntag_size)) / k
+        print(k, c, )
+        elongation_r =((suntag_size) / k )
+        translation_init_r = (1 / (c * k))
+
+    elif method == "epitope":
+        print("epitope")
+        (k, c, perr) = fit_autocorrelation_epitope(x_auto,
+                                                 y_auto,
+                                                 N = repetition_suntag)
 
         # elongation_r = ((protein_size+suntag_size)) / k
         print(k, c, )
         elongation_r =( (suntag_size) / k )
         translation_init_r = (1 / (c * k))
 
-    elif method == "linear":
-        print("linear")
-        (k, c, perr) = fit_autocorrelation_linear(x_auto,
-                                            y_auto,
-                                            protein_size=(protein_size+suntag_size))
-
-        T = -c/k
-        elongation_r = suntag_size / T
-        translation_init_r = 1/(c*T)
+    # elif method == "linear":
+    #     print("linear")
+    #     (k, c, perr) = fit_autocorrelation_linear(x_auto,
+    #                                         y_auto,
+    #                                         protein_size=(protein_size+suntag_size))
+    #
+    #     T = -c/k
+    #     elongation_r = suntag_size / T
+    #     translation_init_r = 1/(c*T)
 
     else:
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
@@ -380,6 +278,62 @@ def single_track_analysis(x,
                                                          [np.nan, np.nan])
 
     return x_auto, y_auto, k, c , elongation_r, translation_init_r, perr
+
+
+def check_track_validity(df,
+                         id_track,
+                         delta_t,
+                         normalise_intensity=1,
+                         simulation=False,
+                         rtol=1e-4,
+                         nb_missing_point=5):
+    # Extract time point and multiply by delta_t to get the real time of
+    # each frame
+    x = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+             'FRAME'].values -
+         min(df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+                 'FRAME'].values))
+
+    # Extract intensity value
+    y = (df[df["TRACK_ID"] == id_track].sort_values('FRAME')[
+             'MEAN_INTENSITY_CH1'].values / normalise_intensity)
+    x_orig = x
+    y_orig = y
+
+    if not simulation:
+        x = x * delta_t
+
+    # Check if time is continuous and fix it if gap not too big
+    if not check_continuous_time(x, delta_t, rtol=rtol):
+
+        if (np.diff(x) < (nb_missing_point * delta_t)).all():
+            # fix the time difference if it misses less than nb_missing_point
+            i = 0
+            while i < (len(x) - 1):
+
+                if np.round(x[i + 1] - x[i], decimals=2) > delta_t:
+
+                    # How many points to add
+                    x_add = [x[i]+delta_t]
+                    y_add = [(y[i]+y[i+1]) /2]
+
+                    while x_add[-1]<(x[i+1]-delta_t):
+                        x_add.append(x_add[-1]+delta_t)
+                        y_add.append((y_add[-1]+y[i+1])/2)
+
+                    x = np.concatenate((x[:i+1],
+                                        np.array(x_add),
+                                        x[i+1:]))
+                    y = np.concatenate((y[:i+1],
+                                        np.array(y_add),
+                                        y[i+1:]))
+                i += 1
+            i += 1
+        else:
+            print("Gap is too big - not fix")
+            return False, x_orig, y_orig, x/delta_t, y
+
+    return True, x_orig, y_orig, x/delta_t, y
 
 
 def check_continuous_time(x, dt, rtol=0.001):

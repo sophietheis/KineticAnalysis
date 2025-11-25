@@ -1,6 +1,3 @@
-import time
-import requests
-
 from dash import Dash, html, Input, Output, dcc
 import dash_bootstrap_components as dbc
 
@@ -23,7 +20,6 @@ from kineticanalysis.callbacks.callback_count_ribosome import (register_callback
 
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
-from kineticanalysis.analysis.analysis_track import fit_function
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__,
@@ -41,9 +37,7 @@ app.data = {
     'csv_files': [],
     'fig': None,
     'selected_file': None,
-    'solver': "curve fit",
-    'equation_f': fit_function,
-    'equation_display': fit_function,
+    'solver': "Exact equation",
     'csv_to_analyse': None,
 }
 

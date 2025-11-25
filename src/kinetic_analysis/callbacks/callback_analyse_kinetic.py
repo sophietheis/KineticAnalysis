@@ -1,19 +1,18 @@
 import numpy as np
 import pandas as pd
 
-from dash import  html, dcc, Input, Output, State, dash_table
+from dash import dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
-import dash_bootstrap_components as dbc
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
-                                       validate_equation,
-                                       fit_function,
-                                       fit_function_exact,
                                        check_track_validity)
+from ..analysis.fit_funtions import (fit_function_exact,
+                                     fit_function_approx,
+                                     fit_function_epitope)
 
 
 def register_callbacks(app):
@@ -32,65 +31,19 @@ def register_callbacks(app):
             data=df.to_dict('records'),
             columns=[{"name": i, "id": i} for i in
                      df.columns],
-            page_size=15,
+            page_size=10,
             style_table={'width': '800px', 'overflowX': 'auto'},
         )
         return None, table, None
 
     @app.callback(
         Output("choosen-solver1", "children"),
-        # Output("equation_select0", "children", allow_duplicate=True),
         Input('choose-solver1', 'value'),
         prevent_initial_call=True,
     )
     def validate_solver2(value):
         app.data["solver"] = value
-        # if value == "linear fit":
-        #     app.data["equation_f"] = None
-        #     app.data["equation_display"] = None
-        return value #, str(app.data["equation_display"])
-
-
-    @app.callback(
-        Output("equation_select0", "children", allow_duplicate=True),
-        Input('equation1', 'value'),
-        prevent_initial_call=True,
-    )
-    def validate_input2(value):
-        if value is None:
-            return "None"
-        else:
-            v_bool, v_message, func_, expr_ = validate_equation(value)
-            if value and v_bool:
-                app.data["equation_f"] = func_
-                app.data["equation_display"] = expr_
-
-                return str(expr_)
-            else:
-                return ""
-
-
-    @app.callback(
-        Output('equation2', 'valid'),
-        Output('equation2', 'invalid'),
-        Output("loading_equation_output2", "children"),
-        Output("equation_select0", "children"),
-        Input('submit-button-equation2', 'n_clicks'),
-        State('equation2', 'value'),
-        prevent_initial_call=True,
-    )
-    def validate_input2(n_clicks, value):
-        if n_clicks:
-            if not value:
-                return False, False, f"Write an equation.", ""
-            v_bool, v_message, func_, expr_ = validate_equation(value)
-            if value and v_bool:
-                app.data["equation_f"] = func_
-                print(v_message)
-                return True, False, v_message, str(expr_)
-            else:
-                return False, True, v_message, ""
-        return False, False, "", ""
+        return value
 
 
     @app.callback(
@@ -145,15 +98,15 @@ def register_callbacks(app):
 
                 # Check solver/equation parameters are present
                 # if valid, track can be analysed
-                if app.data["solver"] == "exact_fit":
+                if app.data["solver"] == "Exact equation":
                     method = "exact"
 
-                elif app.data["solver"] == "approximation fit":
+                elif app.data["solver"] == "Approximate equation":
                     method = "approx"
                     # TODO : check equation are selected
 
-                elif app.data["solver"] == "linear fit":
-                    method = "linear"
+                elif app.data["solver"] == "Approximate epitope":
+                    method = "epitope"
 
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
                                             int(params[7]),
@@ -162,8 +115,6 @@ def register_callbacks(app):
                                             rtol=1e-1,
                                             nb_missing_point=int(params[-3]),
                                             )
-
-
 
                 if valid:
                     (x_auto,
@@ -182,7 +133,6 @@ def register_callbacks(app):
                                                    method=method,
                                                    first_dot=first_dot,
                                                    simulation=False,
-                                                   func_=app.data["equation_f"]
                                                    )
                 else:
                     if force_analysis:
@@ -200,8 +150,6 @@ def register_callbacks(app):
                                                        method=method,
                                                        first_dot=first_dot,
                                                        simulation=False,
-                                                       func_=app.data[
-                                                           "equation_f"]
                                                        )
                         str_output_force = f"Analysis has been forced!"
                     else:
@@ -278,7 +226,7 @@ def register_callbacks(app):
 
                 elif method =="approx" :
                     figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)],
-                                                y=fit_function(x_auto,
+                                                y=fit_function_approx(x_auto,
                                                                k, c)[:int(len(
                                                     x_auto)/2)],
                                                 mode="lines",
@@ -288,7 +236,7 @@ def register_callbacks(app):
                                      col=1),
 
                     figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                                y=fit_function(x_auto,
+                                                y=fit_function_approx(x_auto,
                                                                k, c)[:int(len(
                                                     x_auto) / 2)],
                                                 mode="markers",
@@ -332,7 +280,7 @@ def register_callbacks(app):
                                  col=1)
 
                 figure.add_trace(go.Scatter(x=x_auto,
-                                            y=y_auto[:int(len(x_auto)/2)]-fit_function(x_auto,
+                                            y=y_auto[:int(len(x_auto)/2)]-fit_function_approx(x_auto,
                                                            prot_length/elongation_r, 1/translation_init_r)[:int(len(x_auto)/2)],
                                             mode="markers",
                                             name="residuals",
