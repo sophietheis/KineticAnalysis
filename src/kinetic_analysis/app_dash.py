@@ -7,27 +7,31 @@ import dash_bootstrap_components as dbc
 from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
 
 from kineticanalysis.tabs.tab_generate_track import layout as tab1_layout
-from kineticanalysis.tabs.tab_generate_track import register_callbacks as tab1_callbacks
+from kineticanalysis.callbacks.callback_generate_track import (
+    register_callbacks as tab1_callbacks)
 
 from kineticanalysis.tabs.tab_equation_choice import layout as tab2_layout
-from kineticanalysis.tabs.tab_equation_choice import register_callbacks as tab2_callbacks
+from kineticanalysis.callbacks.callback_equation_choice import register_callbacks as tab2_callbacks
 
 from kineticanalysis.tabs.tab_analyse_kinetic import layout as tab3_layout
-from kineticanalysis.tabs.tab_analyse_kinetic import (register_callbacks as
+from kineticanalysis.callbacks.callback_analyse_kinetic import (register_callbacks as
                                                 tab3_callbacks)
 
 from kineticanalysis.tabs.tab_count_ribosome import layout as tab4_layout
-from kineticanalysis.tabs.tab_count_ribosome import (register_callbacks as
+from kineticanalysis.callbacks.callback_count_ribosome import (register_callbacks as
                                                      tab4_callbacks)
+
+from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
 from kineticanalysis.analysis.analysis_track import fit_function
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
-app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
+app = Dash(__name__,
+           external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
            )
-app.css.append_css({"external_url": "/assets/main.css"})
+app.css.append_css({"external_url": "/assets/css/main.css"})
 app.server.static_folder = "assets"
-app.title = "Kinetic analysis app"
+app.title = "Translation dynamics app"
 
 # Global variables to store states
 app.data = {
@@ -44,7 +48,7 @@ app.data = {
 }
 
 app.layout = dbc.Container([
-    html.H1("Kinetic Analysis"),
+    html.H1("Translation dynamic analysis app"),
     dcc.Markdown("*Tool to estimate the kinetic parameters of translation.*"),
 
     dbc.Tabs(children=[
@@ -53,7 +57,7 @@ app.layout = dbc.Container([
         dbc.Tab(label="Choose the equation", tab_id="tab-2"),
         dbc.Tab(label="Track Analysis - display & all tracks", tab_id="tab-3"),
         dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
-    ],
+        ],
         id='tabs',
         active_tab='tab-0'),
     html.Div(id='tabs-content')
@@ -76,7 +80,7 @@ def render_content(tab):
     elif tab == 'tab-4':
         return tab4_layout()
     else:
-        return None
+        return not_found_layout()
 
 
 # Register callbacks
@@ -85,33 +89,6 @@ tab2_callbacks(app)
 tab3_callbacks(app)
 tab4_callbacks(app)
 
-
-def run_app():
-    app.run_server(debug=False, host="0.0.0.0",  port=5001)
-
-def wait_until_server_is_ready(url, timeout=10):
-    for _ in range(timeout * 10):
-        try:
-            requests.get(url)
-            print(requests.get(url))
-            return True
-        except:
-            time.sleep(0.1)
-    return False
-
 if __name__ == '__main__':
-    run_app()
-    # t = Thread(target=run_app)
-    # t.daemon = True
-    # t.start()
-    #
-    # # if not wait_until_server_is_ready("http://127.0.0.1:8050/"):
-    # #     print("Failed to connect to Dash server.")
-    #
-    # print("ready")
-    # window = webview.create_window('Kinetic analysis',
-    #                                'http://localhost:5001/',
-    #                                # server_args='SimpleHTTPServer',
-    #                                width=1800, height=1000,
-    #                                )
-    # webview.start(debug=False)
+    # run_app()
+    app.run_server(debug=False, host="0.0.0.0", port=5001)
