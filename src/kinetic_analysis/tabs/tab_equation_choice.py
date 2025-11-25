@@ -14,7 +14,7 @@ from ..analysis.contribution import calculate_contribution
 
 def layout():
     return (html.Div([
-        # Explanation at the begining of the page
+        # Explanation at the beginning of the page
         dbc.Row([
             html.P([
                 "In this tab, you will be able to visualise the "
@@ -118,15 +118,17 @@ def layout():
                               style={'width': '200px'}),
                 ]),
                 html.Br(),
-            ], width=3),
+            ], width=4),
 
             # Show plot contribution
             dbc.Col([
-                dbc.Button('Show Contribution', id='show-contribution-btn',
-                           className="mr-1"),
                 dcc.Graph(id='equation-plot'),
 
-            ], width=5)
+            ], width=8)
+        ]),
+        dbc.Row([
+            dbc.Button('Show Contribution', id='show-contribution-btn',
+                       className="mr-1"),
         ]),
     ]),
     )

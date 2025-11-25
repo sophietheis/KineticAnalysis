@@ -1,24 +1,13 @@
-import os
-import time
-import threading
-import webview
+from uuid import uuid4
 
-from threading import Thread
-
-import numpy as np
-import pandas as pd
-import tkinter as tk
-from tkinter import filedialog
-
-from dash import Dash, html, dcc, Input, Output, State, dash_table
+from dash import html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
-import dash_spinner
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-from kineticanalysis.generator.generator_track import (generate_one_track,
+from ..generator.generator_track import (generate_one_track,
                                        generate_tracks,
                                        generate_profile)
 
@@ -27,8 +16,9 @@ from .app_function import (browse_directory)
 
 def layout():
     return (html.Div([
-        # Explanation at the begining of the page
+        # Explanation at the beginning of the page
         dbc.Row([
+            html.Br(),
             html.P([
                 "In this tab, you will be able to generate tracks according "
                 "to a set of parameters. By default, tracks are make with a "
@@ -41,6 +31,7 @@ def layout():
                 "tracks."]),
             html.Br(),
         ]),
+
         # Define parameter of the simulation
         dbc.Row([
             dbc.Col([
@@ -232,34 +223,40 @@ def layout():
                     dcc.Input(id='param_filename', type='text', value='datas',
                               style={'width': '200px'}),
                 ]),
-                html.Br(),
-                # Generate Button and Spinner Side by Side
-                dbc.Row([
-                    dbc.Col([
-                        dbc.Button('Start Generate Tracks',
-                                   id='start-gen-tracks-btn'),
-                    ], width="auto"),
+            ], width=4),
 
+            # Graph area
+            dbc.Col([
+                dcc.Graph(id='profile-plot'),
+            ], width=8),
+        ]),
+
+        html.Br(),
+        html.Br(),
+
+        # Button row
+        dbc.Row([
+            # Show plot profile button
+            dbc.Col([
+                dbc.Button(children='Show Profile',
+                           id='show-profile-btn',
+                           className="mr-1"),
+            ], width=2),
+
+            # Generate track Button and Spinner Side by Side
+            dbc.Col([
+                html.Div([
                     dbc.Col([
-                        dbc.Spinner(
-                            children=[html.Div(id="loading_generate")],
-                            size="sm", color="primary", type="border",
-                            spinner_style={"margin-left": "10px"}
-                        )
-                    ], width="auto"),
-                ], align="center", style={"margin-top": "10px"}),
+                        dcc.Store(id="start", data=""),
+                        dcc.Store(id="complete", data=""),
+                        dbc.Button(dbc.Spinner(
+                            html.Span("Generate tracks", id="loading_generate")),
+                                   id="start-gen-tracks-btn"),
+                    ], width=3),
+                ]),
                 html.Div(id='gen-tracks-output'),
                 dcc.Download(id="download-csv2"),
-            ], width=3),
-
-
-            # Show plot profile
-            dbc.Col([
-                dbc.Button('Show Profile', id='show-profile-btn',
-                           className="mr-1"),
-                dcc.Graph(id='profile-plot'),
-
-            ], width=5)
+            ]),
         ]),
     ]),
     )
@@ -395,11 +392,35 @@ def register_callbacks(app):
                 }
         raise PreventUpdate
 
+    # make the button works
+    @app.callback(
+        Output("start-gen-tracks-btn", "disabled", allow_duplicate=True),
+        Output("start", "data"),
+        Input("start-gen-tracks-btn", "n_clicks"),
+        prevent_initial_call=True,
+    )
+    def register_start(n):
+        if n:
+            return True, str(uuid4())
+        raise PreventUpdate
+
+    @app.callback(
+        Output("start-gen-tracks-btn", "disabled", allow_duplicate=True),
+        Input("complete", "data"),
+        State("start", "data"),
+        prevent_initial_call=True,
+    )
+    def enable_button(complete_value, start_value):
+        return complete_value != start_value
+
+
     @app.callback(
         Output('gen-tracks-output', 'children'),
-        Output('loading_generate', 'children'),
         Output('download-csv2', 'data'),
+        Output("loading_generate", "children"),
+        Output("complete", "data"),
         Input('start-gen-tracks-btn', 'n_clicks'),
+        Input("start", "data"),
         State('param_prot_length', 'value'),
         State('param_suntag_length', 'value'),
         State('param_nb_suntag', 'value'),
@@ -413,8 +434,9 @@ def register_callbacks(app):
         State('param_length', 'value'),
         State('param_nb_tracks', 'value'),
         State('param_filename', 'value'),
+
     )
-    def start_generate_tracks(n_clicks, *params):
+    def start_generate_tracks(n_clicks, data,  *params):
         # Generate all tracks and save it
         if n_clicks:
             try:
@@ -440,7 +462,8 @@ def register_callbacks(app):
                 datas.to_csv(output_path, index=False)
 
 
-                return "Tracks generated and saved successfully!", None, dcc.send_file(output_path)
+                return ("Tracks generated and saved successfully!",
+                        dcc.send_file(output_path), "Generate tracks", data)
             except Exception as e:
-                return f"Error: {str(e)}", None, None
+                return f"Error: {str(e)}", None, "Generate tracks", data
         raise PreventUpdate

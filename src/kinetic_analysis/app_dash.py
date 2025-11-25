@@ -12,8 +12,9 @@ from kineticanalysis.tabs.tab_generate_track import register_callbacks as tab1_c
 from kineticanalysis.tabs.tab_equation_choice import layout as tab2_layout
 from kineticanalysis.tabs.tab_equation_choice import register_callbacks as tab2_callbacks
 
-from kineticanalysis.tabs.tab_analyse_one_invivo import layout as tab3_layout
-from kineticanalysis.tabs.tab_analyse_one_invivo import (register_callbacks as tab3_callbacks)
+from kineticanalysis.tabs.tab_analyse_kinetic import layout as tab3_layout
+from kineticanalysis.tabs.tab_analyse_kinetic import (register_callbacks as
+                                                tab3_callbacks)
 
 from kineticanalysis.tabs.tab_count_ribosome import layout as tab4_layout
 from kineticanalysis.tabs.tab_count_ribosome import (register_callbacks as

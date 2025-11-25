@@ -5,7 +5,7 @@ from decimal import Decimal
 
 def calculate_contribution(L, N, k, c, s, t):
     '''
-
+    This function calculate the contribution of each term of the equation.
     :param L:
     :type L:
     :param N:
@@ -17,7 +17,7 @@ def calculate_contribution(L, N, k, c, s, t):
     :return:
     :rtype:
     '''
-    print("calculate_contribution")
+
     M = int(L / s)
     tau = np.arange(0, np.int32(t))
 
