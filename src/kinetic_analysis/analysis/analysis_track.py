@@ -5,9 +5,9 @@ import numpy as np
 
 from scipy import optimize
 
-from .fit_funtions import (fit_function_exact,
-                           fit_function_approx,
-                           fit_function_epitope)
+from .fit_funtions import (function_exact,
+                           function_approx,
+                           function_epitope)
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
@@ -43,9 +43,8 @@ def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     return autocor.flatten()[0::2], autocor.flatten()[1::2]
 
 
-
 def fit_autocorrelation_exact(x, y, M=56, N=32):
-    model = lmfit.Model(fit_function_exact)
+    model = lmfit.Model(function_exact)
     params = lmfit.Parameters()
     params.add('N', value=N, vary=False)
     params.add('M', value=M, vary=False)
@@ -58,7 +57,7 @@ def fit_autocorrelation_exact(x, y, M=56, N=32):
             [result.params["k"].stderr, result.params["c"].stderr] )
 
 def fit_autocorrelation_epitope(x, y, N=32):
-    model = lmfit.Model(fit_function_epitope)
+    model = lmfit.Model(function_epitope)
     params = lmfit.Parameters()
     params.add('N', value=N, vary=False)
     params.add('k', value=np.float128(0.6), min=0)
@@ -80,7 +79,7 @@ def fit_autocorrelation_approx(x, y, method='lm'):
     protein_size: in aa in order to calculation the elongation rate
     """
 
-    popt, pcov = optimize.curve_fit(fit_function_approx,
+    popt, pcov = optimize.curve_fit(function_approx,
                                     x,
                                     y,
                                     method=method)
@@ -90,56 +89,6 @@ def fit_autocorrelation_approx(x, y, method='lm'):
     # return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
     return popt[0], popt[1], np.sqrt(np.diag(pcov))
 
-def fit_autocorrelation_linear(x, y):
-    """
-    Fit autocorrelation using a linear method.
-
-    Parameters
-    ----------
-    x : list
-        time value
-    y : list
-        aucorrelation value
-    protein_size : int
-        size of the protein in amino acid
-
-    Returns
-    -------
-    elongation_r : float
-    translation_init_r : float
-
-    Description
-    -----------
-    Fit a linear equation in the first part of the curve.
-    First step is to find a sign change in the curve to extract the first
-    part of the curve.
-    Use ax+b equation fit on the beginning of the curve.
-    """
-    # Find the position in the list t where the sign change
-    ysign = np.sign(np.array(np.diff(y)))
-    signchange = ((np.roll(ysign, 1) - ysign) != 0).astype(int)
-    signchange[0] = 0
-    if len(np.where(signchange == 1)[0]) == 0:
-        t_sign = -1
-    else:
-        t_sign = np.where(signchange == 1)[0][0]
-
-
-    # find when the curve cross the x_axis
-    y_sign_value = np.sign(y)
-    t_xaxis = np.where(y_sign_value==-1)[0][0]
-    # If the sign change happen in a negative value
-    if t_sign < t_xaxis:
-        t = t_xaxis
-    else:
-        t = t_sign
-    # print(t_sign, t)
-    # elongation_r = protein_size / x[t]
-    if len(x[:t]) < 2:
-        return -1, -1, [-1, -1]
-    res_fit = np.polyfit(x[:t], y[:t], 1)
-    # translation_init_r = (res_fit[1] * x[t])
-    return(res_fit[0], res_fit[1], [np.nan, np.nan])
 
 
 def single_track_analysis(x,
@@ -150,7 +99,7 @@ def single_track_analysis(x,
                           repetition_suntag=32,
                           normalise_auto=True,
                           mm=None,
-                          method="curve",
+                          method="exact",
                           simulation=False,):
     """
     Analysis of one track inside a dataframe.
@@ -213,6 +162,8 @@ def single_track_analysis(x,
     - "MEAN_INTENSITY_CH1", correspond to the fluorescence intensity
     if the dataframe doesn't have these names, use rename_columns function
     to rename column(s).
+    :param suntag_size:
+    :type suntag_size:
     """
 
     if not simulation:
@@ -229,43 +180,28 @@ def single_track_analysis(x,
                                                  N = repetition_suntag,
                                                  M=int(protein_size/(int(
                                                      suntag_size/repetition_suntag))))
-        elongation_r = (suntag_size/repetition_suntag)/(1/k)
+        elongation_r = k*(suntag_size/repetition_suntag)
         translation_init_r = c
-
-
 
     elif method == "approx":
         print("approx")
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
                                                   y_auto,)
 
-        # elongation_r = ((protein_size+suntag_size)) / k
-        print(k, c, )
-        elongation_r =((suntag_size) / k )
-        translation_init_r = (1 / (c * k))
-
+        elongation_r = (protein_size/((suntag_size/repetition_suntag)))*k
+        # translation_init_r = (1 / (c * k))
+        translation_init_r = c
     elif method == "epitope":
         print("epitope")
         (k, c, perr) = fit_autocorrelation_epitope(x_auto,
                                                  y_auto,
                                                  N = repetition_suntag)
 
-        # elongation_r = ((protein_size+suntag_size)) / k
-        print(k, c, )
-        elongation_r =( (suntag_size) / k )
-        translation_init_r = (1 / (c * k))
-
-    # elif method == "linear":
-    #     print("linear")
-    #     (k, c, perr) = fit_autocorrelation_linear(x_auto,
-    #                                         y_auto,
-    #                                         protein_size=(protein_size+suntag_size))
-    #
-    #     T = -c/k
-    #     elongation_r = suntag_size / T
-    #     translation_init_r = 1/(c*T)
-
+        elongation_r = k*(suntag_size/repetition_suntag)
+        # translation_init_r = (1 / (c * k))
+        translation_init_r = c
     else:
+        print("No method choose")
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
                                                          [np.nan, np.nan])

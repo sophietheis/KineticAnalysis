@@ -2,6 +2,8 @@ import numpy as np
 
 from dash import  html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
+
+from .utils import generate_table
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.analyse_density import calculate_ribosome_density
@@ -19,16 +21,7 @@ def register_callbacks(app):
         if df is None:
             return output, None, None
 
-        table = dash_table.DataTable(
-            id = "table_single_prot",
-            data=df.to_dict('records'),
-            columns=[{"name": i, "id": i,  "selectable": True} for i in
-                     df.columns],
-            page_size=10,
-            column_selectable="single",
-            selected_columns=[],
-            style_table={'width': '300px', 'overflowX': 'auto'},
-        )
+        table = generate_table(df, 10)
 
         return None, table, None
 
@@ -58,16 +51,8 @@ def register_callbacks(app):
         if df is None:
             return output, None, None
 
-        table = dash_table.DataTable(
-            id="table_polysome",
-            data=df.to_dict('records'),
-            columns=[{"name": i, "id": i, "selectable": True} for i in
-                     df.columns],
-            page_size=10,
-            column_selectable="single",
-            selected_columns=[],
-            style_table={'width': '300px', 'overflowX': 'auto'},
-        )
+        table = generate_table(df, 10)
+
         return None, table, None
 
     @app.callback(

@@ -1,18 +1,18 @@
 import numpy as np
 import pandas as pd
 
-from dash import dcc, Input, Output, State, dash_table
+from dash import dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
-from plotly.subplots import make_subplots
 
+from .utils import generate_table
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
                                        check_track_validity)
-from ..analysis.fit_funtions import (fit_function_exact,
-                                     fit_function_approx,
-                                     fit_function_epitope)
+from ..analysis.fit_funtions import (function_exact,
+                                     function_approx,
+                                     function_epitope)
 from ..plots.plots import fig_analyse_track
 
 
@@ -29,13 +29,8 @@ def register_callbacks(app):
         if df is None:
             return output, None, None
 
-        table = dash_table.DataTable(
-            data=df.to_dict('records'),
-            columns=[{"name": i, "id": i} for i in
-                     df.columns],
-            page_size=10,
-            style_table={'width': '800px', 'overflowX': 'auto'},
-        )
+        table = generate_table(df, 10)
+
         return None, table, None
 
     @app.callback(
@@ -138,11 +133,11 @@ def register_callbacks(app):
                 N = repetition_suntag
                 M = prot_length/(suntag_length/repetition_suntag)
                 if method == "exact":
-                    y_fit = fit_function_exact(x_auto, k, c, N, M)
+                    y_fit = function_exact(x_auto, k, c, N, M)
                 elif method == "approx":
-                    y_fit = fit_function_approx(x_auto, k, c)
+                    y_fit = function_approx(x_auto, k, c)
                 elif method == "epitope":
-                    y_fit = fit_function_epitope(x_auto, k, c, N)
+                    y_fit = function_epitope(x_auto, k, c, N)
 
                 figure = fig_analyse_track(x, y,
                                            x_fix, y_fix,
@@ -261,7 +256,6 @@ def register_callbacks(app):
                                                        mm=None,
                                                        normalise_auto=True,
                                                        method=method,
-                                                       first_dot=first_dot,
                                                        simulation=False,
                                                        func_=app.data["equation_f"]
                                                        )
