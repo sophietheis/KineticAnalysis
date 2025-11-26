@@ -13,6 +13,7 @@ from ..analysis.analysis_track import (single_track_analysis,
 from ..analysis.fit_funtions import (fit_function_exact,
                                      fit_function_approx,
                                      fit_function_epitope)
+from ..plots.plots import fig_analyse_track
 
 
 def register_callbacks(app):
@@ -21,6 +22,7 @@ def register_callbacks(app):
         Output("table-container2", "children"),
         Output('loading_data_vivo2', 'children'),
         Input('browse_directory_analyze_vivo2', 'contents'),
+        prevent_initial_call=True,
     )
     def browse_directory_analyze_vivo2(contents):
         df, output = upload_csv(contents, app, "csv_to_analyse")
@@ -63,50 +65,39 @@ def register_callbacks(app):
         State('repetition-suntag-param-vivo2', 'value'), #6
         State('id_track2', 'value'), #7
         State("missing_point_param_vivo2", 'value'), #8
-        State("switches_first_dot2", "value"), #9
-        State("switches_force_analysis2", "value"), #10
+        State("switches_force_analysis2", "value"), #9
     )
     def analyse_display_track(n_clicks, *params):
-        figure = make_subplots(rows=3,
-                               cols=1,
-                               subplot_titles=["track profile",
-                                               "autocorrelation",
-                                               "residuals"
-                                               ])
+
         if n_clicks:
             try:
                 str_output_force = ""
-                # Read csv file
+                # get table and rename columns if needed
                 df = app.data['csv_to_analyse']
-
                 df.rename(columns={params[0]: 'TRACK_ID',
-                                      params[1]: 'FRAME',
-                                      params[2]: 'MEAN_INTENSITY_CH1',
-                                      },
+                                   params[1]: 'FRAME',
+                                   params[2]: 'MEAN_INTENSITY_CH1',
+                                   },
                              inplace=True)
 
                 if int(params[7]) not in np.unique(df["TRACK_ID"]):
-                    return figure, "", "This ID does not exist.", "", "", None
+                    return go.Figure(), "", "This ID does not exist.", "", "", None
 
                 dt = float(params[3])
                 prot_length = int(params[4])
                 suntag_length = int(params[5])
                 repetition_suntag = int(params[6])
                 datas2 = df[(df["TRACK_ID"] == int(params[7]))]
-                first_dot = bool(params[-2])
                 force_analysis = bool(params[-1])
 
-                # Check solver/equation parameters are present
-                # if valid, track can be analysed
+                # Check solver
                 if app.data["solver"] == "Exact equation":
                     method = "exact"
-
                 elif app.data["solver"] == "Approximate equation":
                     method = "approx"
-                    # TODO : check equation are selected
-
                 elif app.data["solver"] == "Approximate epitope":
                     method = "epitope"
+
 
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
                                             int(params[7]),
@@ -116,7 +107,9 @@ def register_callbacks(app):
                                             nb_missing_point=int(params[-3]),
                                             )
 
-                if valid:
+                if valid or force_analysis:
+                    if force_analysis:
+                        str_output_force = f"Analysis has been forced!"
                     (x_auto,
                      y_auto,
                      k, c,
@@ -131,190 +124,32 @@ def register_callbacks(app):
                                                    mm=None,
                                                    normalise_auto=True,
                                                    method=method,
-                                                   first_dot=first_dot,
                                                    simulation=False,
                                                    )
                 else:
-                    if force_analysis:
-                        (x_auto,
-                         y_auto,
-                         k,c,
-                         elongation_r,
-                         translation_init_r,
-                         perr) = single_track_analysis(x_fix,
-                                                       y_fix,
-                                                       delta_t=dt,
-                                                       protein_size=prot_length,
-                                                       mm=None,
-                                                       normalise_auto=True,
-                                                       method=method,
-                                                       first_dot=first_dot,
-                                                       simulation=False,
-                                                       )
-                        str_output_force = f"Analysis has been forced!"
-                    else:
-                        return (figure, "This track can't be analysed, "
-                                        "there is too much missing point. "
-                                        "If you want to force the analysis, "
-                                        "you can either increase the missing "
-                                        "point value or tick the force "
-                                        "analysis box.",
-                                "", "","", None)
+                    return (go.Figure(), "This track can't be analysed, "
+                                    "there is too much missing point. "
+                                    "If you want to force the analysis, "
+                                    "you can either increase the missing "
+                                    "point value or tick the force "
+                                    "analysis box.",
+                            "", "","", None)
 
-
-
-
-                # plot track profile
-                figure.add_trace(go.Scatter(x=x*dt,
-                                            y=y,
-                                            mode="lines",
-                                            name="Signal",
-                                            line_color="#1A51DB"), #Blue
-                                            row=1,
-                                            col=1,
-                                            )
-
-                figure.add_trace(go.Scatter(x=x_fix*dt,
-                                            y=y_fix,
-                                            mode="lines+markers",
-                                            name="Signal correct",
-                                            line_color="#DBA41A"), #Orange
-                                 row=1,
-                                 col=1,
-                                 )
-                figure.update_xaxes(title_text='Time (sec)', row=1, col=1)
-                figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
-
-                # plot track profile
-                figure.add_trace(go.Scatter(x=x_auto,
-                                            y=y_auto,
-                                            mode="lines",
-                                            name="Autocorrelation",
-                                            line_color="#000000"), #Black
-                                            row=2,
-                                            col=1),
-
-                figure.add_trace(go.Scatter(x=x_auto,
-                                            y=y_auto,
-                                            mode="markers",
-                                            name="Autocorrelation",
-                                            line_color="#000000"),  # Black
-                                 row=2,
-                                 col=1),
+                N = repetition_suntag
+                M = prot_length/(suntag_length/repetition_suntag)
                 if method == "exact":
-                    figure.add_trace(
-                        go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                   y=fit_function_exact(x_auto,
-                                                        k, c, repetition_suntag)[
-                                       :int(len(x_auto) / 2)],
-                                   mode="lines",
-                                   name="Fit",
-                                   line_color="#B80909"),  # Red
-                        row=2,
-                        col=1),
+                    y_fit = fit_function_exact(x_auto, k, c, N, M)
+                elif method == "approx":
+                    y_fit = fit_function_approx(x_auto, k, c)
+                elif method == "epitope":
+                    y_fit = fit_function_epitope(x_auto, k, c, N)
 
-                    figure.add_trace(
-                        go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                   y=fit_function_exact(x_auto,
-                                                        k, c, repetition_suntag)[
-                                       :int(len(x_auto) / 2)],
-                                   mode="markers",
-                                   name="Fit",
-                                   line_color="#B80909"),  # Red
-                        row=2,
-                        col=1),
+                figure = fig_analyse_track(x, y,
+                                           x_fix, y_fix,
+                                           x_auto, y_auto,
+                                           y_fit,
+                                           dt)
 
-                elif method =="approx" :
-                    figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto)/2)],
-                                                y=fit_function_approx(x_auto,
-                                                               k, c)[:int(len(
-                                                    x_auto)/2)],
-                                                mode="lines",
-                                                name="Fit",
-                                                line_color="#B80909"), #Red
-                                     row=2,
-                                     col=1),
-
-                    figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                                y=fit_function_approx(x_auto,
-                                                               k, c)[:int(len(
-                                                    x_auto) / 2)],
-                                                mode="markers",
-                                                name="Fit",
-                                                line_color="#B80909"),  # Red
-                                     row=2,
-                                     col=1),
-
-                else :
-                    figure.add_trace(go.Scatter(x=x_auto[:int(-c/k)+1],
-                                                y=(x_auto*k+c)[:int(-c/k)+1],
-                                                mode="lines",
-                                                name="Fit",
-                                                line_color="#B80909"), #Red
-                                     row=2,
-                                     col=1),
-
-                    figure.add_trace(go.Scatter(x=x_auto[:int(-c/k)+1],
-                                                y=(x_auto*k+c)[:int(-c/k)+1],
-                                                mode="markers",
-                                                name="Fit",
-                                                line_color="#B80909"),  # Red
-                                     row=2,
-                                     col=1),
-
-
-                figure.update_xaxes(title_text='Time delay (tau)',
-                                    row=2,
-                                    col=1)
-                figure.update_yaxes(title_text='G(tau)', row=2, col=1)
-                figure.update_layout(width=1000, height=800, )
-
-                # plot residuals
-                figure.add_trace(go.Scatter(x=x_auto[:int(len(x_auto) / 2)],
-                                            y=np.repeat(0, len(x_auto[:int(
-                                                len(x_auto) / 2)])),
-                                            mode="lines",
-                                            name="",
-                                            line_color="#aeb6c2"),  # grey
-                                 row=3,
-                                 col=1)
-
-                figure.add_trace(go.Scatter(x=x_auto,
-                                            y=y_auto[:int(len(x_auto)/2)]-fit_function_approx(x_auto,
-                                                           prot_length/elongation_r, 1/translation_init_r)[:int(len(x_auto)/2)],
-                                            mode="markers",
-                                            name="residuals",
-                                            line_color = "#000000"),  # black
-                                 row=3,
-                                 col=1)
-
-
-
-                figure.update_xaxes(title_text='X data',
-                                    row=3,
-                                    col=1)
-                figure.update_yaxes(title_text='Delta', row=3, col=1)
-
-                for i in range(1, 4):
-                    figure.update_xaxes(mirror=True,
-                                        ticks='outside',
-                                        showline=True,
-                                        linecolor='black',
-                                        gridcolor='lightgrey',
-                                        row=i,
-                                        col=1)
-                    figure.update_yaxes(mirror=True,
-                                        ticks='outside',
-                                        showline=True,
-                                        linecolor='black',
-                                        gridcolor='lightgrey',
-                                        row=i,
-                                        col=1)
-
-                figure.update_layout(width=1000,
-                                     height=800,
-                                     plot_bgcolor="white"
-                                     )
 
                 str_output1 = (f"elongation rate: "
                               f"{elongation_r:.2f} aa/sec ")
@@ -331,7 +166,7 @@ def register_callbacks(app):
                     'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
                                         yaxis={'title': 'Fluorescence'})
                 },"",  str(e),"", "", None
-        return figure, "",  "", "", "", None
+        return go.Figure(), "",  "", "", "", None
 
 
     @app.callback(
@@ -348,15 +183,13 @@ def register_callbacks(app):
         State('suntag-length-param-vivo2', 'value'), #5
         State('repetition-suntag-param-vivo2', 'value'), #6
         State("missing_point_param_vivo2", 'value'), #7
-        State("switches_first_dot2", "value"), #8
-        State("switches_force_analysis2", "value"), #9
-        State('save-results-name-vivo', 'value'), #10
+        State("switches_force_analysis2", "value"), #8
+        State('save-results-name-vivo', 'value'), #9
         # State('checkbox_simu', 'value') #9
     )
     def start_analyze_all_tracks(n_clicks, *params):
 
         if n_clicks:
-            print("click")
             if app.data['csv_to_analyse'] is None:
                 return "No CSV file uploaded.", None, None
 
@@ -369,48 +202,49 @@ def register_callbacks(app):
                                    params[2]: 'MEAN_INTENSITY_CH1',
                                   },
                          inplace=True)
+
                 dt = float(params[3])
                 prot_length = int(params[4])
                 suntag_length = int(params[5])
                 repetition_suntag = int(params[6])
                 nb_missing_point = int(params[7])
-
-                first_dot = bool(params[8])
-                force_analysis = bool(params[9])
+                force_analysis = bool(params[8])
                 # check_simu = 'checked' in params[9]
 
-                # Check solver/equation parameters are present
-                # if valid, track can be analysed
-                if app.data["solver"] == "exact_fit":
+                # Check solver
+                if app.data["solver"] == "Exact equation":
                     method = "exact"
-                elif app.data["solver"] == "approximation fit":
+                elif app.data["solver"] == "Approximate equation":
                     method = "approx"
-                    # TODO : check equation are selected
-
-                elif app.data["solver"] == "linear fit":
-                    method = "linear"
+                elif app.data["solver"] == "Approximate epitope":
+                    method = "epitope"
 
                 ids_track = np.unique(df["TRACK_ID"])
                 first_time = True
                 # Analyse all tracks and save it
                 for i in ids_track:
                     print(i)
+
+                    k = np.nan
+                    c = np.nan
+                    elongation_r = np.nan
+                    translation_init_r = np.nan
+                    perr0 = np.nan
+                    perr1 = np.nan
+                    comment = ""
+
                     datas2 = df[(df["TRACK_ID"] == i)]
 
-                    (valid,
-                     x,
-                     y,
-                     x_fix,
-                     y_fix) = check_track_validity(datas2,
+                    (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
                                                    i,
                                                    normalise_intensity=1,
                                                    delta_t=dt,
                                                    rtol=1e-1,
                                                    nb_missing_point=nb_missing_point,
                                                    )
+                    length = len(x_fix)
 
                     if valid or force_analysis:
-                        comment = ""
                         if force_analysis:
                             comment = "analysis forced"
                         (x_auto,
@@ -418,7 +252,7 @@ def register_callbacks(app):
                          k,c,
                          elongation_r,
                          translation_init_r,
-                         perr) = single_track_analysis(x_fix,
+                         [perr0, perr1]) = single_track_analysis(x_fix,
                                                        y_fix,
                                                        delta_t=dt,
                                                        protein_size=prot_length,
@@ -432,74 +266,39 @@ def register_callbacks(app):
                                                        func_=app.data["equation_f"]
                                                        )
                         print(k, c, elongation_r, translation_init_r)
-                        if first_time:
-                            results = pd.DataFrame({
+
+                    # Populate the dataframe
+                    if first_time:
+                        results = pd.DataFrame({
+                                                "id": i,
+                                                "dt": dt,
+                                                "length": length,
+                                                "k":k,
+                                                "c":c,
+                                                "elongation_r": elongation_r,
+                                                "init_translation_r": translation_init_r,
+                                                "perr0":perr0,
+                                                "perr1": perr1,
+                                                "comment": comment},
+                                               index=[0])
+                        first_time = False
+
+                    else:
+                        results = pd.concat([results,
+                                             pd.DataFrame(
+                                                 {
                                                     "id": i,
                                                     "dt": dt,
-                                                    "length": len(x_fix),
-                                                    "k":k,
-                                                    "c":c,
+                                                    "length": length,
+                                                    "k": k,
+                                                    "c": c,
                                                     "elongation_r": elongation_r,
                                                     "init_translation_r": translation_init_r,
-                                                    "perr0":perr[0],
-                                                    "perr1": perr[1],
-                                                    "comment": comment},
-                                                   index=[0])
-                            first_time = False
-
-                        else:
-                            results = pd.concat([results,
-                                                 pd.DataFrame(
-                                                     {
-                                                        "id": i,
-                                                        "dt": dt,
-                                                        "length": len(x_fix),
-                                                        "k": k,
-                                                        "c": c,
-                                                        "elongation_r": elongation_r,
-                                                        "init_translation_r": translation_init_r,
-                                                        "perr0":perr[0],
-                                                        "perr1": perr[1],
-                                                        "comment":comment},
-                                                     index=[0])
-                                                 ], ignore_index=True)
-                    else:
-                        if first_time:
-                            results = pd.DataFrame(
-                                {
-                                 "id": i,
-                                 "dt": np.nan,
-                                 "length": len(x_fix),
-                                 "k": np.nan,
-                                 "c": np.nan,
-                                 "elongation_r": np.nan,
-                                 "init_translation_r": np.nan,
-                                 "perr0": np.nan,
-                                 "perr1": np.nan,
-                                 "comment":"cant be analysed"},
-                                index=[0])
-                            first_time = False
-
-                        else:
-                            results = pd.concat([results,
-                                                 pd.DataFrame(
-                                                     {
-                                                         "id": i,
-                                                         "dt": np.nan,
-                                                         "length": len(x_fix),
-                                                         "k": np.nan,
-                                                         "c": np.nan,
-                                                         "elongation_r":
-                                                             np.nan,
-                                                         "init_translation_r": np.nan,
-                                                         "perr0": np.nan,
-                                                         "perr1": np.nan,
-                                                     "comment":"cant be "
-                                                               "analysed"},
-                                                     index=[0])
-                                                 ], ignore_index=True)
-
-
+                                                    "perr0":perr0,
+                                                    "perr1": perr1,
+                                                    "comment":comment},
+                                                 index=[0])
+                                             ], ignore_index=True)
 
                 output_path = params[-1] + ".csv"
                 results.to_csv(output_path, index=False)

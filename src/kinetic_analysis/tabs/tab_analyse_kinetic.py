@@ -270,27 +270,16 @@ def layout():
             ]),
 
             dbc.Col([
-
             ]),
 
         ]),
-
+        html.Br(),
         dbc.Row(
             [
                 dbc.Checklist(options=[{"label": "Force the analysis even if "
                                                  "time is not continuous.",
                                         "value": 0}],
                               id="switches_force_analysis2",
-                              switch=False, ),
-            ]),
-        # Tick box to choose if we use the first dot for the analysis
-        dbc.Row(
-            [
-                dbc.Checklist(options=[{"label": "Include the first dot of "
-                                                 "the autocorrelation "
-                                                 "in the fit.",
-                                        "value": 0}],
-                              id="switches_first_dot2",
                               switch=False, ),
             ]),
 

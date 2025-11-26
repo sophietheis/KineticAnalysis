@@ -69,7 +69,7 @@ def fit_autocorrelation_epitope(x, y, N=32):
     return (result.params["k"].value, result.params["c"].value,
             [result.params["k"].stderr, result.params["c"].stderr] )
 
-def fit_autocorrelation_approx(x, y, method='lm', first_dot=True):
+def fit_autocorrelation_approx(x, y, method='lm'):
     """
     Fit autocorrelation curve with func_
     Parameters
@@ -78,11 +78,8 @@ def fit_autocorrelation_approx(x, y, method='lm', first_dot=True):
     func_  : function to fit
     method : method of fit resolution
     protein_size: in aa in order to calculation the elongation rate
-    first_dot : bool, take the account the first dot in the analysis
     """
-    if not first_dot:
-        x = x[1:]
-        y = y[1:]
+
     popt, pcov = optimize.curve_fit(fit_function_approx,
                                     x,
                                     y,
@@ -154,7 +151,6 @@ def single_track_analysis(x,
                           normalise_auto=True,
                           mm=None,
                           method="curve",
-                          first_dot=True,
                           simulation=False,):
     """
     Analysis of one track inside a dataframe.
@@ -184,8 +180,6 @@ def single_track_analysis(x,
         choose the method of the analysis, "linear" or "original"
     force_analysis : bool
         force the analysis even if criteria not reach, default value : False
-    first_dot : bool
-        use the first point in the analysis, default value :True
     simulation : bool
         define if the track come from a simulation (True) or an experiment
         (False), default value : False
@@ -233,7 +227,7 @@ def single_track_analysis(x,
         (k, c, perr) = fit_autocorrelation_exact(x_auto,
                                                  y_auto,
                                                  N = repetition_suntag,
-                                                 M=int(prot_size/(int(
+                                                 M=int(protein_size/(int(
                                                      suntag_size/repetition_suntag))))
         elongation_r = (suntag_size/repetition_suntag)/(1/k)
         translation_init_r = c
@@ -243,8 +237,7 @@ def single_track_analysis(x,
     elif method == "approx":
         print("approx")
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
-                                                  y_auto,
-                                                  first_dot=first_dot)
+                                                  y_auto,)
 
         # elongation_r = ((protein_size+suntag_size)) / k
         print(k, c, )

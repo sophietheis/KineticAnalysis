@@ -12,9 +12,32 @@ def layout():
                 html.Br(),
                 "This is based on the work of Larson et al. ",
                 html.Br(),
+                "Each term came from this equation : "
                 ]),
+            dcc.Markdown(children='''
+                                 $$
+                                 G(T)_{exact} = \\frac{Pe^{-kT}}{P^2(
+                                 \\frac{N(N+1)}{2}+NM)^2 }[ \sum_{
+                                 n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(
+                                 kT)^n}{n!}
+                                 $$
+                                 $$ 
+                                 + N\sum_{n=0}^{N}n\\frac{(2N-n+1}{
+                                 2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\sum_{
+                                 n=N}^{M}\\frac{(kT)^n}{n!} 
+                                 $$
+                                 $$+ N\sum_{n=1}^{
+                                 N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(
+                                 M+N-n)!}+ N^2\sum_{n=0}^{M}(M-n)\\frac{(
+                                 kT)^n}{n!} ] 
+                                 $$
+
+                                ''',
+                         mathjax=True),
             html.Br(),
         ]),
+        html.Br(),
+        html.Br(),
         # Define parameter of the simulation
         dbc.Row([
             dbc.Col([
@@ -107,6 +130,11 @@ def layout():
                               style={'width': '200px'}),
                 ]),
                 html.Br(),
+                html.Br(),
+                dbc.Row([
+                    dbc.Button('Show Contribution', id='show-contribution-btn',
+                               className="mr-1"),
+                ]),
             ], width=4),
 
             # Show plot contribution
@@ -114,10 +142,6 @@ def layout():
                 dcc.Graph(id='equation-plot'),
 
             ], width=8)
-        ]),
-        dbc.Row([
-            dbc.Button('Show Contribution', id='show-contribution-btn',
-                       className="mr-1"),
         ]),
     ]),
     )

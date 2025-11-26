@@ -4,11 +4,11 @@ from dash import dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
-from plotly.subplots import make_subplots
 
 from ..generator.generator_track import (generate_one_track,
                                        generate_tracks,
                                        generate_profile)
+from ..plots.plots import fig_generate_track
 
 from ..tabs.app_function import (browse_directory)
 
@@ -49,7 +49,8 @@ def register_callbacks(app):
                 noise = False
                 if params[8] > 0:
                     noise = True
-                x, y = generate_profile(prot_length=float(params[0]),
+                x_profile, y_profile = generate_profile(prot_length=float(
+                    params[0]),
                                         suntag_length=float(params[1]),
                                         nb_suntag=float(params[2]),
                                         fluo_one_suntag=float(params[3]),
@@ -59,22 +60,6 @@ def register_callbacks(app):
                                         noise=noise,
                                         noise_std=float(params[8]),
                                         step=float(params[9]))
-                # Create the figure
-                figure = make_subplots(rows=3,
-                                       cols=1,
-                                       subplot_titles=(
-                                           'One protein fluo profile',
-                                           'One track fluo profile',
-                                           'Number of translation'))
-
-                # Plot one protein profile
-                figure.add_trace(go.Scatter(x=x, y=y,
-                                            mode='lines',
-                                            name='Profile one prot'),
-                                 row=1,
-                                 col=1)
-                figure.update_xaxes(title_text='Time (sec)', row=1, col=1)
-                figure.update_yaxes(title_text='Fluorescence', row=1, col=1)
 
                 # Generate one track
                 x, y, y_number = generate_one_track(prot_length=float(params[0]),
@@ -91,46 +76,9 @@ def register_callbacks(app):
                                                     length=float(params[10])
                                                     )
 
-                # Plot one track
-                figure.add_trace(go.Scatter(x=x, y=y,
-                                            mode='lines',
-                                            name='Profile track'),
-                                 row=2,
-                                 col=1)
-                figure.update_xaxes(title_text='Time (sec)', row=2, col=1)
-                figure.update_yaxes(title_text='Fluorescence', row=2, col=1)
+                figure = fig_generate_track(x_profile, y_profile, x, y,
+                                            y_number)
 
-                # Plot number of translation
-                figure.add_trace(go.Scatter(x=x, y=y_number,
-                                            mode='lines',
-                                            name='Number of protein being '
-                                                 'translated'),
-                                 row=3,
-                                 col=1)
-                figure.update_xaxes(title_text='Time (sec)', row=3, col=1)
-                figure.update_yaxes(title_text='Number of translation', row=3,
-                                    col=1)
-
-                for i in range(1,4):
-                    figure.update_xaxes(mirror=True,
-                                        ticks='outside',
-                                        showline=True,
-                                        linecolor='black',
-                                        gridcolor='lightgrey',
-                                        row=i,
-                                        col=1)
-                    figure.update_yaxes(mirror=True,
-                                        ticks='outside',
-                                        showline=True,
-                                        linecolor='black',
-                                        gridcolor='lightgrey',
-                                        row=i,
-                                        col=1)
-
-                figure.update_layout(width=1000,
-                                     height=800,
-                                     plot_bgcolor="white",
-                                     )
                 return figure
 
             except Exception as e:
