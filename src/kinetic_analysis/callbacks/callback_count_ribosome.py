@@ -3,7 +3,7 @@ import numpy as np
 from dash import  html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
 
-from .utils import generate_table
+from .utils import generate_table, generate_table_selectable
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.analyse_density import calculate_ribosome_density
@@ -21,7 +21,8 @@ def register_callbacks(app):
         if df is None:
             return output, None, None
 
-        table = generate_table(df, 10)
+        table = generate_table_selectable(df, max_rows=10, width="300px",
+                                          **{"id" :"table_single_prot",})
 
         return None, table, None
 
@@ -51,8 +52,8 @@ def register_callbacks(app):
         if df is None:
             return output, None, None
 
-        table = generate_table(df, 10)
-
+        table = generate_table_selectable(df, max_rows=10, width="300px",
+                                          **{"id": "table_polysome", })
         return None, table, None
 
     @app.callback(

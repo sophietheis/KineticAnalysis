@@ -158,8 +158,14 @@ def layout():
                              $$
                              where $$c$$ is the initiation rate, $$k$$ 
                              the elongation rate and $$T$$ is 
-                             the residence time.
-
+                             the residence time. The steady state 
+                             occupancy $$P$$ is defined by 
+                             $$\\frac{c}{k}$$.
+                             ''',
+                             mathjax=True),
+                html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
+                               "color": "#10D79B"}),
+                dcc.Markdown(children = '''
                              If you choose **approximate equation**, 
                              the default 
                              the equation used is :
@@ -169,7 +175,11 @@ def layout():
 
                              $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ is the
                              elongation rate.
-                             
+                             ''',
+                             mathjax=True),
+                html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
+                               "color": "#10D79B"}),
+                dcc.Markdown(children = '''             
                              If you choose **approximate epitope**, 
                              the default equation used is : 
                              $$ G(T) = \\frac{k}{c}(\\frac{2}{3})\\frac{

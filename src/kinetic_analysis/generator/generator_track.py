@@ -99,6 +99,7 @@ def generate_one_track(prot_length,
                        noise_std=0,
                        step=0.1,
                        length=6000,
+                        remove_point_beginning = 2000
                        ):
     """
     Generate track according to one protein translation dynamics
@@ -172,9 +173,10 @@ def generate_one_track(prot_length,
                 y_start_prot[i:i + len(x)] += 1
 
     # Remove the first time points
-    x_global = x_global[2000:] - 200  # -200 to start time at 0
-    y_global = y_global[2000:]
-    y_start_prot = y_start_prot[2000:]
+    x_global = (x_global[remove_point_beginning:] -
+                (remove_point_beginning*step))  # -200 to start time at 0
+    y_global = y_global[remove_point_beginning:]
+    y_start_prot = y_start_prot[remove_point_beginning:]
 
     return x_global, y_global, y_start_prot
 

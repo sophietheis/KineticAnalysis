@@ -7,27 +7,29 @@ def function_exact(x, k, c, N, M):
     term1 = c / k * np.exp(-k * x) * sum(
         (N - n) * (N - n + 1) * (((2 * N) + n + 1) / 6) * (
                     ((k * x) ** n) / np.float128(factorial(n))) for n in
-        range(0, int(N))) / denominator
+        range(0, int(N)))
 
     term2 = c / k * np.exp(-k * x) * N * sum(
         n * ((2 * N - n + 1) / 2) * ((k * x) ** n) / (
             np.float128(factorial(int(n)))) for n in
-        range(0, int(N))) / denominator
+        range(0, int(N)))
+
     term3 = c / k * np.exp(-k * x) * (N ** 2) * ((N + 1) / 2) * sum(
         ((k * x) ** n) / (np.float128(factorial(int(n)))) for n in
-        range(int(N), int(M))) / denominator
+        range(int(N), int(M)))
+
     term4 = c / k * np.exp(-k * x) * N * sum(n * ((1 + n) / 2) * (
                 ((k * x) ** (M + N - n)) / (
             np.float128(factorial(int(M + N - n))))) for n in
-                                             range(1, int(N))) / denominator
+                                             range(1, int(N)))
 
     term5 = c / k * np.exp(-k * x) * (N ** 2) * sum(
         (M - n) * (((k * x) ** n) / (np.float128(factorial(int(n))))) for n in
-        range(0, int(M))) / denominator
+        range(0, int(M)))
 
-    out = term1 + term2 + term3 + term4 + term5
+    out = (term1 + term2 + term3 + term4 + term5) / denominator
 
-    return out
+    return np.longdouble(out)
 
 def function_epitope(x, k, c, N):
     return (k / c) * (2 / 3) * (1 / ((N * (N + 1)) ** 2)) * np.exp(-k * x) * (

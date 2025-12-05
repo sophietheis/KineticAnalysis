@@ -5,9 +5,9 @@ import numpy as np
 
 from scipy import optimize
 
-from .fit_funtions import (function_exact,
-                           function_approx,
-                           function_epitope)
+from .fit_functions import (function_exact,
+                            function_approx,
+                            function_epitope)
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
@@ -51,7 +51,14 @@ def fit_autocorrelation_exact(x, y, M=56, N=32):
     params.add('k', value=np.float128(0.6), min=0)
     params.add('c', value=np.float128(0.1), min=0)
 
-    result = model.fit(y, params, x=x)
+    try:
+        result = model.fit(y, params, x=x, nan_policy='raise')
+    except ValueError as e:
+        print("Sorry, due to the complexity of the equation, there is a "
+              "chance that M or N are too big, and the number are too large "
+              "to be processed now (cause of factorial).")
+        print(e)
+        return (np.nan, np.nan, [np.nan, np.nan])
 
     return (result.params["k"].value, result.params["c"].value,
             [result.params["k"].stderr, result.params["c"].stderr] )
@@ -172,32 +179,33 @@ def single_track_analysis(x,
     # Perform the autocorrelation
     x_auto, y_auto = autocorrelation(y, delta_t, normalise_auto, mm)
 
+    one_suntag_size = (int(suntag_size/repetition_suntag))
+    M = int(protein_size/one_suntag_size)
+    N = repetition_suntag
+    print(M, N)
     # Apply the method of analysis
     if method =="exact" :
-        print("exact")
         (k, c, perr) = fit_autocorrelation_exact(x_auto,
                                                  y_auto,
-                                                 N = repetition_suntag,
-                                                 M=int(protein_size/(int(
-                                                     suntag_size/repetition_suntag))))
+                                                 N = N,
+                                                 M = M)
         elongation_r = k*(suntag_size/repetition_suntag)
         translation_init_r = c
 
     elif method == "approx":
-        print("approx")
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
                                                   y_auto,)
 
-        elongation_r = (protein_size/((suntag_size/repetition_suntag)))*k
+
+        elongation_r = M/k*one_suntag_size
         # translation_init_r = (1 / (c * k))
         translation_init_r = c
     elif method == "epitope":
-        print("epitope")
         (k, c, perr) = fit_autocorrelation_epitope(x_auto,
                                                  y_auto,
-                                                 N = repetition_suntag)
+                                                 N = N)
 
-        elongation_r = k*(suntag_size/repetition_suntag)
+        elongation_r = k*one_suntag_size
         # translation_init_r = (1 / (c * k))
         translation_init_r = c
     else:

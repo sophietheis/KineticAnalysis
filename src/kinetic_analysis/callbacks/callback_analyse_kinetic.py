@@ -10,9 +10,9 @@ from .utils import generate_table
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
                                        check_track_validity)
-from ..analysis.fit_funtions import (function_exact,
-                                     function_approx,
-                                     function_epitope)
+from ..analysis.fit_functions import (function_exact,
+                                      function_approx,
+                                      function_epitope)
 from ..plots.plots import fig_analyse_track
 
 
