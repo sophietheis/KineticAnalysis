@@ -48,8 +48,8 @@ def fit_autocorrelation_exact(x, y, M=56, N=32):
     params = lmfit.Parameters()
     params.add('N', value=N, vary=False)
     params.add('M', value=M, vary=False)
-    params.add('k', value=np.float128(0.6), min=0)
-    params.add('c', value=np.float128(0.1), min=0)
+    params.add('k', value=np.float128(0.6), min=1e-15)
+    params.add('c', value=np.float128(0.1), min=1e-15)
 
     try:
         result = model.fit(y, params, x=x, nan_policy='raise')
