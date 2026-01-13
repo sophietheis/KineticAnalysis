@@ -18,3 +18,4 @@ dash-core-components
 dash-bootstrap-components
 dash-spinner
 dash-table
+lmfit
