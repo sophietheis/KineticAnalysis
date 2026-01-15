@@ -1,6 +1,7 @@
 import numpy as np
 from math import factorial
 
+
 def function_exact(x, k, c, N, M):
     denominator = (c / k) ** 2 * ((N * (N + 1)) / 2 + N * M) ** 2
 
@@ -31,12 +32,14 @@ def function_exact(x, k, c, N, M):
 
     return np.longdouble(out)
 
+
 def function_epitope(x, k, c, N):
     return (k / c) * (2 / 3) * (1 / ((N * (N + 1)) ** 2)) * np.exp(-k * x) * (
         sum((N - n) * (N - n + 1) * ((2 * N) + n + 1) * (
                     ((k * x) ** n) / (np.float128(factorial(n)))) for n in
             range(0, int(N)))
     )
+
 
 def function_approx(x, t, c):
     """
@@ -63,8 +66,7 @@ def function_approx(x, t, c):
     return ((t - x) / (c * t ** 2)) * np.heaviside((t - x), 0)
 
 
-
-#### A supprimer ?
+# A supprimer ?
 def fit_function_linear(x, y):
     """
     Fit autocorrelation using a linear method.
@@ -75,8 +77,6 @@ def fit_function_linear(x, y):
         time value
     y : list
         aucorrelation value
-    protein_size : int
-        size of the protein in amino acid
 
     Returns
     -------
@@ -99,10 +99,9 @@ def fit_function_linear(x, y):
     else:
         t_sign = np.where(signchange == 1)[0][0]
 
-
     # find when the curve cross the x_axis
     y_sign_value = np.sign(y)
-    t_xaxis = np.where(y_sign_value==-1)[0][0]
+    t_xaxis = np.where(y_sign_value == -1)[0][0]
     # If the sign change happen in a negative value
     if t_sign < t_xaxis:
         t = t_xaxis
@@ -114,4 +113,4 @@ def fit_function_linear(x, y):
         return -1, -1, [-1, -1]
     res_fit = np.polyfit(x[:t], y[:t], 1)
     # translation_init_r = (res_fit[1] * x[t])
-    return(res_fit[0], res_fit[1], [np.nan, np.nan])
+    return res_fit[0], res_fit[1], [np.nan, np.nan]

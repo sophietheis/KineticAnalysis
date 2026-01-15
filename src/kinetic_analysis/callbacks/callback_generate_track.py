@@ -6,13 +6,13 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objs as go
 
 from ..generator.generator_track import (generate_one_track,
-                                       generate_tracks,
-                                       generate_profile)
+                                         generate_tracks,
+                                         generate_profile)
 from ..plots.plots import fig_generate_track
 
 from ..tabs.app_function import (browse_directory)
 
-## Callbacks
+
 def register_callbacks(app):
     @app.callback(
         Output("directory-output", "children"),
@@ -49,31 +49,30 @@ def register_callbacks(app):
                 noise = False
                 if params[8] > 0:
                     noise = True
-                x_profile, y_profile = generate_profile(prot_length=float(
-                    params[0]),
-                                        suntag_length=float(params[1]),
-                                        nb_suntag=float(params[2]),
-                                        fluo_one_suntag=float(params[3]),
-                                        translation_rate=float(params[4]),
-                                        retention_time=float(params[6]),
-                                        suntag_pos=params[7],
-                                        noise=noise,
-                                        noise_std=float(params[8]),
-                                        step=float(params[9]))
+                x_profile, y_profile = generate_profile(prot_length=int(params[0]),
+                                                        suntag_length=int(params[1]),
+                                                        nb_suntag=int(params[2]),
+                                                        fluo_one_suntag=int(params[3]),
+                                                        translation_rate=int(params[4]),
+                                                        retention_time=int(params[6]),
+                                                        suntag_pos=params[7],
+                                                        noise=noise,
+                                                        noise_std=float(params[8]),
+                                                        step=float(params[9]))
 
                 # Generate one track
-                x, y, y_number = generate_one_track(prot_length=float(params[0]),
-                                                    suntag_length=float(params[1]),
-                                                    nb_suntag=float(params[2]),
-                                                    fluo_one_suntag=float(params[3]),
-                                                    translation_rate=float(params[4]),
+                x, y, y_number = generate_one_track(prot_length=int(params[0]),
+                                                    suntag_length=int(params[1]),
+                                                    nb_suntag=int(params[2]),
+                                                    fluo_one_suntag=int(params[3]),
+                                                    translation_rate=int(params[4]),
                                                     binding_rate=float(params[5]),
                                                     retention_time=float(params[6]),
                                                     suntag_pos=params[7],
                                                     noise=noise,
                                                     noise_std=float(params[8]),
                                                     step=float(params[9]),
-                                                    length=float(params[10])
+                                                    length=int(params[10])
                                                     )
 
                 figure = fig_generate_track(x_profile, y_profile, x, y,
@@ -111,7 +110,6 @@ def register_callbacks(app):
     def enable_button(complete_value, start_value):
         return complete_value != start_value
 
-
     @app.callback(
         Output('gen-tracks-output', 'children'),
         Output('download-csv2', 'data'),
@@ -142,23 +140,22 @@ def register_callbacks(app):
                 if params[8] > 0:
                     noise = True
                 datas = generate_tracks(n=int(params[11]),
-                                        prot_length=float(params[0]),
-                                        suntag_length=float(params[1]),
-                                        nb_suntag=float(params[2]),
-                                        fluo_one_suntag=float(params[3]),
-                                        translation_rate=float(params[4]),
+                                        prot_length=int(params[0]),
+                                        suntag_length=int(params[1]),
+                                        nb_suntag=int(params[2]),
+                                        fluo_one_suntag=int(params[3]),
+                                        translation_rate=int(params[4]),
                                         binding_rate=float(params[5]),
                                         retention_time=float(params[6]),
                                         suntag_pos=params[7],
                                         noise=noise,
                                         noise_std=float(params[8]),
                                         step=float(params[9]),
-                                        length=float(params[10]),
+                                        length=int(params[10]),
                                         )
 
                 output_path = str(params[12]) + ".csv"
                 datas.to_csv(output_path, index=False)
-
 
                 return ("Tracks generated and saved successfully!",
                         dcc.send_file(output_path), "Generate tracks", data)

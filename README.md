@@ -49,7 +49,7 @@ See [docker install](https://github.com/sophiets/KineticAnalysis/doc/Install_doc
 
 ## Issues
 
-If you encounter any problems, please [open an issue](https://github.com/sophiets/KineticAnalysis/issues) along with a 
+If you encounter any problems, please [open an issue](https://github.com/sophietheis/KineticAnalysis/issues) along with a 
 detailed descriptions.
 
 ## Contributing

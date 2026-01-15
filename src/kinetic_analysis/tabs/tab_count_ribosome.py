@@ -1,25 +1,10 @@
-import numpy as np
-import pandas as pd
-import tkinter as tk
-from tkinter import filedialog
-
-from dash import  html, dcc, Input, Output, State, dash_table
-from dash.exceptions import PreventUpdate
+from dash import html, dcc
 import dash_bootstrap_components as dbc
-import dash_spinner
-
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-
-from .app_function import (browse_directory)
-from .app_function import (upload_csv)
-
-from ..analysis.analyse_density import calculate_ribosome_density
 
 
 def layout():
     return (html.Div([
-        # Explanation at the begining of the page
+        # Explanation at the beginning of the page
         dbc.Row([
             html.P([
                 "In this tab, you will estimate the number of ribosome on a "
@@ -181,4 +166,3 @@ def layout():
         dcc.Download(id="download_csv"),
     ]),
     )
-

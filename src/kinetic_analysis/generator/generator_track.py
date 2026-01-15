@@ -99,7 +99,7 @@ def generate_one_track(prot_length,
                        noise_std=0,
                        step=0.1,
                        length=6000,
-                        remove_point_beginning = 2000
+                       remove_point_beginning=2000
                        ):
     """
     Generate track according to one protein translation dynamics
@@ -130,6 +130,8 @@ def generate_one_track(prot_length,
         time step between two point in sec
     length : int
         length of the track in sec
+    remove_point_beginning : int
+        how many point are removed at the beginning of the track
 
     Returns
     -------

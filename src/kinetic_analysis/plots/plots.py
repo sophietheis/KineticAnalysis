@@ -1,8 +1,8 @@
 import numpy as np
-import pandas as pd
 
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
+
 
 def fig_update_background(figure, nb_subfig=1):
     for i in range(1, nb_subfig+1):
@@ -28,8 +28,11 @@ def fig_update_background(figure, nb_subfig=1):
     return figure
 
 
-def fig_analyse_track(x, y, x_fix, y_fix, x_auto, y_auto,y_fit,  dt, figure = \
-    None):
+def fig_analyse_track(x, y,
+                      x_fix, y_fix,
+                      x_auto, y_auto,
+                      y_fit,  dt,
+                      figure=None):
     if figure is None:
         figure = make_subplots(rows=3,
                                cols=1,
@@ -115,18 +118,18 @@ def fig_contribution(tau, term1, term2, term3, term4, term5, figure=None):
                                cols=1,
                                subplot_titles=(
                                    'Autocorrelation function profile',
-                                   'Autocorrelation function profile (percentage)',
+                                   'Autocorrelation function profile ('
+                                   'percentage)',
                                ))
 
     sum_term = term1 + term2 + term3 + term4 + term5
 
-    colors = ["#F2A5A2","#A2C8F2", "#4891E5", "#1A63B7", "#F2CDA2", "#000000"]
+    colors = ["#F2A5A2", "#A2C8F2", "#4891E5", "#1A63B7", "#F2CDA2", "#000000"]
     names = ["Stemloop term", "Crossterm1", "Crossterm2", "Crosstem3",
              "Post stemloop term", "Total"]
     terms = [term1, term2, term3, term4, term5, sum_term]
     line_type = np.repeat("solid", 5)
     line_type = np.append(line_type, "dash")
-
 
     for i in range(len(names)):
         # Plot autocorrelation profile

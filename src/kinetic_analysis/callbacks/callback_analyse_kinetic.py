@@ -42,7 +42,6 @@ def register_callbacks(app):
         app.data["solver"] = value
         return value
 
-
     @app.callback(
         Output('plot_results', 'figure'),
         Output('loading_output_track', 'children'),
@@ -51,16 +50,16 @@ def register_callbacks(app):
         Output('loading_output3', 'children'),
         Output('loading_track_plot', 'children'),
         Input('analyse_show_button2', 'n_clicks'),
-        State('col_track2', 'value'), #0
-        State('col_time2', 'value'), #1
-        State('col_intensity2', 'value'), #2
-        State('dt-param-vivo2', 'value'), #3
-        State('prot-length-param-vivo2', 'value'), #4
-        State('suntag-length-param-vivo2', 'value'), #5
-        State('repetition-suntag-param-vivo2', 'value'), #6
-        State('id_track2', 'value'), #7
-        State("missing_point_param_vivo2", 'value'), #8
-        State("switches_force_analysis2", "value"), #9
+        State('col_track2', 'value'),  #0
+        State('col_time2', 'value'),  #1
+        State('col_intensity2', 'value'),  #2
+        State('dt-param-vivo2', 'value'),  #3
+        State('prot-length-param-vivo2', 'value'),  #4
+        State('suntag-length-param-vivo2', 'value'),  #5
+        State('repetition-suntag-param-vivo2', 'value'),  #6
+        State('id_track2', 'value'),  #7
+        State("missing_point_param_vivo2", 'value'),  #8
+        State("switches_force_analysis2", "value"),  #9
     )
     def analyse_display_track(n_clicks, *params):
 
@@ -73,10 +72,16 @@ def register_callbacks(app):
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
                                    },
-                             inplace=True)
+                          inplace=True)
 
                 if int(params[7]) not in np.unique(df["TRACK_ID"]):
-                    return go.Figure(), "", "This ID does not exist.", "", "", None
+                    return (go.Figure(),
+                            "",
+                            "This ID does not exist.",
+                            "",
+                            "",
+                            None
+                            )
 
                 dt = float(params[3])
                 prot_length = int(params[4])
@@ -93,14 +98,13 @@ def register_callbacks(app):
                 elif app.data["solver"] == "Approximate epitope":
                     method = "epitope"
 
-
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
-                                            int(params[7]),
-                                            normalise_intensity=1,
-                                            delta_t = dt,
-                                            rtol=1e-1,
-                                            nb_missing_point=int(params[-3]),
-                                            )
+                                                                 int(params[7]),
+                                                                 normalise_intensity=1,
+                                                                 delta_t=dt,
+                                                                 rtol=1e-1,
+                                                                 nb_missing_point=int(params[-3]),
+                                                                 )
 
                 if valid or force_analysis:
                     if force_analysis:
@@ -123,12 +127,12 @@ def register_callbacks(app):
                                                    )
                 else:
                     return (go.Figure(), "This track can't be analysed, "
-                                    "there is too much missing point. "
-                                    "If you want to force the analysis, "
-                                    "you can either increase the missing "
-                                    "point value or tick the force "
-                                    "analysis box.",
-                            "", "","", None)
+                                         "there is too much missing point. "
+                                         "If you want to force the analysis, "
+                                         "you can either increase the missing "
+                                         "point value or tick the force "
+                                         "analysis box.",
+                            "", "", "", None)
 
                 N = repetition_suntag
                 M = prot_length/(suntag_length/repetition_suntag)
@@ -145,11 +149,10 @@ def register_callbacks(app):
                                            y_fit,
                                            dt)
 
-
                 str_output1 = (f"elongation rate: "
-                              f"{elongation_r:.2f} aa/sec ")
+                               f"{elongation_r:.2f} aa/sec ")
                 str_output2 = (f"initiation rate: "
-                              f"{translation_init_r:.2f} rib/sec")
+                               f"{translation_init_r:.2f} rib/sec")
 
                 str_output3 = (f"perr: "
                                f"{perr} ")
@@ -160,9 +163,8 @@ def register_callbacks(app):
                     'data': [],
                     'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
                                         yaxis={'title': 'Fluorescence'})
-                },"",  str(e),"", "", None
+                }, "", str(e), "", "", None
         return go.Figure(), "",  "", "", "", None
-
 
     @app.callback(
         Output('analyze-output-vivo', 'children'),
@@ -170,16 +172,16 @@ def register_callbacks(app):
         Output('download-csv', 'data'),
         Input('start-analyze-btn-vivo', 'n_clicks'),
 
-        State('col_track2', 'value'), #0
-        State('col_time2', 'value'), #1
-        State('col_intensity2', 'value'), #2
-        State('dt-param-vivo2', 'value'), #3
-        State('prot-length-param-vivo2', 'value'), #4
-        State('suntag-length-param-vivo2', 'value'), #5
-        State('repetition-suntag-param-vivo2', 'value'), #6
-        State("missing_point_param_vivo2", 'value'), #7
-        State("switches_force_analysis2", "value"), #8
-        State('save-results-name-vivo', 'value'), #9
+        State('col_track2', 'value'),  #0
+        State('col_time2', 'value'),  #1
+        State('col_intensity2', 'value'),  #2
+        State('dt-param-vivo2', 'value'),  #3
+        State('prot-length-param-vivo2', 'value'),  #4
+        State('suntag-length-param-vivo2', 'value'),  #5
+        State('repetition-suntag-param-vivo2', 'value'),  #6
+        State("missing_point_param_vivo2", 'value'),  #7
+        State("switches_force_analysis2", "value"),  #8
+        State('save-results-name-vivo', 'value'),  #9
         # State('checkbox_simu', 'value') #9
     )
     def start_analyze_all_tracks(n_clicks, *params):
@@ -195,8 +197,8 @@ def register_callbacks(app):
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
-                                  },
-                         inplace=True)
+                                   },
+                          inplace=True)
 
                 dt = float(params[3])
                 prot_length = int(params[4])
@@ -231,12 +233,12 @@ def register_callbacks(app):
                     datas2 = df[(df["TRACK_ID"] == i)]
 
                     (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
-                                                   i,
-                                                   normalise_intensity=1,
-                                                   delta_t=dt,
-                                                   rtol=1e-1,
-                                                   nb_missing_point=nb_missing_point,
-                                                   )
+                                                                       i,
+                                                                       normalise_intensity=1,
+                                                                       delta_t=dt,
+                                                                       rtol=1e-1,
+                                                                       nb_missing_point=nb_missing_point,
+                                                                       )
                     length = len(x_fix)
 
                     if valid or force_analysis:
@@ -244,21 +246,21 @@ def register_callbacks(app):
                             comment = "analysis forced"
                         (x_auto,
                          y_auto,
-                         k,c,
+                         k, c,
                          elongation_r,
                          translation_init_r,
                          [perr0, perr1]) = single_track_analysis(x_fix,
-                                                       y_fix,
-                                                       delta_t=dt,
-                                                       protein_size=prot_length,
-                                                       suntag_size=suntag_length,
-                                                       repetition_suntag=repetition_suntag,
-                                                       mm=None,
-                                                       normalise_auto=True,
-                                                       method=method,
-                                                       simulation=False,
-                                                       func_=app.data["equation_f"]
-                                                       )
+                                                                 y_fix,
+                                                                 delta_t=dt,
+                                                                 protein_size=prot_length,
+                                                                 suntag_size=suntag_length,
+                                                                 repetition_suntag=repetition_suntag,
+                                                                 mm=None,
+                                                                 normalise_auto=True,
+                                                                 method=method,
+                                                                 simulation=False,
+                                                                 func_=app.data["equation_f"]
+                                                                 )
                         print(k, c, elongation_r, translation_init_r)
 
                     # Populate the dataframe
@@ -267,11 +269,11 @@ def register_callbacks(app):
                                                 "id": i,
                                                 "dt": dt,
                                                 "length": length,
-                                                "k":k,
-                                                "c":c,
+                                                "k": k,
+                                                "c": c,
                                                 "elongation_r": elongation_r,
                                                 "init_translation_r": translation_init_r,
-                                                "perr0":perr0,
+                                                "perr0": perr0,
                                                 "perr1": perr1,
                                                 "comment": comment},
                                                index=[0])
@@ -288,16 +290,18 @@ def register_callbacks(app):
                                                     "c": c,
                                                     "elongation_r": elongation_r,
                                                     "init_translation_r": translation_init_r,
-                                                    "perr0":perr0,
+                                                    "perr0": perr0,
                                                     "perr1": perr1,
-                                                    "comment":comment},
+                                                    "comment": comment},
                                                  index=[0])
                                              ], ignore_index=True)
 
                 output_path = params[-1] + ".csv"
                 results.to_csv(output_path, index=False)
 
-                return "Analysis completed and saved successfully!", None, dcc.send_file(output_path)
+                return ("Analysis completed and saved successfully!",
+                        None,
+                        dcc.send_file(output_path))
             except Exception as e:
                 return f"Error: {str(e)}", None, None
         raise PreventUpdate

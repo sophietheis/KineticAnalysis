@@ -1,5 +1,3 @@
-import numpy as np
-
 from dash import Input, Output, State
 from dash.exceptions import PreventUpdate
 
@@ -9,7 +7,6 @@ from ..analysis.contribution import calculate_contribution
 from ..plots.plots import fig_contribution
 
 
-## Callbacks
 def register_callbacks(app):
     @app.callback(
         Output('equation-plot', 'figure'),
@@ -19,7 +16,7 @@ def register_callbacks(app):
         State('param_nb_suntag', 'value'),   #2
         State('param_elongation_rate', 'value'),  #3
         State('param_initiation_rate', 'value'),   #4
-        State('param_tau', 'value'),  # 5
+        State('param_tau', 'value'),  #5
     )
     def update_plot(n_clicks, *params):
         """
@@ -34,7 +31,7 @@ def register_callbacks(app):
                 c = float(params[4])
                 tau = float(params[5])
 
-                print(L,s,N,k,c,tau)
+                print(L, s, N, k, c, tau)
 
                 # Calculate contribution
                 (term1,

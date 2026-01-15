@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def msd_calculation(x, y, z):
     """
     Calculate mean square displacement of the track.
@@ -29,12 +30,13 @@ def msd_calculation(x, y, z):
 
     return msd
 
+
 def rsd_calculation(x, y, z):
 
     data = np.array([x, y, z]).T
     # Compute squared displacement for each time step
-    SD = [(i[0] - x[0]) ** 2 + (i[1] - y[0]) ** 2 + (i[2] - z[0]) ** 2 for i in
+    sd = [(i[0] - x[0]) ** 2 + (i[1] - y[0]) ** 2 + (i[2] - z[0]) ** 2 for i in
           data]
     # Compute the cumulative average of SD to get MSD at each time step
-    rsd = np.cumsum(SD) / np.arange(1, len(SD) + 1)
+    rsd = np.cumsum(sd) / np.arange(1, len(sd) + 1)
     return rsd

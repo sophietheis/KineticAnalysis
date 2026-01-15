@@ -1,6 +1,5 @@
 import numpy as np
 from math import factorial
-from decimal import Decimal
 
 
 def calculate_contribution(L, N, k, c, s, t):

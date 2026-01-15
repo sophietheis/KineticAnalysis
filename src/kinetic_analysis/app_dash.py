@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output, dcc
+from dash import Dash, html, Input, Output
 import dash_bootstrap_components as dbc
 
 from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
@@ -8,19 +8,20 @@ from kineticanalysis.callbacks.callback_generate_track import (
     register_callbacks as tab1_callbacks)
 
 from kineticanalysis.tabs.tab_equation_choice import layout as tab2_layout
-from kineticanalysis.callbacks.callback_equation_choice import register_callbacks as tab2_callbacks
+from kineticanalysis.callbacks.callback_equation_choice import (
+    register_callbacks as tab2_callbacks)
 
 from kineticanalysis.tabs.tab_analyse_kinetic import layout as tab3_layout
-from kineticanalysis.callbacks.callback_analyse_kinetic import (register_callbacks as
-                                                tab3_callbacks)
+from kineticanalysis.callbacks.callback_analyse_kinetic import (
+    register_callbacks as tab3_callbacks)
 
 from kineticanalysis.tabs.tab_count_ribosome import layout as tab4_layout
-from kineticanalysis.callbacks.callback_count_ribosome import (register_callbacks as
-                                                     tab4_callbacks)
+from kineticanalysis.callbacks.callback_count_ribosome import (
+    register_callbacks as tab4_callbacks)
 
 from kineticanalysis.tabs.tab_MSD import layout as tab5_layout
-from kineticanalysis.callbacks.callback_MSD import (register_callbacks as
-                                                     tab5_callbacks)
+from kineticanalysis.callbacks.callback_MSD import (
+    register_callbacks as tab5_callbacks)
 
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
@@ -46,20 +47,51 @@ app.data = {
 }
 
 app.layout = dbc.Container([
-    html.H1("Translation dynamic analysis app"),
-    dcc.Markdown("*Tool to estimate the kinetic parameters of translation.*"),
+    # Header
+    html.Header([
+        html.H1("Translation dynamic analysis app"),
+        # dcc.Markdown("*Tool to estimate the kinetic parameters"
+        # " of translation.*"),
+    ]),
 
+    # Body
     dbc.Tabs(children=[
-        dbc.Tab(label="Introduction", tab_id="tab-0"),
-        dbc.Tab(label="Generate tracks", tab_id="tab-1"),
-        dbc.Tab(label="Choose the equation", tab_id="tab-2"),
-        dbc.Tab(label="Track Analysis - display & all tracks", tab_id="tab-3"),
-        dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
-        dbc.Tab(label="MSD", tab_id="tab-5"),
+        dbc.Tab(label="Introduction",
+                tab_id="tab-0",
+                activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="Generate tracks",
+                tab_id="tab-1",
+                activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="Choose the equation",
+                tab_id="tab-2",
+                activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="Track Analysis",
+                tab_id="tab-3",
+                activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="Count ribosomes",
+                tab_id="tab-4",
+                activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="MSD",
+                tab_id="tab-5",
+                activeTabClassName="fw-bold fst-italic"),
         ],
         id='tabs',
-        active_tab='tab-0'),
-    html.Div(id='tabs-content')
+        active_tab='tab-0',
+    ),
+    html.Div(id='tabs-content',
+             style={'min_height': "80vh"}),
+
+    html.Br(),
+    html.Br(),
+    # # Footer
+    # html.Footer([
+    #     html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
+    #                    "color": "#10D79B"}),
+    #     html.P(["If you encounter any problems, please ",
+    #             html.A("open an issue",
+    #                    href="https://github.com/sophietheis/KineticAnalysis/issues",),
+    #             " along with a detailed description of the problem.",])
+    # ]),
 ])
 
 

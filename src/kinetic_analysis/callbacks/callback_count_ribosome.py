@@ -1,14 +1,14 @@
 import numpy as np
 
-from dash import  html, dcc, Input, Output, State, dash_table
+from dash import html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from .utils import generate_table, generate_table_selectable
+from .utils import generate_table_selectable
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.analyse_density import calculate_ribosome_density
 
-## Callbacks
+
 def register_callbacks(app):
     @app.callback(
         Output('selected-file-output-single_prot', 'children'),
@@ -22,7 +22,7 @@ def register_callbacks(app):
             return output, None, None
 
         table = generate_table_selectable(df, max_rows=10, width="300px",
-                                          **{"id" :"table_single_prot",})
+                                          **{"id": "table_single_prot"})
 
         return None, table, None
 
@@ -31,15 +31,13 @@ def register_callbacks(app):
         Input('table_single_prot', 'selected_columns'),
     )
     def single_prot_select_name(selected_columns):
-        if len(selected_columns) == 0 :
+        if len(selected_columns) == 0:
             return None
 
         app.data["single_prot_column_intensity"] = selected_columns[0]
-        return [{
-        'if': { 'column_id': i },
-        'background_color': '#D2F3FF'
-    } for i in selected_columns]
-
+        return [{'if': {'column_id': i},
+                 'background_color': '#D2F3FF'
+                 } for i in selected_columns]
 
     @app.callback(
         Output('selected-file-output-polysome', 'children'),
@@ -61,13 +59,12 @@ def register_callbacks(app):
         Input('table_polysome', 'selected_columns'),
     )
     def polysome_select_name(selected_columns):
-        if len(selected_columns) == 0 :
+        if len(selected_columns) == 0:
             return None
         app.data["polysome_column_intensity"] = selected_columns[0]
-        return [{
-        'if': { 'column_id': i },
-        'background_color': '#D2F3FF'
-    } for i in selected_columns]
+        return [{'if': {'column_id': i},
+                 'background_color': '#D2F3FF'
+                 } for i in selected_columns]
 
     @app.callback(
         Output('output_ribosome_density', 'children'),
@@ -99,21 +96,21 @@ def register_callbacks(app):
                     L_tag)
 
                 out_string = ("Mean single protein intensity : " + str(
-                    np.round(m_intensity_single,2)) +
+                    np.round(m_intensity_single, 2)) +
                               "\n Mean polysome intensity : " + str(
                             np.round(result["INTENSITY"].mean(), 2)) +
                               "\n Mean ribosome density : " + str(
-                    np.round(result["ribosome_density"].mean(),2)))
+                    np.round(result["ribosome_density"].mean(), 2)))
 
                 output = html.P([
                     "Mean single protein intensity : " + str(
-                    np.round(m_intensity_single,2)),
+                        np.round(m_intensity_single, 2)),
                     html.Br(),
                     "Mean polysome intensity : " + str(
-                            np.round(result["INTENSITY"].mean())),
+                        np.round(result["INTENSITY"].mean())),
                     html.Br(),
                     "Mean ribosome density : " + str(
-                    np.round(result["ribosome_density"].mean(),2))])
+                        np.round(result["ribosome_density"].mean(), 2))])
 
                 output_path = "result.csv"
                 result.to_csv(output_path, index=False)

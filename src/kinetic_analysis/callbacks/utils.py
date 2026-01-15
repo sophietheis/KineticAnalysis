@@ -1,5 +1,6 @@
 from dash import dash_table
 
+
 def generate_table(dataframe, max_rows=10, width="800px", **kwargs):
     table = dash_table.DataTable(
         data=dataframe.to_dict('records'),

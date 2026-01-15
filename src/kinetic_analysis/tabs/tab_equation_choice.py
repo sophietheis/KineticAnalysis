@@ -1,6 +1,7 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+
 def layout():
     return (html.Div([
         # Explanation at the beginning of the page
@@ -145,4 +146,3 @@ def layout():
         ]),
     ]),
     )
-

@@ -1,11 +1,5 @@
-import warnings
-
-import numpy as np
 import pandas as pd
 
-from scipy import optimize
-import scipy.signal
-import scipy.io.wavfile
 
 def read_csv_file(f):
     """
@@ -87,4 +81,3 @@ def rename_columns(df, old_columns, new_columns):
         raise "lengths of old_columns is different of new_columns"
     for i in range(len(old_columns)):
         df.rename(columns={old_columns[i]: new_columns[i]}, inplace=True)
-

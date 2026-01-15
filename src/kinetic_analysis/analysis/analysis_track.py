@@ -9,6 +9,7 @@ from .fit_functions import (function_exact,
                             function_approx,
                             function_epitope)
 
+
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
     Perform auto correlation.
@@ -58,10 +59,11 @@ def fit_autocorrelation_exact(x, y, M=56, N=32):
               "chance that M or N are too big, and the number are too large "
               "to be processed now (cause of factorial).")
         print(e)
-        return (np.nan, np.nan, [np.nan, np.nan])
+        return np.nan, np.nan, [np.nan, np.nan]
 
     return (result.params["k"].value, result.params["c"].value,
-            [result.params["k"].stderr, result.params["c"].stderr] )
+            [result.params["k"].stderr, result.params["c"].stderr])
+
 
 def fit_autocorrelation_epitope(x, y, N=32):
     model = lmfit.Model(function_epitope)
@@ -73,7 +75,8 @@ def fit_autocorrelation_epitope(x, y, N=32):
     result = model.fit(y, params, x=x, nan_policy='raise')
 
     return (result.params["k"].value, result.params["c"].value,
-            [result.params["k"].stderr, result.params["c"].stderr] )
+            [result.params["k"].stderr, result.params["c"].stderr])
+
 
 def fit_autocorrelation_approx(x, y, method='lm'):
     """
@@ -81,9 +84,7 @@ def fit_autocorrelation_approx(x, y, method='lm'):
     Parameters
     ----------
     x, y: x and y values of autocorrelation curve
-    func_  : function to fit
     method : method of fit resolution
-    protein_size: in aa in order to calculation the elongation rate
     """
 
     popt, pcov = optimize.curve_fit(function_approx,
@@ -95,7 +96,6 @@ def fit_autocorrelation_approx(x, y, method='lm'):
     # translation_init_r = 1 / popt[1]
     # return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
     return popt[0], popt[1], np.sqrt(np.diag(pcov))
-
 
 
 def single_track_analysis(x,
@@ -184,11 +184,11 @@ def single_track_analysis(x,
     N = repetition_suntag
     print(M, N)
     # Apply the method of analysis
-    if method =="exact" :
+    if method == "exact":
         (k, c, perr) = fit_autocorrelation_exact(x_auto,
                                                  y_auto,
-                                                 N = N,
-                                                 M = M)
+                                                 N=N,
+                                                 M=M)
         elongation_r = k*(suntag_size/repetition_suntag)
         translation_init_r = c
 
@@ -196,14 +196,13 @@ def single_track_analysis(x,
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
                                                   y_auto,)
 
-
         elongation_r = M/k*one_suntag_size
         # translation_init_r = (1 / (c * k))
         translation_init_r = c
     elif method == "epitope":
         (k, c, perr) = fit_autocorrelation_epitope(x_auto,
-                                                 y_auto,
-                                                 N = N)
+                                                   y_auto,
+                                                   N=N)
 
         elongation_r = k*one_suntag_size
         # translation_init_r = (1 / (c * k))
@@ -212,9 +211,9 @@ def single_track_analysis(x,
         print("No method choose")
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
-                                                         [np.nan, np.nan])
+                                                          [np.nan, np.nan])
 
-    return x_auto, y_auto, k, c , elongation_r, translation_init_r, perr
+    return x_auto, y_auto, k, c, elongation_r, translation_init_r, perr
 
 
 def check_track_validity(df,
@@ -252,9 +251,9 @@ def check_track_validity(df,
 
                     # How many points to add
                     x_add = [x[i]+delta_t]
-                    y_add = [(y[i]+y[i+1]) /2]
+                    y_add = [(y[i]+y[i+1]) / 2]
 
-                    while x_add[-1]<(x[i+1]-delta_t):
+                    while x_add[-1] < (x[i+1]-delta_t):
                         x_add.append(x_add[-1]+delta_t)
                         y_add.append((y_add[-1]+y[i+1])/2)
 
