@@ -18,6 +18,10 @@ from kineticanalysis.tabs.tab_count_ribosome import layout as tab4_layout
 from kineticanalysis.callbacks.callback_count_ribosome import (register_callbacks as
                                                      tab4_callbacks)
 
+from kineticanalysis.tabs.tab_MSD import layout as tab5_layout
+from kineticanalysis.callbacks.callback_MSD import (register_callbacks as
+                                                     tab5_callbacks)
+
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
 
@@ -51,6 +55,7 @@ app.layout = dbc.Container([
         dbc.Tab(label="Choose the equation", tab_id="tab-2"),
         dbc.Tab(label="Track Analysis - display & all tracks", tab_id="tab-3"),
         dbc.Tab(label="Count ribosomes", tab_id="tab-4"),
+        dbc.Tab(label="MSD", tab_id="tab-5"),
         ],
         id='tabs',
         active_tab='tab-0'),
@@ -73,6 +78,8 @@ def render_content(tab):
         return tab3_layout()
     elif tab == 'tab-4':
         return tab4_layout()
+    elif tab == 'tab-5':
+        return tab5_layout()
     else:
         return not_found_layout()
 
@@ -82,6 +89,7 @@ tab1_callbacks(app)
 tab2_callbacks(app)
 tab3_callbacks(app)
 tab4_callbacks(app)
+tab5_callbacks(app)
 
 if __name__ == '__main__':
     # run_app()

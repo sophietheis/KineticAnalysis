@@ -2,8 +2,6 @@
 
 ![GitHub License](https://img.shields.io/github/license/sophietheis/KineticAnalysis)
 
-[//]: # (![GitHub Python version]&#40;https://img.shields.)io/github/pipenv/locked/python-version/sophietheis/KineticAnalysis)
-
 [//]: # ([![PyPI]&#40;https://img.shields.io/pypi/v/epitools.svg?color=green&#41;]&#40;https://pypi.org/project/epitools&#41;)
 
 [//]: # ([![tests]&#40;https://github.com/epitools/epitools/actions/workflows/test.yml/badge.svg&#41;]&#40;https://github.com/epitools/epitools/actions/workflows/test.yml&#41;)
