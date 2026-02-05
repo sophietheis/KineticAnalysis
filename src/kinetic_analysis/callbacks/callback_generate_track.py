@@ -130,7 +130,8 @@ def register_callbacks(app):
         State('param_length', 'value'),
         State('param_nb_tracks', 'value'),
         State('param_filename', 'value'),
-
+        # background=True,
+        # progress=[Ouput("progress-generate", "children")]
     )
     def start_generate_tracks(n_clicks, data,  *params):
         # Generate all tracks and save it
@@ -158,7 +159,12 @@ def register_callbacks(app):
                 datas.to_csv(output_path, index=False)
 
                 return ("Tracks generated and saved successfully!",
-                        dcc.send_file(output_path), "Generate tracks", data)
+                        dcc.send_file(output_path),
+                        "Generate tracks",
+                        data)
             except Exception as e:
-                return f"Error: {str(e)}", None, "Generate tracks", data
+                return (f"Error: {str(e)}",
+                        None,
+                        "Generate tracks",
+                        data)
         raise PreventUpdate

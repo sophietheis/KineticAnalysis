@@ -23,6 +23,10 @@ from kineticanalysis.tabs.tab_MSD import layout as tab5_layout
 from kineticanalysis.callbacks.callback_MSD import (
     register_callbacks as tab5_callbacks)
 
+from kineticanalysis.tabs.tab_combine_track import layout as tab6_layout
+from kineticanalysis.callbacks.callback_combine_track import (
+    register_callbacks as tab6_callbacks)
+
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
 
@@ -74,7 +78,11 @@ app.layout = dbc.Container([
         dbc.Tab(label="MSD",
                 tab_id="tab-5",
                 activeTabClassName="fw-bold fst-italic"),
+        dbc.Tab(label="Combine",
+                tab_id="tab-6",
+                activeTabClassName="fw-bold fst-italic"),
         ],
+
         id='tabs',
         active_tab='tab-0',
     ),
@@ -112,6 +120,8 @@ def render_content(tab):
         return tab4_layout()
     elif tab == 'tab-5':
         return tab5_layout()
+    elif tab == 'tab-6':
+        return tab6_layout()
     else:
         return not_found_layout()
 
@@ -122,6 +132,7 @@ tab2_callbacks(app)
 tab3_callbacks(app)
 tab4_callbacks(app)
 tab5_callbacks(app)
+tab6_callbacks(app)
 
 if __name__ == '__main__':
     # run_app()
