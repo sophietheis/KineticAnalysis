@@ -134,15 +134,17 @@ def register_callbacks(app):
                                          "analysis box.",
                             "", "", "", None)
 
+                # For plot purpose
                 N = repetition_suntag
                 M = prot_length/(suntag_length/repetition_suntag)
                 if method == "exact":
                     y_fit = function_exact(x_auto, k, c, N, M)
+                    y_fit = np.float32(y_fit)
                 elif method == "approx":
                     y_fit = function_approx(x_auto, k, c)
                 elif method == "epitope":
                     y_fit = function_epitope(x_auto, k, c, N)
-
+                
                 figure = fig_analyse_track(x, y,
                                            x_fix, y_fix,
                                            x_auto, y_auto,
@@ -155,8 +157,9 @@ def register_callbacks(app):
                                f"{translation_init_r:.2f} rib/sec")
 
                 str_output3 = (f"perr: "
-                               f"{perr} ")
-                return figure, str_output_force, str_output1, str_output2, str_output3, None
+                               f"{perr[0]} ")
+                return (figure, str_output_force, str_output1,
+                        str_output2, str_output3, None)
             except Exception as e:
                 print(e)
                 return {
@@ -259,8 +262,8 @@ def register_callbacks(app):
                                                                  normalise_auto=True,
                                                                  method=method,
                                                                  simulation=False,
-                                                                 func_=app.data["equation_f"]
                                                                  )
+
                         print(k, c, elongation_r, translation_init_r)
 
                     # Populate the dataframe
