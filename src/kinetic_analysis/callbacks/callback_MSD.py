@@ -43,7 +43,8 @@ def register_callbacks(app):
             if "csv_msd" not in app.data:
                 return "You need to upload a file first", None
 
-            df = app.data['csv_msd']
+            # Use a copy to avoid corrupting shared app.data state for subsequent runs
+            df = app.data['csv_msd'].copy()
             df.rename(columns={params[0]: 'TRACK_ID',
                                params[1]: 'POSITION_X',
                                params[2]: 'POSITION_Y',

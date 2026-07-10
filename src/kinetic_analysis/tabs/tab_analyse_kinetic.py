@@ -320,6 +320,14 @@ def layout():
                                    id='analyse_show_button2',
                                    className="mr-2",
                                    style={"width": "300px"}, ),
+                        dbc.Alert(
+                            "Analysis did not work",
+                            id="alert-analysis",
+                            dismissable=True,
+                            fade=False,
+                            is_open=False,
+                            color="danger",
+                        ),
                     ], width="auto"),
 
                     dbc.Col(children=[

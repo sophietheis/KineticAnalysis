@@ -270,5 +270,8 @@ def layout():
                 dcc.Download(id="download-csv2"),
             ]),
         ]),
+        # dbc.Row([dcc.Interval(id="progress-generate",
+        #                       n_intervals=0,
+        #                       interval=1000,)]),
     ]),
     )

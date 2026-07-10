@@ -196,7 +196,8 @@ def register_callbacks(app):
             try:
                 print("start")
                 # Read csv file
-                df = app.data['csv_to_analyse']
+                # Use a copy to prevent renaming original columns in the global app state
+                df = app.data['csv_to_analyse'].copy()
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
