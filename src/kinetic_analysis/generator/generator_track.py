@@ -86,7 +86,6 @@ def generate_profile(prot_length,
 
     return x, y
 
-
 def generate_one_track(prot_length,
                        suntag_length,
                        nb_suntag,
@@ -182,6 +181,82 @@ def generate_one_track(prot_length,
 
     return x_global, y_global, y_start_prot
 
+def generate_one_track_footprint(prot_length,
+                                suntag_length,
+                                nb_suntag,
+                                fluo_one_suntag,
+                                translation_rate,
+                                binding_rate,
+                                footprint=10,
+                                retention_time=0,
+                                step=0.1,
+                                length=6000,
+                                remove_point_beginning=2000):
+    """
+    Same interface as generate_one_track, but ribosomes cannot overtake
+    each other (TASEP-style exclusion) and initiation is blocked when the
+    first `footprint` aa are occupied. See Discussion: ribosome queuing
+    lowers the effective elongation rate (k_eff = k*(1-rho_bar)) and
+    couples initiation to downstream occupancy.
+
+    footprint : int
+        ribosome exclusion size in amino acids (default 10 aa)
+    """
+    prot_tot_length = prot_length + suntag_length
+    x_global = np.arange(length, step=step)
+    y_global = np.zeros(len(x_global))
+    y_start_prot = np.zeros(len(x_global))
+
+    positions = []          # aa position, ordered leading (idx 0) -> trailing (idx -1)
+    retention_timers = []   # None while elongating, float while retained/terminating
+
+    n_rand = np.random.rand(len(x_global))
+
+    for i in range(len(x_global)):
+        # Elongation, leading ribosome first, blocked if ribosome ahead is < footprint away
+        for idx in range(len(positions)):
+            if retention_timers[idx] is not None:
+                continue
+            ahead = positions[idx - 1] if idx > 0 else np.inf
+            if ahead - positions[idx] > footprint:
+                positions[idx] += translation_rate * step
+                if positions[idx] >= prot_tot_length:
+                    positions[idx] = prot_tot_length
+                    retention_timers[idx] = retention_time if retention_time > 0 else 0.0
+
+        # Retention countdown / termination
+        keep = []
+        for idx in range(len(positions)):
+            if retention_timers[idx] is not None:
+                retention_timers[idx] -= step
+                if retention_timers[idx] > 0:
+                    keep.append(idx)
+            else:
+                keep.append(idx)
+        positions = [positions[j] for j in keep]
+        retention_timers = [retention_timers[j] for j in keep]
+
+        # Initiation, blocked if first `footprint` aa occupied
+        can_initiate = (len(positions) == 0) or (positions[-1] > footprint)
+        if can_initiate and n_rand[i] < (binding_rate * step):
+            positions.append(0.0)
+            retention_timers.append(None)
+
+        # Record fluorescence and active ribosome count (for density estimation)
+        total_fluo = 0.0
+        for pos in positions:
+            if pos < suntag_length:
+                total_fluo += (nb_suntag * fluo_one_suntag) * (pos / suntag_length)
+            else:
+                total_fluo += nb_suntag * fluo_one_suntag
+        y_global[i] = total_fluo
+        y_start_prot[i] = len(positions)
+
+    x_global = x_global[remove_point_beginning:] - remove_point_beginning * step
+    y_global = y_global[remove_point_beginning:]
+    y_start_prot = y_start_prot[remove_point_beginning:]
+
+    return x_global, y_global, y_start_prot
 
 def generate_tracks(n,
                     prot_length,
@@ -272,4 +347,28 @@ def generate_tracks(n,
                                              })],
                               ignore_index=True)
 
+    return datas
+
+def generate_tracks_footprint(n, 
+                            prot_length, 
+                            suntag_length, 
+                            nb_suntag,
+                            fluo_one_suntag, 
+                            translation_rate, 
+                            binding_rate,
+                            footprint=10, 
+                            retention_time=0, 
+                            step=0.1, 
+                            length=6000):
+    """Batch version of generate_one_track_footprint, same output shape as generate_tracks."""
+    first_time = True
+    for i in range(n):
+        x_global, y_global, y_start_prot = generate_one_track_footprint(
+            prot_length, suntag_length, nb_suntag, fluo_one_suntag,
+            translation_rate, binding_rate, footprint, retention_time, step, length)
+        frame = pd.DataFrame({"FRAME": x_global, "MEAN_INTENSITY_CH1": y_global,
+                              "TRACK_ID": i, "RETENTION_TIME": retention_time,
+                              "N_RIBOSOME": y_start_prot})
+        datas = frame if first_time else pd.concat([datas, frame], ignore_index=True)
+        first_time = False
     return datas
