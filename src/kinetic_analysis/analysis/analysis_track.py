@@ -7,7 +7,11 @@ from scipy import optimize
 
 from .fit_functions import (function_exact,
                             function_approx,
-                            function_epitope)
+                            function_epitope,
+                            correct_elongation_rate, 
+                            correct_initiation_rate)
+
+from .analysis_density import estimate_density
 
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
@@ -107,7 +111,10 @@ def single_track_analysis(x,
                           normalise_auto=True,
                           mm=None,
                           method="exact",
-                          simulation=False,):
+                          simulation=False,
+                          mean_n_ribosome=None,  
+                          footprint=10,          
+                          correct_queuing=False, ):
     """
     Analysis of one track inside a dataframe.
 
@@ -212,6 +219,12 @@ def single_track_analysis(x,
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
                                                           [np.nan, np.nan])
+    if correct_queuing:
+        if mean_n_ribosome is None:
+            raise ValueError("mean_n_ribosome must be provided when correct_queuing=True")
+        rho_bar = estimate_density(mean_n_ribosome, protein_size, suntag_size, footprint)
+        elongation_r = correct_elongation_rate(elongation_r, rho_bar)
+        translation_init_r = correct_initiation_rate(translation_init_r, rho_bar)
 
     return x_auto, y_auto, k, c, elongation_r, translation_init_r, perr
 
@@ -291,3 +304,19 @@ def check_continuous_time(x, dt, rtol=0.001):
     boolean, True if track is continuous, else False
     """
     return np.allclose(np.diff(x), dt, rtol=rtol)
+
+
+def recommend_acquisition(k_est, chi_s, chi_p, n_transit=7, samples_per_ramp=3):
+    """Recommend track length T and sampling interval dt given an
+    estimated elongation rate and construct geometry. See Discussion:
+    T should span several transit times tau_c = L/k; dt should resolve
+    the stem-loop ramp phase tau_ramp = chi_s/k (Nyquist)."""
+    tau_c = (chi_s + chi_p) / k_est
+    tau_ramp = chi_s / k_est
+    T_recommended = n_transit * tau_c
+    dt_recommended = tau_ramp / samples_per_ramp
+    return {"tau_c": tau_c, "tau_ramp": tau_ramp,
+            "T_recommended": T_recommended,
+            "dt_recommended": dt_recommended,
+            "dt_nyquist_limit": tau_ramp / 2,
+            "n_points": int(T_recommended / dt_recommended)}

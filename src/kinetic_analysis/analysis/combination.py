@@ -2,8 +2,17 @@ import random
 import numpy as np
 import pandas as pd
 
+from .analysis_track import autocorrelation
+
 
 def combine_n_tracks(list_track=[]):
+    """
+    Concatenates tracks with intensity offset matching. NOTE: this
+    introduces spurious correlation at track junctions and biases fitted
+    k downward as more tracks are combined (see Discussion). For kinetic
+    estimation, prefer ensemble_autocorrelation / combine_tracks_df_ensemble.
+    Kept here for direct comparison against the ensemble-averaged method.
+    """
     if len(list_track) == 0:
         return None
 
@@ -90,3 +99,43 @@ def combine_tracks_df(df, n_tracks, n_size):
                             ], ignore_index=True)
         a+=1
     return new_df
+
+
+def ensemble_autocorrelation(list_y, delta_t=0.5, normalize=True, mm=None):
+    """
+    Ensemble-averaged G(tau) from independent tracks, avoiding the
+    concatenation artifact of combine_n_tracks. Each track only
+    contributes within-track pairs; results are pooled weighted by
+    (T_i - tau), matching Eq. 7 as an average over independent
+    realizations rather than one continuous trace.
+    """
+    all_tau, num, denom = None, None, None
+    for y in list_y:
+        if len(y) < 4:
+            continue
+        tau_i, g_i = autocorrelation(y, delta_t=delta_t, normalize=normalize, mm=mm)
+        weight = (len(y) - np.arange(len(tau_i))).astype(float)
+        if all_tau is None:
+            all_tau, num, denom = tau_i, g_i * weight, weight
+        else:
+            n = min(len(tau_i), len(all_tau))
+            num, denom, all_tau = num[:n] + (g_i * weight)[:n], denom[:n] + weight[:n], all_tau[:n]
+    return all_tau, num / denom
+
+
+def combine_tracks_df_ensemble(df, n_tracks, n_size, delta_t=0.5, normalize=True, mm=None):
+    """
+    Ensemble-averaged alternative to combine_tracks_df. Returns tau/G(tau)
+    pooled across n_size independently sampled tracks, ready to pass
+    directly to fit_autocorrelation_* — no synthetic concatenated
+    intensity trace is created.
+    """
+    id_tracks = np.unique(df["TRACK_ID"])
+    list_combinations = reservoir_sampling(n_size, len(id_tracks), n_tracks)
+
+    results = []
+    for lc in list_combinations:
+        intensities = [df[df["TRACK_ID"] == id_tracks[l]]["MEAN_INTENSITY_CH1"].to_numpy() for l in lc]
+        tau, g = ensemble_autocorrelation(intensities, delta_t, normalize, mm)
+        results.append({"tau": tau, "G": g, "ORIGINAL_IDs": [id_tracks[l] for l in lc]})
+    return results

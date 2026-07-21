@@ -114,3 +114,17 @@ def fit_function_linear(x, y):
     res_fit = np.polyfit(x[:t], y[:t], 1)
     # translation_init_r = (res_fit[1] * x[t])
     return res_fit[0], res_fit[1], [np.nan, np.nan]
+
+def correct_elongation_rate(k_fit, rho_bar):
+    """k_true = k_fit / (1 - rho_bar). See Discussion: queuing biases the
+    fitted elongation rate low by a factor (1 - rho_bar)."""
+    if rho_bar is None or rho_bar >= 1:
+        return np.nan
+    return k_fit / (1 - rho_bar)
+
+def correct_initiation_rate(c_fit, rho_bar):
+    """c_true = c_fit / (1 - rho_bar), approximating site-1 occupancy by
+    mean occupancy rho_bar."""
+    if rho_bar is None or rho_bar >= 1:
+        return np.nan
+    return c_fit / (1 - rho_bar)
