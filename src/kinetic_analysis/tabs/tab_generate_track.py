@@ -123,6 +123,22 @@ def layout():
                               style={'width': '200px'}),
                 ]),
                 html.Div([
+                    html.P(children=["Footprint (aa) ",
+                                     html.Span(className="fas fa-question-circle",
+                                               id="faq_param_footprint",
+                                               style={"cursor": "pointer",
+                                                      "marginLeft": "5px"})],
+                           style={
+                               "height": "auto",
+                               "margin-bottom": "auto"}),
+                    dbc.Tooltip(children="Footprint. -1 no footprint. ",
+                                target="faq_param_footprint"),
+                    dcc.Input(id='param_footprint',
+                              type='number',
+                              value=-1,
+                              style={'width': '200px'}),
+                ]),
+                html.Div([
                     html.P(children=["Retention time (sec) ",
                                      html.Span(className="fas fa-question-circle",
                                                id="faq_param_retention_time",

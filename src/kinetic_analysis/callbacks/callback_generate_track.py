@@ -38,6 +38,7 @@ def register_callbacks(app):
         State('param_noise', 'value'),
         State('param_dt', 'value'),
         State('param_length', 'value'),
+        State('param_footprint', 'value'),
     )
     def update_profile_plot(n_clicks, *params):
         """
@@ -49,16 +50,20 @@ def register_callbacks(app):
                 noise = False
                 if params[8] > 0:
                     noise = True
-                x_profile, y_profile = generate_profile(prot_length=int(params[0]),
-                                                        suntag_length=int(params[1]),
-                                                        nb_suntag=int(params[2]),
-                                                        fluo_one_suntag=int(params[3]),
-                                                        translation_rate=int(params[4]),
-                                                        retention_time=int(params[6]),
-                                                        suntag_pos=params[7],
-                                                        noise=noise,
-                                                        noise_std=float(params[8]),
-                                                        step=float(params[9]))
+
+                if params[11] == -1:    
+                    x_profile, y_profile = generate_profile(prot_length=int(params[0]),
+                                                            suntag_length=int(params[1]),
+                                                            nb_suntag=int(params[2]),
+                                                            fluo_one_suntag=int(params[3]),
+                                                            translation_rate=int(params[4]),
+                                                            retention_time=int(params[6]),
+                                                            suntag_pos=params[7],
+                                                            noise=noise,
+                                                            noise_std=float(params[8]),
+                                                            step=float(params[9]))
+                else:
+                    x_profile, y_profile = None, None
 
                 # Generate one track
                 x, y, y_number = generate_one_track(prot_length=int(params[0]),
@@ -67,6 +72,7 @@ def register_callbacks(app):
                                                     fluo_one_suntag=int(params[3]),
                                                     translation_rate=int(params[4]),
                                                     binding_rate=float(params[5]),
+                                                    footprint=int(params[11]),
                                                     retention_time=float(params[6]),
                                                     suntag_pos=params[7],
                                                     noise=noise,

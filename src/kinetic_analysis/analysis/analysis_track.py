@@ -11,7 +11,7 @@ from .fit_functions import (function_exact,
                             correct_elongation_rate, 
                             correct_initiation_rate)
 
-from .analysis_density import estimate_density
+from .analyse_density import estimate_density
 
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
