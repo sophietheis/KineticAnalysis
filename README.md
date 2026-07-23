@@ -33,6 +33,8 @@ We recommend to create an environment to install `KineticAnalysis` package.
 
 The recommended way to install `KineticAnalysis` is via [pip](https://pypi.org/project/pip/).
 
+TODO : add creation of conda environmnent, 
+
 To install all dependencies:
 ```sh
 pip install --no-cache-dir -r requirements.txt
@@ -42,6 +44,13 @@ To install the latest development version, clone this repository and run:
 ```sh
 pip install .
 ```
+
+Start the application
+```sh
+python3 src/kinetic_analysis/app_dash.py 
+```
+Open your favorite web browser and enter the address: http://127.0.0.1:5001/
+
 
 
 ### Docker method

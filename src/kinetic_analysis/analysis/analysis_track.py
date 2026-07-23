@@ -7,12 +7,52 @@ from scipy import optimize
 
 from .fit_functions import (function_exact,
                             function_approx,
-                            function_epitope,
-                            correct_elongation_rate, 
-                            correct_initiation_rate)
+                            function_epitope)
 
 from .analyse_density import estimate_density
 
+
+def correct_elongation_rate(k_fit, rho_bar):
+    """
+    Correct the elongation rate for ribosome queuing using the mean occupancy
+
+    Parameters
+    ----------
+    k_fit : float
+        fitted elongation rate
+    rho_bar : float
+        mean occupancy of the mRNA  
+
+    Returns
+    -------
+    k_true : float
+        corrected elongation rate
+
+    """
+    if rho_bar is None or rho_bar >= 1:
+        return np.nan
+    return k_fit / (1 - rho_bar)
+
+def correct_initiation_rate(c_fit, rho_bar):
+    """
+    Correct the initiation rate for ribosome queuing using the mean occupancy
+
+    Parameters
+    ----------
+    c_fit : float
+        fitted initiation rate
+    rho_bar : float
+        mean occupancy of the mRNA  
+
+    Returns
+    -------
+    c_true : float
+        corrected initiation rate   
+
+    """
+    if rho_bar is None or rho_bar >= 1:
+        return np.nan
+    return c_fit / (1 - rho_bar)
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
@@ -306,14 +346,36 @@ def check_continuous_time(x, dt, rtol=0.001):
     return np.allclose(np.diff(x), dt, rtol=rtol)
 
 
-def recommend_acquisition(k_est, chi_s, chi_p, n_transit=7, samples_per_ramp=3):
-    """Recommend track length T and sampling interval dt given an
-    estimated elongation rate and construct geometry. See Discussion:
-    T should span several transit times tau_c = L/k; dt should resolve
-    the stem-loop ramp phase tau_ramp = chi_s/k (Nyquist)."""
-    tau_c = (chi_s + chi_p) / k_est
-    tau_ramp = chi_s / k_est
-    T_recommended = n_transit * tau_c
+def recommend_acquisition(k_est, protein_length, suntag_length, nb_full_prot=7, samples_per_ramp=24):
+    """
+    Recommend acquisition parameters based on estimated elongation rate and protein length.
+
+    Parameters
+    ----------
+    k_est : float
+        Estimated elongation rate in amino acids per second.
+    protein_length : int
+        Length of the protein in amino acids.
+    suntag_length : int
+        Length of the suntag in amino acids.
+    nb_full_prot : int, optional
+        Number of proteins produced entirely one after the other
+    samples_per_ramp : int, optional
+        Number of samples to take during the ramp phase (default is 24). 
+    
+    Returns
+    -------
+    dict
+        A dictionary containing recommended acquisition parameters:
+        - 'tau_c': Total translation time (protein + suntag) / k_est
+        - 'tau_ramp': Translation time for the protein only / k_est
+        - 'T_recommended': Total acquisition time to capture nb_full_prot times
+        - 'dt_recommended': Recommended time interval between samples
+        - 'dt_nyquist_limit': Nyquist limit for time interval 
+    """
+    tau_c = (protein_length + suntag_length) / k_est
+    tau_ramp = suntag_length / k_est
+    T_recommended = nb_full_prot * tau_c
     dt_recommended = tau_ramp / samples_per_ramp
     return {"tau_c": tau_c, "tau_ramp": tau_ramp,
             "T_recommended": T_recommended,

@@ -60,6 +60,9 @@ def register_callbacks(app):
         State('id_track2', 'value'),  #7
         State("missing_point_param_vivo2", 'value'),  #8
         State("switches_force_analysis2", "value"),  #9
+        State("switches_correct_queuing_analysis2", "value"),  #10
+        State("rib_occupancy-param-vivo2", "value"),  #11
+        State("rib_footprint-param-vivo2", "value"),  #12
     )
     def analyse_display_track(n_clicks, *params):
 
@@ -88,7 +91,7 @@ def register_callbacks(app):
                 suntag_length = int(params[5])
                 repetition_suntag = int(params[6])
                 datas2 = df[(df["TRACK_ID"] == int(params[7]))]
-                force_analysis = bool(params[-1])
+                force_analysis = bool(params[9])
 
                 # Check solver
                 if app.data["solver"] == "Exact equation":
@@ -103,7 +106,7 @@ def register_callbacks(app):
                                                                  normalise_intensity=1,
                                                                  delta_t=dt,
                                                                  rtol=1e-1,
-                                                                 nb_missing_point=int(params[-3]),
+                                                                 nb_missing_point=int(params[8]),
                                                                  )
 
                 if valid or force_analysis:
@@ -124,7 +127,11 @@ def register_callbacks(app):
                                                    normalise_auto=True,
                                                    method=method,
                                                    simulation=False,
+                                                   mean_n_ribosome=int(params[11]),
+                                                   footprint=int(params[12]),
+                                                   correct_queuing=bool(params[10])
                                                    )
+                
                 else:
                     return (go.Figure(), "This track can't be analysed, "
                                          "there is too much missing point. "

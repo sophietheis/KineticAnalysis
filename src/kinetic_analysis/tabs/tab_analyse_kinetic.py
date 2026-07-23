@@ -287,15 +287,69 @@ def layout():
 
         ]),
         html.Br(),
-        dbc.Row(
-            [
-                dbc.Checklist(options=[{"label": "Force the analysis even if "
-                                                 "time is not continuous.",
-                                        "value": 0}],
-                              id="switches_force_analysis2",
-                              switch=False, ),
+        dbc.Row([
+            dbc.Checklist(options=[{"label": "Force the analysis even if "
+                                                "time is not continuous.",
+                                    "value": 0}],
+                            id="switches_force_analysis2",
+                            switch=False, ),
+        ]),
+        html.Br(),            
+        dbc.Row([
+            dbc.Col([
+                # html.Div([
+                #     html.P(children=["Correct queuing",
+                #                      html.Span(className="fas fa-question-circle",
+                #                                id="faq_queue",
+                #                                style={"cursor": "pointer",
+                #                                       "marginLeft": "5px"})],
+                #            style={"height": "auto",
+                #                   "margin-bottom": "auto"}),
+                #     dbc.Tooltip(children="Correct for ribosome queuing.",
+                #                 target="faq_queue"),
+                #     dcc.Input(id='queue-param-vivo2',
+                #               type='number',
+                #               value=24),
+                # ]),
+                dbc.Checklist(options=[{"label": "Correct queuing",
+                                                        "value": 0}],
+                                              id="switches_correct_queuing_analysis2",
+                                              switch=False, ),
             ]),
-
+            dbc.Col([
+                html.Div([
+                    html.P(children=["Mean ribosome occupancy",
+                                        html.Span(className="fas fa-question-circle",
+                                                id="faq_rib_occupancy",
+                                                style={"cursor": "pointer",
+                                                        "marginLeft": "5px"})],
+                            style={"height": "auto",
+                                    "margin-bottom": "auto"}),
+                    dbc.Tooltip(children="mean ribosome occupancy.",
+                                target="faq_rib_occupancy"),
+                    dcc.Input(id='rib_occupancy-param-vivo2',
+                                type='number',
+                                value=10),
+                ]),
+            ]),
+            dbc.Col([
+                html.Div([
+                    html.P(children=["Ribosome footprint",
+                                        html.Span(className="fas fa-question-circle",
+                                                id="faq_rib_footprint",
+                                                style={"cursor": "pointer",
+                                                        "marginLeft": "5px"})],
+                            style={"height": "auto",
+                                    "margin-bottom": "auto"}),
+                    dbc.Tooltip(children="Ribosome footprint.",
+                                target="faq_rib_footprint"),
+                    dcc.Input(id='rib_footprint-param-vivo2',
+                                type='number',
+                                value=24),
+                ]),
+            ])
+        ]),
+        
         html.Br(),
 
         # Generate Button and Spinner Side by Side
