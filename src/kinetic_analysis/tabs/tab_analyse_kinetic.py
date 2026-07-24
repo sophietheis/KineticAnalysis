@@ -39,7 +39,7 @@ def layout():
                             dbc.Spinner(
                                 children=[
                                     html.Div(id="loading_data_vivo2")],
-                                size="lm",  #"sm"
+                                size="sm",
                                 color="primary",
                                 type="border",
                                 spinner_style={"margin-left": "10px"}
@@ -216,14 +216,14 @@ def layout():
                 html.Div([
                     html.P(children=["Suntag length (aa)",
                                      html.Span(className="fas fa-question-circle",
-                                               id="faq_prot_length",
+                                               id="faq_suntag_length",
                                                style={"cursor": "pointer",
                                                       "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip(children="Length of the SunTag in amino "
                                 "acid.",
-                                target="faq_prot_length"),
+                                target="faq_suntag_length"),
                     dcc.Input(id='suntag-length-param-vivo2', type='number',
                               value=800),
                 ]),
@@ -269,13 +269,13 @@ def layout():
                 html.Div([
                     html.P(children=["Number of suntag",
                                      html.Span(className="fas fa-question-circle",
-                                               id="faq_prot_length",
+                                               id="faq_suntag_number",
                                                style={"cursor": "pointer",
                                                       "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip(children="Number of suntag repetition.",
-                                target="faq_prot_length"),
+                                target="faq_suntag_number"),
                     dcc.Input(id='repetition-suntag-param-vivo2',
                               type='number',
                               value=32),
@@ -297,20 +297,6 @@ def layout():
         html.Br(),            
         dbc.Row([
             dbc.Col([
-                # html.Div([
-                #     html.P(children=["Correct queuing",
-                #                      html.Span(className="fas fa-question-circle",
-                #                                id="faq_queue",
-                #                                style={"cursor": "pointer",
-                #                                       "marginLeft": "5px"})],
-                #            style={"height": "auto",
-                #                   "margin-bottom": "auto"}),
-                #     dbc.Tooltip(children="Correct for ribosome queuing.",
-                #                 target="faq_queue"),
-                #     dcc.Input(id='queue-param-vivo2',
-                #               type='number',
-                #               value=24),
-                # ]),
                 dbc.Checklist(options=[{"label": "Correct queuing",
                                                         "value": 0}],
                                               id="switches_correct_queuing_analysis2",

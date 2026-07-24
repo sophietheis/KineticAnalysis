@@ -53,7 +53,7 @@ def layout():
                             dbc.Spinner(
                                 children=[
                                     html.Div(id="loading_data_single_prot")],
-                                size="lm",  # "sm"
+                                size="sm",
                                 color="primary",
                                 type="border",
                                 spinner_style={"margin-left": "10px"}

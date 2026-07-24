@@ -33,7 +33,7 @@ def layout():
                             dbc.Spinner(
                                 children=[
                                     html.Div(id="loading_data_combine")],
-                                size="lm",  #"sm"
+                                size="sm",
                                 color="primary",
                                 type="border",
                                 spinner_style={"margin-left": "10px"}
@@ -62,11 +62,6 @@ def layout():
 
         html.Br(),
 
-        # # input values
-        # html.H4(children="Confirm column name for the analysis",
-        #         style={"text-align": "center",
-        #                "color": "#10D79B"}),
-        # html.Br(),
         dbc.Row([
             # nb track in the combined track
             dbc.Col([

@@ -38,11 +38,11 @@ FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__,
            external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
            )
-app.css.append_css({"external_url": "/assets/css/main.css"})
 app.server.static_folder = "assets"
 app.title = "Translation dynamics app"
 
 # Global variables to store states
+# Thread safety need to be changed
 app.data = {
     'directory_generation': None,
     'directory_analysis': None,
@@ -52,6 +52,17 @@ app.data = {
     'selected_file': None,
     'solver': "Exact equation",
     'csv_to_analyse': None,
+}
+
+_TAB_LAYOUTS = {
+    'tab-0': tab0_layout,
+    'tab-1': tab1_layout,
+    'tab-2': tab2_layout,
+    'tab-3': tab3_layout,
+    'tab-4': tab4_layout,
+    'tab-5': tab5_layout,
+    'tab-6': tab6_layout,
+    'tab-7': tab7_layout,
 }
 
 app.layout = dbc.Container([
@@ -98,15 +109,6 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.Br(),
-    # # Footer
-    # html.Footer([
-    #     html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
-    #                    "color": "#10D79B"}),
-    #     html.P(["If you encounter any problems, please ",
-    #             html.A("open an issue",
-    #                    href="https://github.com/sophietheis/KineticAnalysis/issues",),
-    #             " along with a detailed description of the problem.",])
-    # ]),
 ])
 
 
@@ -115,24 +117,7 @@ app.layout = dbc.Container([
     Input('tabs', 'active_tab')
 )
 def render_content(tab):
-    if tab == 'tab-0':
-        return tab0_layout()
-    elif tab == 'tab-1':
-        return tab1_layout()
-    elif tab == 'tab-2':
-        return tab2_layout()
-    elif tab == 'tab-3':
-        return tab3_layout()
-    elif tab == 'tab-4':
-        return tab4_layout()
-    elif tab == 'tab-5':
-        return tab5_layout()
-    elif tab == 'tab-6':
-        return tab6_layout()
-    elif tab == 'tab-7':
-        return tab7_layout()
-    else:
-        return not_found_layout()
+    return _TAB_LAYOUTS.get(tab, not_found_layout)()
 
 
 # Register callbacks
