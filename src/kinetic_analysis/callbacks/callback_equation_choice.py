@@ -3,9 +3,9 @@ from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
 
+from .utils import empty_error_figure
 from ..analysis.contribution import calculate_contribution
 from ..plots.plots import fig_contribution
-
 
 def register_callbacks(app):
     @app.callback(
@@ -47,9 +47,5 @@ def register_callbacks(app):
 
             except Exception as e:
                 print(e)
-                return {
-                    'data': [],
-                    'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
-                                        yaxis={'title': 'Fluorescence'})
-                }
+                return empty_error_figure()
         raise PreventUpdate

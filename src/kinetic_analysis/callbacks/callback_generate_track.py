@@ -5,6 +5,7 @@ from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
 
+from .utils import empty_error_figure
 from ..generator.generator_track import (generate_one_track,
                                          generate_tracks,
                                          generate_profile)
@@ -47,10 +48,8 @@ def register_callbacks(app):
         if n_clicks:
             try:
                 # Generate profile
-                noise = False
-                if params[8] > 0:
-                    noise = True
-
+                noise = params[8] > 0
+                
                 if params[11] == -1:    
                     x_profile, y_profile = generate_profile(prot_length=int(params[0]),
                                                             suntag_length=int(params[1]),
@@ -88,11 +87,7 @@ def register_callbacks(app):
 
             except Exception as e:
                 print(e)
-                return {
-                    'data': [],
-                    'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
-                                        yaxis={'title': 'Fluorescence'})
-                }
+                return empty_error_figure()
         raise PreventUpdate
 
     # make the button works

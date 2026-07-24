@@ -106,8 +106,26 @@ def ensemble_autocorrelation(list_y, delta_t=0.5, normalize=True, mm=None):
     Ensemble-averaged G(tau) from independent tracks, avoiding the
     concatenation artifact of combine_n_tracks. Each track only
     contributes within-track pairs; results are pooled weighted by
-    (T_i - tau), matching Eq. 7 as an average over independent
-    realizations rather than one continuous trace.
+    (T_i - tau).
+
+    Parameters
+    ----------
+    list_y : list of np.ndarray
+        List of intensity traces to compute autocorrelation for.
+    delta_t : float, optional
+        Time step between frames, by default 0.5.
+    normalize : bool, optional
+        Whether to normalize the autocorrelation, by default True.
+    mm : float, optional
+        Mean intensity to use for normalization, by default None.   
+
+    Outputs
+    -------
+    all_tau : np.ndarray
+        Array of time lags (tau) for the autocorrelation.
+    g : np.ndarray
+        Ensemble-averaged autocorrelation values corresponding to all_tau.
+    
     """
     all_tau, num, denom = None, None, None
     for y in list_y:

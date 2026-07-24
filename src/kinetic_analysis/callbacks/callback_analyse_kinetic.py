@@ -6,7 +6,7 @@ from dash.exceptions import PreventUpdate
 
 import plotly.graph_objs as go
 
-from .utils import generate_table
+from .utils import generate_table, resolve_solver_method, empty_error_figure
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
                                        check_track_validity)
@@ -70,7 +70,7 @@ def register_callbacks(app):
             try:
                 str_output_force = ""
                 # get table and rename columns if needed
-                df = app.data['csv_to_analyse']
+                df = app.data['csv_to_analyse'].copy()
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
@@ -94,12 +94,7 @@ def register_callbacks(app):
                 force_analysis = bool(params[9])
 
                 # Check solver
-                if app.data["solver"] == "Exact equation":
-                    method = "exact"
-                elif app.data["solver"] == "Approximate equation":
-                    method = "approx"
-                elif app.data["solver"] == "Approximate epitope":
-                    method = "epitope"
+                method = resolve_solver_method(app)
 
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
                                                                  int(params[7]),
@@ -169,11 +164,7 @@ def register_callbacks(app):
                         str_output2, str_output3, None)
             except Exception as e:
                 print(e)
-                return {
-                    'data': [],
-                    'layout': go.Layout(title='Error', xaxis={'title': 'Time'},
-                                        yaxis={'title': 'Fluorescence'})
-                }, "", str(e), "", "", None
+                return empty_error_figure(), "", str(e), "", "", None
         return go.Figure(), "",  "", "", "", None
 
     @app.callback(
@@ -220,12 +211,7 @@ def register_callbacks(app):
                 # check_simu = 'checked' in params[9]
 
                 # Check solver
-                if app.data["solver"] == "Exact equation":
-                    method = "exact"
-                elif app.data["solver"] == "Approximate equation":
-                    method = "approx"
-                elif app.data["solver"] == "Approximate epitope":
-                    method = "epitope"
+                method = resolve_solver_method(app)
 
                 ids_track = np.unique(df["TRACK_ID"])
                 first_time = True
