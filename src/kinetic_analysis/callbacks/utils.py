@@ -1,5 +1,7 @@
 from dash import dash_table
 
+import plotly.graph_objs as go
+
 
 def generate_table(dataframe, max_rows=10, width="800px", **kwargs):
     table = dash_table.DataTable(
@@ -25,3 +27,32 @@ def generate_table_selectable(dataframe, max_rows=10, width="800px", **kwargs):
         **kwargs,
     )
     return table
+
+def resolve_solver_method(app):
+    return {
+        "Exact equation": "exact",
+        "Approximate equation": "approx",
+        "Approximate epitope": "epitope",
+    }.get(app.data.get("solver"), "exact")
+
+
+def empty_error_figure():
+    return {
+        "data": [],
+        "layout": go.Layout(
+            title='Error',
+            xaxis={'visible': False},
+            yaxis={'visible': False},
+            annotations=[
+                {
+                    'text': "Error: No data to display",
+                    'xref': 'paper',
+                    'yref': 'paper',
+                    'showarrow': False,
+                    'font': {
+                        'size': 20
+                    }
+                }
+            ]
+        )
+    }
