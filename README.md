@@ -31,9 +31,13 @@ This project is a collaboration between [Mounia Lagha's](http://www.laghalab.com
 ### Python method
 We recommend to create an environment to install `KineticAnalysis` package. 
 
-The recommended way to install `KineticAnalysis` is via [pip](https://pypi.org/project/pip/).
+```sh
+conda create --name kinetic-env python=3.11
+conda activate kinetic-env
+```
 
-TODO : add creation of conda environmnent, 
+<!-- The recommended way to install `KineticAnalysis` is via [pip](https://pypi.org/project/pip/). -->
+
 
 To install all dependencies:
 ```sh
