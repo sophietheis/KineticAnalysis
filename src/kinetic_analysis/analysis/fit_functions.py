@@ -3,6 +3,32 @@ from math import factorial
 
 
 def function_exact(x, k, c, N, M):
+    """
+    Function used in the autocorrelation fit
+
+    Parameters
+    ----------
+    x : float
+        intensity signal
+    k : float
+        elongation rate
+    c : float
+        translation initiation rate
+    N : float
+        number of suntag in the protein
+    M : float
+        protein size as a number of suntag
+
+    Returns
+    -------
+    out : float
+        autocorrelation value
+
+    Description
+    -----------
+    The function is the exact solution of the autocorrelation function for 
+    a protein with N suntags and M amino acids, with elongation rate k and initiation rate c.
+    """
     denominator = (c / k) ** 2 * ((N * (N + 1)) / 2 + N * M) ** 2
 
     term1 = c / k * np.exp(-k * x) * sum(

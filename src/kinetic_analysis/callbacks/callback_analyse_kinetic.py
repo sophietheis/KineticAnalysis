@@ -143,6 +143,7 @@ def register_callbacks(app):
                     y_fit = function_exact(x_auto, k, c, N, M)
                     y_fit = np.float32(y_fit)
                 elif method == "approx":
+                    # y_fit = function_approx(x_auto, prot_length/k, c)
                     y_fit = function_approx(x_auto, k, c)
                 elif method == "epitope":
                     y_fit = function_epitope(x_auto, k, c, N)

@@ -1,3 +1,5 @@
+from unittest import result
+
 import multipletau
 import lmfit
 
