@@ -17,6 +17,7 @@ from .analyse_density import estimate_density
 def correct_elongation_rate(k_fit, rho_bar):
     """
     Correct the elongation rate for ribosome queuing using the mean occupancy
+    Is this really working ? 
 
     Parameters
     ----------
@@ -231,7 +232,6 @@ def single_track_analysis(x,
     one_suntag_size = (int(suntag_size/repetition_suntag))
     M = int(protein_size/one_suntag_size)
     N = repetition_suntag
-    print(M, N)
     # Apply the method of analysis
     if method == "exact":
         (k, c, perr) = fit_autocorrelation_exact(x_auto,
@@ -258,6 +258,7 @@ def single_track_analysis(x,
         translation_init_r = c
     else:
         print("No method choose")
+        
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
                                                           [np.nan, np.nan])

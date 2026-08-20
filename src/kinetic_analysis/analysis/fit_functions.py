@@ -133,7 +133,6 @@ def fit_function_linear(x, y):
         t = t_xaxis
     else:
         t = t_sign
-    # print(t_sign, t)
     # elongation_r = protein_size / x[t]
     if len(x[:t]) < 2:
         return -1, -1, [-1, -1]

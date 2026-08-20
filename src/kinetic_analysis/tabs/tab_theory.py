@@ -15,44 +15,27 @@ def layout():
                 html.Br(),
                 "Each term came from this equation : "
                 ]),
-        ]),
-        dbc.Row([
             dcc.Markdown(children='''
-                                $$
-                                G(T)_{exact} = \\frac{Pe^{-kT}}{P^2(
-                                \\frac{N(N+1)}{2}+NM)^2 }[ \sum_{
-                                n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(
-                                kT)^n}{n!}
-                                $$
-                                $$ 
-                                + N\sum_{n=0}^{N}n\\frac{(2N-n+1}{
-                                2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\sum_{
-                                n=N}^{M}\\frac{(kT)^n}{n!} 
-                                $$
-                                $$+ N\sum_{n=1}^{
-                                N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(
-                                M+N-n)!}+ N^2\sum_{n=0}^{M}(M-n)\\frac{(
-                                kT)^n}{n!} ] 
-                                $$
+                                 $$
+                                 G(T)_{exact} = \\frac{Pe^{-kT}}{P^2(
+                                 \\frac{N(N+1)}{2}+NM)^2 }[ \sum_{
+                                 n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(
+                                 kT)^n}{n!}
+                                 $$
+                                 $$ 
+                                 + N\sum_{n=0}^{N}n\\frac{(2N-n+1}{
+                                 2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\sum_{
+                                 n=N}^{M}\\frac{(kT)^n}{n!} 
+                                 $$
+                                 $$+ N\sum_{n=1}^{
+                                 N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(
+                                 M+N-n)!}+ N^2\sum_{n=0}^{M}(M-n)\\frac{(
+                                 kT)^n}{n!} ] 
+                                 $$
 
                                 ''',
-                        mathjax=True),
-        ]),
-        dbc.Row([
-            html.P(["The approximate equations are : "]),
-            dcc.Markdown(children='''
-                                $$
-                                G(T)_{epitope} = \\frac{k}{c}(\\frac{2}{3})\\frac{1}{(N(N+1))^2}e^{-kT} \\sum_{n=0}^N\Big[(N-n)(N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} \Big]
-                                $$
-                            ''',
-                        mathjax=True),
+                         mathjax=True),
             html.Br(),
-            dcc.Markdown(children='''
-                                $$
-                                G(T)_{approx} =  \\frac{((M/k)-T)}{c(M/k)^2}.H((M/k)-T)
-                                $$
-                            ''',
-                        mathjax=True),
         ]),
         html.Br(),
         html.Br(),
@@ -163,6 +146,6 @@ def layout():
         ]),
         dbc.Row([
             dcc.Graph(id="equation-curve"),
-        ]),
+        ], width=12),
     ]),
     )

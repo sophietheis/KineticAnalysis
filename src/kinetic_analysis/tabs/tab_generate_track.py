@@ -19,6 +19,27 @@ def layout():
                 "tracks."]),
             html.Br(),
         ]),
+        dbc.Row([
+            html.P(["Equation of the fluorescence profile used to generate the tracks : "]),
+            dcc.Markdown(children='''
+                                $$
+                                 \\phi(t-t_i^{init}) = 
+                                \\begin{cases} 
+                                    \\frac{N\\theta k}{\\chi_{s}}\\times (t-t_i^{init}) , \\qquad & 0<(t-t_i^{init}) \\leq \\chi_{s}/k \\ 
+                                    N\\times \\theta, \\qquad & \\chi_{s}/k<(t-t_i^{init}) \\leq \\chi_{p}/k\\
+                                \\end{cases}
+                                $$
+                            ''', mathjax=True),           
+        ]),
+        dbc.Row([
+            html.P(["The total fluorescence intensity of one polysome is :"]),
+            dcc.Markdown(children='''
+                        $$
+                        I(t) = \\sum_i \\phi(t-t_i^{init})
+                        $$
+            ''', mathjax=True),
+
+        ]),
 
         # Define parameter of the simulation
         dbc.Row([

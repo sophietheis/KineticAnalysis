@@ -1,28 +1,33 @@
 import numpy as np
 
+import matplotlib.pyplot as plt
+
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
+from ..analysis.fit_functions import function_epitope, function_exact, function_approx
 
-def fig_update_background(figure, nb_subfig=1):
-    for i in range(1, nb_subfig+1):
-        figure.update_xaxes(mirror=True,
-                            ticks='outside',
-                            showline=True,
-                            linecolor='black',
-                            gridcolor='lightgrey',
-                            row=i,
-                            col=1)
-        figure.update_yaxes(mirror=True,
-                            ticks='outside',
-                            showline=True,
-                            linecolor='black',
-                            gridcolor='lightgrey',
-                            row=i,
-                            col=1)
 
-    figure.update_layout(width=1000,
-                         height=800,
+def fig_update_background(figure, n_rows=1, ncols=1, width=1000, height=800):
+    for i in range(1, n_rows+1):
+        for j in range(1, ncols+1):
+            figure.update_xaxes(mirror=True,
+                                ticks='outside',
+                                showline=True,
+                                linecolor='black',
+                                gridcolor='lightgrey',
+                                row=i,
+                                col=j)
+            figure.update_yaxes(mirror=True,
+                                ticks='outside',
+                                showline=True,
+                                linecolor='black',
+                                gridcolor='lightgrey',
+                                row=i,
+                                col=j)
+
+    figure.update_layout(width=width,
+                         height=height,
                          plot_bgcolor="white"
                          )
     return figure
@@ -107,7 +112,7 @@ def fig_analyse_track(x, y,
                             col=1)
         figure.update_yaxes(title_text='Delta', row=3, col=1)
 
-        fig_update_background(figure, 3)
+        fig_update_background(figure, n_rows=3, ncols=1 )
 
     return figure
 
@@ -138,7 +143,9 @@ def fig_contribution(tau, term1, term2, term3, term4, term5, figure=None):
                                     mode='lines',
                                     line_color=colors[i],
                                     line={'dash': line_type[i]},
-                                    name=names[i]),
+                                    name=names[i],
+                                    legendgroup=names[i],
+                                    showlegend=True),
                          row=1,
                          col=1)
 
@@ -149,9 +156,15 @@ def fig_contribution(tau, term1, term2, term3, term4, term5, figure=None):
                                     mode='lines',
                                     line_color=colors[i],
                                     line={'dash': line_type[i]},
-                                    name=names[i]),
+                                    name=names[i],
+                                    legendgroup=names[i],
+                                    showlegend=False),
                          row=2,
                          col=1)
+
+    figure.update_xaxes(matches='x2', row=1)
+    figure.update_xaxes(matches='x2', row=2)
+    
 
     figure.update_xaxes(title_text='Tau (sec)', row=1, col=1)
     figure.update_yaxes(title_text='G(tau)', row=1, col=1)
@@ -159,7 +172,74 @@ def fig_contribution(tau, term1, term2, term3, term4, term5, figure=None):
     figure.update_xaxes(title_text='Tau (sec)', row=2, col=1)
     figure.update_yaxes(title_text='G(tau)(%)', row=2, col=1)
 
-    figure = fig_update_background(figure, 2)
+    figure = fig_update_background(figure, n_rows=2, ncols=1 )
+
+    figure.update_layout(legend_title_text='G(T) subterm')
+
+    return figure
+
+def fig_equation(M, N, k, c, tau, figure=None):
+    colors = ["#31e2ec", "#a56712", "#769e71", "#d801b9", 
+              "#e3369d", "#0e4c0d", "#57b87b", "#4292d0",
+              "#ff8633", "#fb9fca", "#fdbf6f", "#e31a1c", 
+                "#b2df8a", "#33a02c",]
+    
+    if figure is None:
+        figure = make_subplots(rows=1,
+                                cols=3,
+                                subplot_titles=(
+                                    'Epitope function profile',
+                                    'Exact function profile',
+                                    'Post stemloop function profile',
+                                ))
+
+    x_auto = np.arange(0, int(tau), 0.1)
+    nb_curves = 10
+    cpt = 0
+    for i in range(1, int(tau), int(tau/nb_curves)):
+        if i!=1:
+            i=i-1
+        i=int(i)
+        y_fit = function_epitope(x_auto[::i], k, c, N)
+
+        figure.add_trace(go.Scatter(x=x_auto[::i],
+                                     y=y_fit,
+                                     mode='lines',
+                                     line_color=colors[cpt],
+                                     name=i,
+                                     legendgroup=i,
+                                     showlegend=True),
+                        row=1, col=1)
+        
+        y_fit = function_exact(x_auto[::i], k, c, N, M).astype(float)
+
+        figure.add_trace(go.Scatter(x=x_auto[::i],
+                                    y=y_fit,
+                                    mode='lines',
+                                    line_color=colors[cpt],
+                                    name=i, 
+                                    legendgroup=i,
+                                    showlegend=False),
+                         row=1, col=2)
+
+
+
+        y_fit = function_approx(x_auto[::i],N/k, c)
+        figure.add_trace(go.Scatter(x=x_auto[::i],
+                                    y=y_fit,
+                                    mode='lines',
+                                    line_color=colors[cpt],
+                                    name=i,
+                                    legendgroup=i,
+                                    showlegend=False),
+                        row=1, col=3)
+        cpt+=1
+
+    figure.update_xaxes(matches='x2', col=1)
+    figure.update_xaxes(matches='x2', col=2)
+    figure.update_xaxes(matches='x2', col=3)
+    figure.update_layout(legend_title_text='Time step (sec)')
+    figure = fig_update_background(figure, n_rows=1, ncols=3, width=1200, height=600)
     return figure
 
 
@@ -200,6 +280,9 @@ def fig_generate_track(x_profile, y_profile, x_track, y_track,
     figure.update_xaxes(title_text='Time (sec)', row=3, col=1)
     figure.update_yaxes(title_text='Number of translation', row=3,
                         col=1)
-
+    figure.update_xaxes(matches='x2', row=2)
+    figure.update_xaxes(matches='x2', row=3)
+    figure.update_xaxes(matches=None, row=1)
+    
     figure = fig_update_background(figure, 3)
     return figure

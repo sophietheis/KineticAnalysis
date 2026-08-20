@@ -2,7 +2,7 @@ import numpy as np
 from math import factorial
 
 
-def calculate_contribution(L, N, k, c, s, t):
+def calculate_contribution(M, N, k, c, t):
     '''
     This function calculate the contribution of each term of the equation.
     :param L:
@@ -17,7 +17,6 @@ def calculate_contribution(L, N, k, c, s, t):
     :rtype:
     '''
 
-    M = int(L / s)
     tau = np.arange(0, np.int32(t))
 
     denominator = (c / k) ** 2 * ((N * (N + 1)) / 2 + N * M) ** 2
