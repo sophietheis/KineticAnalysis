@@ -3,7 +3,8 @@ import numpy as np
 from dash import html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-from .utils import generate_table_selectable
+from .utils import generate_table_selectable, empty_error_figure
+from ..plots.plots import plot_ribosome
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.analyse_density import calculate_ribosome_density
@@ -67,6 +68,7 @@ def register_callbacks(app):
                  } for i in selected_columns]
 
     @app.callback(
+        Output('ribosome-plot', 'figure'),
         Output('output_ribosome_density', 'children'),
         Output('download_csv', 'data'),
         Input('btn_calculate_ribosome_density', 'n_clicks'),
@@ -80,9 +82,9 @@ def register_callbacks(app):
 
         if n_clicks:
             if "polysome_column_intensity" not in app.data.keys():
-                return "Please select a column in polysome dataframe", None
+                return None, "Please select a column in polysome dataframe", None
             if "single_prot_column_intensity" not in app.data.keys():
-                return "Please select a column in single prot dataframe", None
+                return None, "Please select a column in single prot dataframe", None
             try:
                 L_poi = float(params[0])
                 L_tag = float(params[1])
@@ -95,27 +97,27 @@ def register_callbacks(app):
                     L_poi,
                     L_tag)
 
-                out_string = ("Mean single protein intensity : " + str(
-                    np.round(m_intensity_single, 2)) +
-                              "\n Mean polysome intensity : " + str(
-                            np.round(result["INTENSITY"].mean(), 2)) +
-                              "\n Mean ribosome density : " + str(
-                    np.round(result["ribosome_density"].mean(), 2)))
-
-                output = html.P([
-                    "Mean single protein intensity : " + str(
-                        np.round(m_intensity_single, 2)),
+                output_string = html.P([
+                    # f"Mean single protein intensity : {np.round(app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]].mean(), 2)}",
+                    # f"STD single protein intensity : {np.round(app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]].std(), 2)}",
+                    f"Mean single protein intensity : {np.round(m_intensity_single, 2)}",
                     html.Br(),
-                    "Mean polysome intensity : " + str(
-                        np.round(result["INTENSITY"].mean())),
+                    # f"Mean polysome intensity : {np.round(result["INTENSITY"].mean(), 2)}",
+                    # f"STD polysome intensity : {np.round(result["INTENSITY"].std(), 2)}",
                     html.Br(),
-                    "Mean ribosome density : " + str(
-                        np.round(result["ribosome_density"].mean(), 2))])
+                    # f"Mean ribosome density : {np.round(result["ribosome_density"].mean(), 2)} rib/aa"
+                    # f"STD ribosome density : {np.round(result["ribosome_density"].std(), 2)} rib/aa"
+                    ])
 
                 output_path = "result.csv"
                 result.to_csv(output_path, index=False)
-                return output, dcc.send_file(output_path)
+                figure = plot_ribosome(app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]],
+                                       app.data["csv_fluo_polysome"][app.data["polysome_column_intensity"]],
+                                       L_poi, 
+                                       L_tag,)
+
+                return figure, output_string, dcc.send_file(output_path)
             except Exception as e:
                 print(e)
-                return "Problem", None
+                return empty_error_figure(), "Problem", None
         raise PreventUpdate

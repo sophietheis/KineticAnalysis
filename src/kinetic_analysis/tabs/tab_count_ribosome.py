@@ -13,9 +13,9 @@ def layout():
                 ]),
             dcc.Markdown('''
                                 The calculation is based on this equation :
-                                 $$ d = \\frac{F_{poly}}{F_{single}(L_{
+                                 $$ d = \\frac{I_{poly}}{I_{single_prot}(L_{
                                  poi}+0.5L_{tag})}$$
-                                 where $$F_{poly}$$ and $$F_{single}$$ are the 
+                                 where $$I_{poi}$$ and $$I_{single_prot}$$ are the 
                                  fluorescence of the polysome and single 
                                  protein respectively ; $$L_{poi}$$ and 
                                  $$L_{tag}$$ are the length of the protein 
@@ -163,6 +163,12 @@ def layout():
             ], width=5)
         ]),
         html.Div(id='output_ribosome_density'),
-        dcc.Download(id="download_csv"),
+                dcc.Download(id="download_csv"),
+        dbc.Row([
+            dbc.Col(children=[
+                dcc.Graph(id='ribosome-plot'),
+                ]),
+        ]),
+        
     ]),
     )

@@ -286,3 +286,54 @@ def fig_generate_track(x_profile, y_profile, x_track, y_track,
     
     figure = fig_update_background(figure, 3)
     return figure
+
+def plot_ribosome(df_single_prot, df_polysome, prot_size, suntag_size, figure=None):
+    """
+    Plot the ribosome density based on the single protein and polysome fluorescence data.
+
+    Parameters
+    ----------
+    df_single_prot : pd.DataFrame
+        Dataframe containing the single protein fluorescence data.
+    df_polysome : pd.DataFrame
+        Dataframe containing the polysome fluorescence data.
+    prot_size : int
+        Length of the protein of interest in amino acids.
+    suntag_size : int
+        Length of the tag in amino acids.
+
+    Returns
+    -------
+    figure : plotly.graph_objs.Figure
+        Figure object containing the ribosome density plot.
+    """
+    # mean_intensity_single, df_polysome = calculate_ribosome_density(
+    #     df_single_prot, df_polysome, "intensity", "intensity", prot_size, suntag_size)
+
+    
+    if figure is None:
+        figure = make_subplots(rows=1,
+                                cols=3,
+                                subplot_titles=(
+                                    'Single protein fluo distribution',
+                                    'Polysome fluo distribution',
+                                    'Ribosome density distribution'))
+
+    figure.add_trace(go.Histogram(df_single_prot,
+                                  nbins=50),
+        row=1,
+        col=1)
+    
+    figure.add_trace(go.Histogram(df_polysome,
+                                      nbins=50),
+            row=1,
+            col=2)
+
+    figure.update_layout(
+        title='Ribosome Density Estimation',
+        xaxis_title='Sample Index',
+        yaxis_title='Ribosome Density (ribosomes per amino acid)',
+        template='plotly_white'
+    )
+
+    return figure
