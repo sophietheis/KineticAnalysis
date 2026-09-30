@@ -1,5 +1,7 @@
 import pandas as pd
+import logging
 
+logger = logging.getLogger(__name__)
 
 def read_csv_file(f):
     """
@@ -29,8 +31,8 @@ def read_csv_file_v1(f):
     datas['POSITION_Y'] = pd.to_numeric(datas["POSITION_Y"])
     try:
         datas['TRACK_ID'] = pd.to_numeric(datas["TRACK_ID"])
-    except:
-        pass
+    except (KeyError, ValueError) as e:
+        logger.warning("Could not convert TRACK_ID to numeric: %s", e)
     datas['MEAN_INTENSITY_CH1'] = pd.to_numeric(datas["MEAN_INTENSITY_CH1"])
     datas['POSITION_T'] = pd.to_numeric(datas["POSITION_T"])
     datas.drop("MANUAL_SPOT_COLOR", axis=1, inplace=True)
@@ -78,6 +80,9 @@ def rename_columns(df, old_columns, new_columns):
         list of columns new name used to be replaced
     """
     if len(old_columns) != len(new_columns):
-        raise "lengths of old_columns is different of new_columns"
+         raise ValueError(
+            "old_columns and new_columns must have the same length "
+            f"(got {len(old_columns)} and {len(new_columns)})"
+        )
     for i in range(len(old_columns)):
         df.rename(columns={old_columns[i]: new_columns[i]}, inplace=True)

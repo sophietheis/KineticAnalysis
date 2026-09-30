@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 from dash import  html, dcc, Input, Output, State, dash_table
@@ -7,6 +9,8 @@ from .utils import generate_table, generate_table_selectable
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.movement import msd_calculation, rsd_calculation
+
+logger = logging.getLogger(__name__)
 
 ## Callbacks
 def register_callbacks(app):
@@ -78,6 +82,6 @@ def register_callbacks(app):
                 df.to_csv(output_path, index=False)
                 return "", dcc.send_file(output_path)
             except Exception as e:
-                print(e)
-                return "Problem", None
+                logger.exception("Failed to calculate MSD/RSD")
+                return f"Could not calculate MSD/RSD: {e}", None
         raise PreventUpdate

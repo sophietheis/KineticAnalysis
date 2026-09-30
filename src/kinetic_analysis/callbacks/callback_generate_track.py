@@ -1,3 +1,5 @@
+import logging
+
 from uuid import uuid4
 
 from dash import dcc, Input, Output, State
@@ -13,6 +15,7 @@ from ..plots.plots import fig_generate_track
 
 from ..tabs.app_function import (browse_directory)
 
+logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
@@ -86,7 +89,7 @@ def register_callbacks(app):
                 return figure
 
             except Exception as e:
-                print(e)
+                logger.exception("Failed to generate profile/track plot")
                 return empty_error_figure()
         raise PreventUpdate
 
@@ -164,6 +167,7 @@ def register_callbacks(app):
                         "Generate tracks",
                         data)
             except Exception as e:
+                logger.exception("Failed to generate tracks")
                 return (f"Error: {str(e)}",
                         None,
                         "Generate tracks",

@@ -33,6 +33,10 @@ from kineticanalysis.callbacks.callback_combine_track import (
 
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
+from kineticanalysis.utils.logging_config import configure_logging
+
+
+configure_logging()
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__,

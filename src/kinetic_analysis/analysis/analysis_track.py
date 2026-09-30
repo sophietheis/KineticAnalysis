@@ -1,4 +1,4 @@
-from unittest import result
+import logging
 
 import multipletau
 import lmfit
@@ -13,6 +13,7 @@ from .fit_functions import (function_exact,
 
 from .analyse_density import estimate_density
 
+logger = logging.getLogger(__name__)
 
 def correct_elongation_rate(k_fit, rho_bar):
     """
@@ -102,10 +103,14 @@ def fit_autocorrelation_exact(x, y, M=56, N=32):
     try:
         result = model.fit(y, params, x=x, nan_policy='raise')
     except ValueError as e:
-        print("Sorry, due to the complexity of the equation, there is a "
-              "chance that M or N are too big, and the number are too large "
-              "to be processed now (cause of factorial).")
-        print(e)
+        # print("Sorry, due to the complexity of the equation, there is a "
+        #       "chance that M or N are too big, and the number are too large "
+        #       "to be processed now (cause of factorial).")
+        # print(e)
+        logger.warning(
+            "Exact-equation fit failed, likely because M or N are too "
+            "large for the factorial-based series to be computed: %s", e
+        )
         return np.nan, np.nan, [np.nan, np.nan]
 
     return (result.params["k"].value, result.params["c"].value,
@@ -257,7 +262,8 @@ def single_track_analysis(x,
         # translation_init_r = (1 / (c * k))
         translation_init_r = c
     else:
-        print("No method choose")
+        # print("No method choose")
+        logger.warning("No valid fit method chosen: %r", method)
         
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
@@ -322,7 +328,7 @@ def check_track_validity(df,
                 i += 1
             i += 1
         else:
-            print("Gap is too big - not fix")
+            logger.info("Track %s has a gap too big to fix", id_track)
             return False, x_orig, y_orig, x/delta_t, y
 
     return True, x_orig, y_orig, x/delta_t, y

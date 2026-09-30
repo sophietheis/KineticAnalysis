@@ -1,9 +1,13 @@
+import logging
+
 from dash import Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from .utils import empty_error_figure
 from ..analysis.contribution import calculate_contribution
 from ..plots.plots import fig_contribution, fig_equation
+
+logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
@@ -44,7 +48,7 @@ def register_callbacks(app):
                 figure_curve = fig_equation(M, N, k, c, tau)
                 return figure, figure_curve
 
-            except Exception as e:
-                print(e)
+            except Exception:
+                logger.exception("Failed to compute equation contribution plot")
                 return empty_error_figure(), empty_error_figure()
         raise PreventUpdate

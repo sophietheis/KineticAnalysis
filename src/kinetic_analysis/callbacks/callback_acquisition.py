@@ -1,9 +1,13 @@
+import logging 
+
 import numpy as np
 
 from dash import  html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
 
 from ..analysis.analysis_track import recommend_acquisition
+
+logger = logging.getLogger(__name__)
 
 ## Callbacks
 def register_callbacks(app):
@@ -22,14 +26,18 @@ def register_callbacks(app):
         This function generate and plot an example for the simulation.
         """
         if n_clicks:
-            print("Calculating acquisition parameters...")
-            results = recommend_acquisition(k_est = params[2],
-                               protein_length = params[0],
-                               suntag_length = params[1],
-                               nb_full_prot=params[3],
-                               samples_per_ramp=params[4]
-                               )
-            
+            logger.debug("Calculating acquisition parameters...")
+            try:
+                results = recommend_acquisition(k_est = params[2],
+                                protein_length = params[0],
+                                suntag_length = params[1],
+                                nb_full_prot=params[3],
+                                samples_per_ramp=params[4]
+                                )
+            except (TypeError, ZeroDivisionError) as e:
+                logger.exception("Failed to compute recommended acquisition parameters")
+                return f"Could not compute acquisition parameters: {e}. Please check all fields are filled in."            
+
             return repr(results)
         raise PreventUpdate
     

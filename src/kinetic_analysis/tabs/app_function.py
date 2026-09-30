@@ -1,11 +1,14 @@
 import io
 import os
 import base64
+import logging
 
 import tkinter as tk
 from tkinter import filedialog
 
 from ..utils.utils import read_csv_file
+
+logger = logging.getLogger(__name__)
 
 
 def upload_csv(contents, app, name="csv_to_analyse"):
@@ -19,6 +22,7 @@ def upload_csv(contents, app, name="csv_to_analyse"):
         df = read_csv_file(io.StringIO(decoded.decode('utf-8')))
 
     except Exception as e:
+        logger.exception("Failed to parse uploaded CSV for '%s'", name)
         return None, f"Failed to parse CSV: {str(e)}"
 
     # Save to app data
@@ -34,10 +38,7 @@ def browse_directory(n_clicks, col_name, app):
         root.attributes('-topmost', True)
         folder_selected = filedialog.askdirectory()
         root.destroy()
-        if folder_selected:
-            print(folder_selected)
-        else:
-            print(None)
+        logger.debug("Directory selected for '%s': %s", col_name, folder_selected or None)
         app.data[col_name] = folder_selected
         return f"Directory chosen: {app.data[col_name]}"
 

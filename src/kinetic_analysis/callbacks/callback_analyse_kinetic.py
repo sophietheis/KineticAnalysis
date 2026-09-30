@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
@@ -15,6 +17,7 @@ from ..analysis.fit_functions import (function_exact,
                                       function_epitope)
 from ..plots.plots import fig_analyse_track
 
+logger = logging.getLogger(__name__)    
 
 def register_callbacks(app):
     @app.callback(
@@ -164,7 +167,7 @@ def register_callbacks(app):
                 return (figure, str_output_force, str_output1,
                         str_output2, str_output3, None)
             except Exception as e:
-                print(e)
+                logger.exception("Failed to analyse track %s", params[7])
                 return empty_error_figure(), "", str(e), "", "", None
         return go.Figure(), "",  "", "", "", None
 
@@ -193,7 +196,7 @@ def register_callbacks(app):
                 return "No CSV file uploaded.", None, None
 
             try:
-                print("start")
+                logger.info("Starting batch analysis of all tracks")
                 # Read csv file
                 # Use a copy to prevent renaming original columns in the global app state
                 df = app.data['csv_to_analyse'].copy()
@@ -218,7 +221,7 @@ def register_callbacks(app):
                 first_time = True
                 # Analyse all tracks and save it
                 for i in ids_track:
-                    print(i)
+                    logger.debug("Analysing track %s", i)
 
                     k = np.nan
                     c = np.nan
@@ -259,7 +262,9 @@ def register_callbacks(app):
                                                                  simulation=False,
                                                                  )
 
-                        print(k, c, elongation_r, translation_init_r)
+                        logger.debug("Track %s -> k=%s c=%s elongation_r=%s "
+                                    "translation_init_r=%s", i, k, c,
+                                    elongation_r, translation_init_r)
 
                     # Populate the dataframe
                     if first_time:
@@ -301,5 +306,6 @@ def register_callbacks(app):
                         None,
                         dcc.send_file(output_path))
             except Exception as e:
+                logger.exception("Batch analysis of all tracks failed")
                 return f"Error: {str(e)}", None, None
         raise PreventUpdate
