@@ -169,6 +169,10 @@ def layout():
                 dcc.Graph(id='ribosome-plot'),
                 ]),
         ]),
-        
+        dbc.Row([
+                    dbc.Col(children=[
+                        dcc.Graph(id='ribosome-density-plot'),
+                        ]),
+                ]),
     ]),
     )
