@@ -6,6 +6,7 @@ from dash import  html, dcc, Input, Output, State, dash_table
 from dash.exceptions import PreventUpdate
 
 from .utils import generate_table, generate_table_selectable
+from ..session_store import get_session_data, has_session_data
 from ..tabs.app_function import (upload_csv)
 
 from ..analysis.movement import msd_calculation, rsd_calculation
@@ -19,9 +20,10 @@ def register_callbacks(app):
         Output("table_container_msd", "children"),
         Output('loading_data_msd', 'children'),
         Input('browse_directory_msd', 'contents'),
+        State('session-id', 'data'),
     )
-    def browse_directory_msd(contents):
-        df, output = upload_csv(contents, app, "csv_msd")
+    def browse_directory_msd(contents, session_id):
+        df, output = upload_csv(contents, session_id, "csv_msd")
         if df is None:
             return output, None, None
 
@@ -33,22 +35,23 @@ def register_callbacks(app):
         Output('output_MSD', 'children'),
         Output('download_csv_msd', 'data'),
         Input('btn_calculate_MSD', 'n_clicks'),
+        State('session-id', 'data'),
         State('col_ID', 'value'),
         State('col_x', 'value'),
         State('col_y', 'value'),
         State('col_z', 'value'),
     )
-    def calculate_msd(n_clicks, *params):
+    def calculate_msd(n_clicks, session_id, *params):
         """
         This function generate and plot an example for the simulation.
         """
 
         if n_clicks:
-            if "csv_msd" not in app.data:
+            if not has_session_data(session_id, "csv_msd"):
                 return "You need to upload a file first", None
 
             # Use a copy to avoid corrupting shared app.data state for subsequent runs
-            df = app.data['csv_msd'].copy()
+            df = get_session_data(session_id,'csv_msd').copy()
             df.rename(columns={params[0]: 'TRACK_ID',
                                params[1]: 'POSITION_X',
                                params[2]: 'POSITION_Y',

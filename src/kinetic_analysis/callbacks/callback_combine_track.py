@@ -1,12 +1,15 @@
+import logging
 import numpy as np
 
 from dash import dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from .utils import generate_table
+from ..session_store import get_session_data
 from ..tabs.app_function import (upload_csv)
 from ..analysis.combination import combine_tracks_df, combine_tracks_df_ensemble
 
+logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
@@ -15,10 +18,11 @@ def register_callbacks(app):
         Output('loading_data_combine', 'children'),
         Output('nb_tracks_init', 'children'),
         Input('browse_directory_combine', 'contents'),
+        State('session-id', 'data'),
         prevent_initial_call=True,
     )
-    def browse_directory_combine(contents):
-        df, output = upload_csv(contents, app, "csv_to_combine")
+    def browse_directory_combine(contents, session_id):
+        df, output = upload_csv(contents, session_id, "csv_to_combine")
         if df is None:
             return output, None, None, None
 
@@ -34,14 +38,15 @@ def register_callbacks(app):
         Output("complete2", "data"),
         Input("combine-tracks-btn", "n_clicks"),
         Input("start2", "data"),
+        State('session-id', 'data'),
         State('nb_tracks', "value"),
         State('nb_new_tracks', "value"),
 
     )
-    def create_tracks(n_clicks, data, *params):
+    def create_tracks(n_clicks, data, session_id, *params):
         if n_clicks:
             try:
-                df = app.data['csv_to_combine']
+                df = get_session_data(session_id, 'csv_to_combine')
 
                 new_df = combine_tracks_df(df, int(params[1]), int(params[0]))
 
@@ -52,6 +57,7 @@ def register_callbacks(app):
                         "Generate tracks",
                         data)
             except Exception as e:
+                logger.exception("Failed to combine tracks")
                 return (f"Error: {str(e)}",
                         None,
                         "Generate tracks",
@@ -66,13 +72,14 @@ def register_callbacks(app):
         Output("complete3", "data"),
         Input("combine-tracks-gtau-btn", "n_clicks"),
         Input("start3", "data"),
+        State('session-id', 'data'),
         State('nb_tracks', "value"),
         State('nb_new_tracks', "value"),
     )
-    def create_tracks_gtau(n_clicks, data, *params):
+    def create_tracks_gtau(n_clicks, data, session_id, *params):
         if n_clicks:
             try:
-                df = app.data['csv_to_combine']
+                df = get_session_data(session_id, 'csv_to_combine')
 
                 new_df = combine_tracks_df_ensemble(df, int(params[1]), int(params[0]))
 
@@ -83,6 +90,7 @@ def register_callbacks(app):
                         "Generate tracks",
                         data)
             except Exception as e:
+                logger.exception("Failed to combine tracks (gtau)")
                 return (f"Error: {str(e)}",
                         None,
                         "Generate tracks",

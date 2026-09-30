@@ -7,11 +7,12 @@ import tkinter as tk
 from tkinter import filedialog
 
 from ..utils.utils import read_csv_file
+from ..session_store import get_session_data, set_session_data
 
 logger = logging.getLogger(__name__)
 
 
-def upload_csv(contents, app, name="csv_to_analyse"):
+def upload_csv(contents, session_id, name="csv_to_analyse"):
     if contents is None:
         return None, ""
 
@@ -25,13 +26,13 @@ def upload_csv(contents, app, name="csv_to_analyse"):
         logger.exception("Failed to parse uploaded CSV for '%s'", name)
         return None, f"Failed to parse CSV: {str(e)}"
 
-    # Save to app data
-    app.data[name] = df
+    # Save to this browser session's data only
+    set_session_data(session_id, name, df)
 
     return df, f"Success to parse CSV"
 
 
-def browse_directory(n_clicks, col_name, app):
+def browse_directory(n_clicks, col_name, session_id):
     if n_clicks:
         root = tk.Tk()
         root.withdraw()
@@ -39,11 +40,12 @@ def browse_directory(n_clicks, col_name, app):
         folder_selected = filedialog.askdirectory()
         root.destroy()
         logger.debug("Directory selected for '%s': %s", col_name, folder_selected or None)
-        app.data[col_name] = folder_selected
-        return f"Directory chosen: {app.data[col_name]}"
+        
+        set_session_data(session_id, col_name, folder_selected)
+        return f"Directory chosen: {folder_selected}"
 
 
-def list_csv_files(directory, col_name, app):
+def list_csv_files(directory, col_name, session_id):
     """
     List csv files inside the directory.
     List of files is stored in col_name.
@@ -56,11 +58,12 @@ def list_csv_files(directory, col_name, app):
     :return:
     :rtype:
     """
-    if app.data[col_name]:
-        app.data['csv_files'] = [
+    directory_value = get_session_data(session_id, col_name)
+    if directory_value:
+        csv_files = [
             {'label': file, 'value': file}
-            for file in os.listdir(app.data[col_name]) if
+            for file in os.listdir(directory_value) if
             file.endswith('.csv')
         ]
-        return app.data['csv_files']
+        return csv_files
     return []

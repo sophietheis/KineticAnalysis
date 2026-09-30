@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output
+from dash import Dash, html, Input, Output, dcc, State, no_update
 import dash_bootstrap_components as dbc
 
 from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
@@ -33,8 +33,8 @@ from kineticanalysis.callbacks.callback_combine_track import (
 
 from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
+from kineticanalysis.session_store import init_cache, new_session_id
 from kineticanalysis.utils.logging_config import configure_logging
-
 
 configure_logging()
 
@@ -45,18 +45,20 @@ app = Dash(__name__,
 app.server.static_folder = "assets"
 app.title = "Translation dynamics app"
 
-# Global variables to store states
-# Thread safety need to be changed
-app.data = {
-    'directory_generation': None,
-    'directory_analysis': None,
-    'directory_analysis_vivo': None,
-    'csv_files': [],
-    'fig': None,
-    'selected_file': None,
-    'solver': "Exact equation",
-    'csv_to_analyse': None,
-}
+init_cache(app)
+
+# # Global variables to store states
+# # Thread safety need to be changed
+# app.data = {
+#     'directory_generation': None,
+#     'directory_analysis': None,
+#     'directory_analysis_vivo': None,
+#     'csv_files': [],
+#     'fig': None,
+#     'selected_file': None,
+#     'solver': "Exact equation",
+#     'csv_to_analyse': None,
+# }
 
 _TAB_LAYOUTS = {
     'tab-0': tab0_layout,
@@ -70,6 +72,12 @@ _TAB_LAYOUTS = {
 }
 
 app.layout = dbc.Container([
+
+    # One id per browser tab/session; every callback that needs to read
+    # or write session data takes this as a State (see session_store.py).
+    dcc.Store(id='session-id', storage_type='session'),
+
+
     # Header
     html.Header([
         html.H1("Translation dynamic analysis app"),
@@ -114,6 +122,16 @@ app.layout = dbc.Container([
     html.Br(),
     html.Br(),
 ])
+
+@app.callback(
+    Output('session-id', 'data'),
+    Input('session-id', 'data'),
+)
+def assign_session_id(existing_session_id):
+    """Give each browser tab its own session id, once, on first load."""
+    if existing_session_id:
+        return no_update
+    return new_session_id()
 
 
 @app.callback(

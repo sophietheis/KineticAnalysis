@@ -21,12 +21,13 @@ def register_callbacks(app):
     @app.callback(
         Output("directory-output", "children"),
         [Input("select_directory", "n_clicks")],
+        State('session-id', 'data'),
     )
-    def select_directory(n_clicks):
+    def select_directory(n_clicks, session_id):
         """
         Select the directory in which to save the file.
         """
-        return browse_directory(n_clicks, 'directory_generation', app)
+        return browse_directory(n_clicks, 'directory_generation', session_id)
 
     @app.callback(
         Output('profile-plot', 'figure'),

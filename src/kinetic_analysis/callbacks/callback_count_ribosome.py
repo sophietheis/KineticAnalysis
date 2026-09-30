@@ -6,6 +6,7 @@ from dash import html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
 from .utils import generate_table_selectable, empty_error_figure
+from ..session_store import get_session_data, has_session_data, set_session_data
 from ..plots.plots import plot_ribosome, plot_ribosome_density
 from ..tabs.app_function import (upload_csv)
 
@@ -19,9 +20,10 @@ def register_callbacks(app):
         Output("table_container_single", "children"),
         Output('loading_data_single_prot', 'children'),
         Input('browse_directory_single_prot', 'contents'),
+        State('session-id', 'data'),
     )
-    def browse_directory_single_prot(contents):
-        df, output = upload_csv(contents, app, "csv_fluo_single")
+    def browse_directory_single_prot(contents, session_id):
+        df, output = upload_csv(contents, session_id, "csv_fluo_single")
         if df is None:
             return output, None, None
 
@@ -33,12 +35,13 @@ def register_callbacks(app):
     @app.callback(
         Output('table_single_prot', 'style_data_conditional'),
         Input('table_single_prot', 'selected_columns'),
+        State('session-id', 'data'),
     )
-    def single_prot_select_name(selected_columns):
+    def single_prot_select_name(selected_columns, session_id):
         if len(selected_columns) == 0:
             return None
 
-        app.data["single_prot_column_intensity"] = selected_columns[0]
+        set_session_data(session_id, "single_prot_column_intensity", selected_columns[0])
         return [{'if': {'column_id': i},
                  'background_color': '#D2F3FF'
                  } for i in selected_columns]
@@ -48,9 +51,10 @@ def register_callbacks(app):
         Output("table_container_polysome", "children"),
         Output('loading_data_polysome', 'children'),
         Input('browse_directory_polysome', 'contents'),
+        State('session-id', 'data'),
     )
-    def browse_directory_polysome(contents):
-        df, output = upload_csv(contents, app, "csv_fluo_polysome")
+    def browse_directory_polysome(contents, session_id):
+        df, output = upload_csv(contents, session_id, "csv_fluo_polysome")
         if df is None:
             return output, None, None
 
@@ -61,11 +65,13 @@ def register_callbacks(app):
     @app.callback(
         Output('table_polysome', 'style_data_conditional'),
         Input('table_polysome', 'selected_columns'),
+        State('session-id', 'data'),
     )
-    def polysome_select_name(selected_columns):
+    def polysome_select_name(selected_columns, session_id):
         if len(selected_columns) == 0:
             return None
-        app.data["polysome_column_intensity"] = selected_columns[0]
+        
+        set_session_data(session_id, "polysome_column_intensity", selected_columns[0])
         return [{'if': {'column_id': i},
                  'background_color': '#D2F3FF'
                  } for i in selected_columns]
@@ -76,33 +82,35 @@ def register_callbacks(app):
         Output('output_ribosome_density', 'children'),
         Output('download_csv', 'data'),
         Input('btn_calculate_ribosome_density', 'n_clicks'),
+        State('session-id', 'data'),
         State('param_prot_length_rib', 'value'),  #0
         State('param_suntag_length_rib', 'value'),  #1
     )
-    def calculate_density(n_clicks, *params):
+    def calculate_density(n_clicks, session_id, *params):
         """
         This function generate and plot an example for the simulation.
         """
 
         if n_clicks:
-            if "polysome_column_intensity" not in app.data.keys():
+            if not has_session_data(session_id, "polysome_column_intensity"):
                 return None, None, "Please select a column in polysome dataframe", None
-            if "single_prot_column_intensity" not in app.data.keys():
+            if not has_session_data(session_id, "single_prot_column_intensity"):
                 return None, None, "Please select a column in single prot dataframe", None
+            
             try:
                 L_poi = float(params[0])
                 L_tag = float(params[1])
 
                 m_intensity_single, result = calculate_ribosome_density(
-                    app.data["csv_fluo_single"],
-                    app.data["csv_fluo_polysome"],
-                    app.data["single_prot_column_intensity"],
-                    app.data["polysome_column_intensity"],
+                    get_session_data(session_id, "csv_fluo_single"),
+                    get_session_data(session_id, "csv_fluo_polysome"),
+                    get_session_data(session_id, "single_prot_column_intensity"),
+                    get_session_data(session_id, "polysome_column_intensity"),
                     L_poi,
                     L_tag)
 
-                mean_single = app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]].mean()
-                std_single = app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]].std()
+                mean_single = get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")].mean()
+                std_single = get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")].std()
                 mean_polysome = result["INTENSITY"].mean()
                 std_polysome = result["INTENSITY"].std()
                 mean_rib = result["ribosome_density"].mean()
@@ -123,8 +131,8 @@ def register_callbacks(app):
 
                 output_path = "result.csv"
                 result.to_csv(output_path, index=False)
-                figure = plot_ribosome(app.data["csv_fluo_single"][app.data["single_prot_column_intensity"]],
-                                       app.data["csv_fluo_polysome"][app.data["polysome_column_intensity"]],
+                figure = plot_ribosome(get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")],
+                                       get_session_data(session_id, "csv_fluo_polysome")[get_session_data(session_id, "polysome_column_intensity")],
                                        result
                                       )
 

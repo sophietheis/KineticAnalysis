@@ -9,6 +9,7 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objs as go
 
 from .utils import generate_table, resolve_solver_method, empty_error_figure
+from ..session_store import get_session_data, set_session_data
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
                                        check_track_validity)
@@ -25,10 +26,11 @@ def register_callbacks(app):
         Output("table-container2", "children"),
         Output('loading_data_vivo2', 'children'),
         Input('browse_directory_analyze_vivo2', 'contents'),
+        State('session-id', 'data'),
         prevent_initial_call=True,
     )
-    def browse_directory_analyze_vivo2(contents):
-        df, output = upload_csv(contents, app, "csv_to_analyse")
+    def browse_directory_analyze_vivo2(contents, session_id):
+        df, output = upload_csv(contents, session_id, "csv_to_analyse")
         if df is None:
             return output, None, None
 
@@ -39,10 +41,11 @@ def register_callbacks(app):
     @app.callback(
         Output("choosen-solver1", "children"),
         Input('choose-solver1', 'value'),
+        State('session-id', 'data'),
         prevent_initial_call=True,
     )
-    def validate_solver2(value):
-        app.data["solver"] = value
+    def validate_solver2(value, session_id):
+        set_session_data(session_id, "solver", value)
         return value
 
     @app.callback(
@@ -67,13 +70,13 @@ def register_callbacks(app):
         State("rib_occupancy-param-vivo2", "value"),  #11
         State("rib_footprint-param-vivo2", "value"),  #12
     )
-    def analyse_display_track(n_clicks, *params):
+    def analyse_display_track(n_clicks, session_id, *params):
 
         if n_clicks:
             try:
                 str_output_force = ""
                 # get table and rename columns if needed
-                df = app.data['csv_to_analyse'].copy()
+                df = get_session_data(session_id, 'csv_to_analyse').copy()
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
@@ -176,7 +179,8 @@ def register_callbacks(app):
         Output('loading_analysis_vivo', 'children'),
         Output('download-csv', 'data'),
         Input('start-analyze-btn-vivo', 'n_clicks'),
-
+        State('session-id', 'data'),
+        
         State('col_track2', 'value'),  #0
         State('col_time2', 'value'),  #1
         State('col_intensity2', 'value'),  #2
@@ -189,17 +193,17 @@ def register_callbacks(app):
         State('save-results-name-vivo', 'value'),  #9
         # State('checkbox_simu', 'value') #9
     )
-    def start_analyze_all_tracks(n_clicks, *params):
+    def start_analyze_all_tracks(n_clicks, session_id, *params):
 
         if n_clicks:
-            if app.data['csv_to_analyse'] is None:
+            if get_session_data(session_id,'csv_to_analyse') is None:
                 return "No CSV file uploaded.", None, None
 
             try:
                 logger.info("Starting batch analysis of all tracks")
                 # Read csv file
                 # Use a copy to prevent renaming original columns in the global app state
-                df = app.data['csv_to_analyse'].copy()
+                df = get_session_data(session_id,'csv_to_analyse').copy()
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',

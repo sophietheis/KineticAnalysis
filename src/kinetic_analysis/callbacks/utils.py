@@ -2,6 +2,8 @@ from dash import dash_table
 
 import plotly.graph_objs as go
 
+from ..session_store import get_session_data
+
 
 def generate_table(dataframe, max_rows=10, width="800px", **kwargs):
     table = dash_table.DataTable(
@@ -28,12 +30,13 @@ def generate_table_selectable(dataframe, max_rows=10, width="800px", **kwargs):
     )
     return table
 
-def resolve_solver_method(app):
+def resolve_solver_method(session_id):
+    solver = get_session_data(session_id, "solver", default="Exact equation")
     return {
         "Exact equation": "exact",
         "Approximate equation": "approx",
         "Approximate epitope": "epitope",
-    }.get(app.data.get("solver"), "exact")
+    }.get(solver,  "exact")
 
 
 def empty_error_figure():
