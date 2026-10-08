@@ -163,7 +163,7 @@ def layout():
             ], width=5)
         ]),
         html.Div(id='output_ribosome_density'),
-                dcc.Download(id="download_csv"),
+        dcc.Download(id="download_csv"),
         dbc.Row([
             dbc.Col(children=[
                 dcc.Graph(id='ribosome-plot'),

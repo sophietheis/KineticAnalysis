@@ -18,7 +18,8 @@ from ..analysis.fit_functions import (function_exact,
                                       function_epitope)
 from ..plots.plots import fig_analyse_track
 
-logger = logging.getLogger(__name__)    
+logger = logging.getLogger(__name__)
+
 
 def register_callbacks(app):
     @app.callback(
@@ -112,7 +113,7 @@ def register_callbacks(app):
 
                 if valid or force_analysis:
                     if force_analysis:
-                        str_output_force = f"Analysis has been forced!"
+                        str_output_force = "Analysis has been forced!"
                     (x_auto,
                      y_auto,
                      k, c,
@@ -132,7 +133,7 @@ def register_callbacks(app):
                                                    footprint=int(params[12]),
                                                    correct_queuing=bool(params[10])
                                                    )
-                
+
                 else:
                     return (go.Figure(), "This track can't be analysed, "
                                          "there is too much missing point. "
@@ -153,7 +154,7 @@ def register_callbacks(app):
                     y_fit = function_approx(x_auto, k, c)
                 elif method == "epitope":
                     y_fit = function_epitope(x_auto, k, c, N)
-                
+
                 figure = fig_analyse_track(x, y,
                                            x_fix, y_fix,
                                            x_auto, y_auto,
@@ -180,7 +181,7 @@ def register_callbacks(app):
         Output('download-csv', 'data'),
         Input('start-analyze-btn-vivo', 'n_clicks'),
         State('session-id', 'data'),
-        
+
         State('col_track2', 'value'),  #0
         State('col_time2', 'value'),  #1
         State('col_intensity2', 'value'),  #2
@@ -196,14 +197,14 @@ def register_callbacks(app):
     def start_analyze_all_tracks(n_clicks, session_id, *params):
 
         if n_clicks:
-            if get_session_data(session_id,'csv_to_analyse') is None:
+            if get_session_data(session_id, 'csv_to_analyse') is None:
                 return "No CSV file uploaded.", None, None
 
             try:
                 logger.info("Starting batch analysis of all tracks")
                 # Read csv file
                 # Use a copy to prevent renaming original columns in the global app state
-                df = get_session_data(session_id,'csv_to_analyse').copy()
+                df = get_session_data(session_id, 'csv_to_analyse').copy()
                 df.rename(columns={params[0]: 'TRACK_ID',
                                    params[1]: 'FRAME',
                                    params[2]: 'MEAN_INTENSITY_CH1',
@@ -267,8 +268,8 @@ def register_callbacks(app):
                                                                  )
 
                         logger.debug("Track %s -> k=%s c=%s elongation_r=%s "
-                                    "translation_init_r=%s", i, k, c,
-                                    elongation_r, translation_init_r)
+                                     "translation_init_r=%s", i, k, c,
+                                     elongation_r, translation_init_r)
 
                     # Populate the dataframe
                     if first_time:

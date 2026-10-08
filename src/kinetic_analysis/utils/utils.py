@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def read_csv_file(f):
     """
     Read csv file of trajectories.
@@ -80,7 +81,7 @@ def rename_columns(df, old_columns, new_columns):
         list of columns new name used to be replaced
     """
     if len(old_columns) != len(new_columns):
-         raise ValueError(
+        raise ValueError(
             "old_columns and new_columns must have the same length "
             f"(got {len(old_columns)} and {len(new_columns)})"
         )
