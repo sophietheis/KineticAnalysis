@@ -115,24 +115,24 @@ def layout():
                 html.Div(id='combine-tracks-output'),
                 dcc.Download(id="download-csv3"),
             ]),
-            dbc.Col([
-                html.H4(children="Combine G(tau) from independent tracks",
-                        style={"text-align": "left",
-                                "color": "#10D79B"}),
-                html.P("! This has not been tested yet! "),
-                html.Div([
-                    dbc.Col(children=[
-                        dcc.Store(id="start3", data=""),
-                        dcc.Store(id="complete3", data=""),
-                        dbc.Button(dbc.Spinner(
-                            html.Span(children="Combine G(tau)",
-                                        id="loading_combination_gtau")),
-                            id="combine-tracks-gtau-btn"),
-                    ], width=3),
-                ]),
-                html.Div(id='combine-tracks-gtau-output'),
-                dcc.Download(id="download-csv4"),
-            ]),
+            # dbc.Col([
+            #     html.H4(children="Combine G(tau) from independent tracks",
+            #             style={"text-align": "left",
+            #                     "color": "#10D79B"}),
+            #     html.P("! This has not been tested yet! "),
+            #     html.Div([
+            #         dbc.Col(children=[
+            #             dcc.Store(id="start3", data=""),
+            #             dcc.Store(id="complete3", data=""),
+            #             dbc.Button(dbc.Spinner(
+            #                 html.Span(children="Combine G(tau)",
+            #                             id="loading_combination_gtau")),
+            #                 id="combine-tracks-gtau-btn"),
+            #         ], width=3),
+            #     ]),
+            #     html.Div(id='combine-tracks-gtau-output'),
+            #     dcc.Download(id="download-csv4"),
+            # ]),
         ]),
 
     )

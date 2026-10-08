@@ -37,7 +37,16 @@ def register_callbacks(app):
             except (TypeError, ZeroDivisionError) as e:
                 logger.exception("Failed to compute recommended acquisition parameters")
                 return f"Could not compute acquisition parameters: {e}. Please check all fields are filled in."            
+            new_line = '<br>'
+            out = (f"Total time to translate (SunTag + protein) = {results['tau_c']:.2f} sec, \n" \
+                  f"Time to translate SunTag part = {results['tau_ramp']:.2f} sec, \n" \
+                  f"Total acquisition time = {results['T_recommended']:.2f} sec, \n"  \
+                  f"Recommended frame rate = {results['dt_recommended']:.2f} sec, \n" \
+                #   f"Nyquist limit = {results['dt_nyquist_limit']:.2f} sec, \n" \
+                  f"Number of points = {int(results['T_recommended'] / results['dt_recommended']):.0f}, " 
+            )
 
-            return repr(results)
+            logger.debug("Acquisition parameters calculated: %s", out)
+            return html.Pre(out)
         raise PreventUpdate
     

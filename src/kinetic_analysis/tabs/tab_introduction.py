@@ -4,16 +4,19 @@ from dash import html, dcc
 def layout():
     return (
         html.Br(),
-        html.P("This tool allows you to analyse translation dynamics based "
-               "on SunTag system (or similar method)."),
+        html.P("A web application for analysing mRNA translation dynamics using the SunTag fluorescence system."),
         html.P(""),
+        html.P("Seven integrated modules cover the full analysis pipeline — from experiment design to kinetic parameter extraction."),
+        html.P(""), 
         html.P("In this software, you can find different tabs: "),
         dcc.Markdown(children="""
+        - Acquisition parameters
         - Generate tracks
         - Choose the equation
         - Track analysis
         - Count ribosomes
         - MSD
+        - Combine
         """),
 
         html.Br(),
