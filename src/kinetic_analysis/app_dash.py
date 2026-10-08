@@ -116,30 +116,31 @@ app.layout = dbc.Container([
         id='tabs',
         active_tab='tab-0',
     ),
-    html.Div(id='tabs-content',
-             style={'min_height': "80vh"}),
+
+    html.Div([
+        html.Div(
+            layout(),
+            id=f'{tab_id}-content',
+            style={'display': 'block' if tab_id == 'tab-0' else 'none'}
+        )
+        for tab_id, layout in _TAB_LAYOUTS.items()
+    ], id='tabs-content', style={'min_height': '80vh'}),
 
     html.Br(),
     html.Br(),
 ])
 
-@app.callback(
-    Output('session-id', 'data'),
-    Input('session-id', 'data'),
-)
-def assign_session_id(existing_session_id):
-    """Give each browser tab its own session id, once, on first load."""
-    if existing_session_id:
-        return no_update
-    return new_session_id()
-
 
 @app.callback(
-    Output('tabs-content', 'children'),
+    [Output(f'tab-{i}-content', 'style') for i in range(8)],
     Input('tabs', 'active_tab')
 )
-def render_content(tab):
-    return _TAB_LAYOUTS.get(tab, not_found_layout)()
+def switch_tab(active_tab):
+    return [
+        {'display': 'block'} if active_tab == f'tab-{i}'
+        else {'display': 'none'}
+        for i in range(8)
+    ]
 
 
 # Register callbacks
@@ -153,4 +154,5 @@ tab7_callbacks(app)
 
 if __name__ == '__main__':
     # run_app()
-    app.run_server(debug=False, host="0.0.0.0", port=5001)
+    app.run_server(debug=True, host="0.0.0.0", port=5001)
+    
