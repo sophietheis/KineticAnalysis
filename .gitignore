@@ -23,3 +23,5 @@ kinetic_analysis_app/dist/
 kinetic_analysis_app/__pycache__/
 
 *.pyc
+
+/.cache

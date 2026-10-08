@@ -17,6 +17,6 @@ dash-html-components==2.0.0
 dash-core-components==2.0.0
 dash-bootstrap-components==1.7.1
 dash-spinner==0.0.2
-dash-table==0.0.2
+dash-table==5.0.0
 lmfit==1.3.4
 Flask-Caching==2.5.1
