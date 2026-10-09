@@ -122,7 +122,7 @@ def layout():
             #     html.P("! This has not been tested yet! "),
             #     html.Div([
             #         dbc.Col(children=[
-            #             dcc.Store(id="start3", data=""),
+            #             dcc.Store(id="start_combine", data=""),
             #             dcc.Store(id="complete3", data=""),
             #             dbc.Button(dbc.Spinner(
             #                 html.Span(children="Combine G(tau)",

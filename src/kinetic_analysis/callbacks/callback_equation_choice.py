@@ -9,17 +9,18 @@ from ..plots.plots import fig_contribution, fig_equation
 
 logger = logging.getLogger(__name__)
 
+
 def register_callbacks(app):
     @app.callback(
         Output('equation-plot', 'figure'),
         Output('equation-curve', 'figure'),
         Input('show-contribution-btn', 'n_clicks'),
-        State('param_prot_length', 'value'),  #0
-        State('param_suntag_length', 'value'),  #1
-        State('param_nb_suntag', 'value'),   #2
-        State('param_elongation_rate', 'value'),  #3
-        State('param_initiation_rate', 'value'),   #4
-        State('param_tau', 'value'),  #5
+        State('param_prot_length_choice', 'value'),
+        State('param_suntag_length_choice', 'value'),
+        State('param_nb_suntag_choice', 'value'),
+        State('param_elongation_rate_choice', 'value'),
+        State('param_initiation_rate_choice', 'value'),
+        State('param_tau_choice', 'value'),
     )
     def update_plot(n_clicks, *params):
         """

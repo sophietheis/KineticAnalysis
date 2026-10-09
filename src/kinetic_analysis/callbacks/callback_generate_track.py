@@ -5,8 +5,6 @@ from uuid import uuid4
 from dash import dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 
-import plotly.graph_objs as go
-
 from .utils import empty_error_figure
 from ..generator.generator_track import (generate_one_track,
                                          generate_tracks,
@@ -16,6 +14,7 @@ from ..plots.plots import fig_generate_track
 from ..tabs.app_function import (browse_directory)
 
 logger = logging.getLogger(__name__)
+
 
 def register_callbacks(app):
     @app.callback(
@@ -32,18 +31,18 @@ def register_callbacks(app):
     @app.callback(
         Output('profile-plot', 'figure'),
         Input('show-profile-btn', 'n_clicks'),
-        State('param_prot_length', 'value'),
-        State('param_suntag_length', 'value'),
-        State('param_nb_suntag', 'value'),
-        State('param_fluo_one_suntag', 'value'),
-        State('param_translation_rate', 'value'),
-        State('param_initiation_rate', 'value'),
-        State('param_retention_time', 'value'),
-        State('param_pos_suntag', 'value'),
-        State('param_noise', 'value'),
-        State('param_dt', 'value'),
-        State('param_length', 'value'),
-        State('param_footprint', 'value'),
+        State('param_prot_length_gen_track', 'value'),
+        State('param_suntag_length_gen_track', 'value'),
+        State('param_nb_suntag_gen_track', 'value'),
+        State('param_fluo_one_suntag_gen_track', 'value'),
+        State('param_translation_rate_gen_track', 'value'),
+        State('param_initiation_rate_gen_track', 'value'),
+        State('param_retention_time_gen_track', 'value'),
+        State('param_pos_suntag_gen_track', 'value'),
+        State('param_noise_gen_track', 'value'),
+        State('param_dt_gen_track', 'value'),
+        State('param_length_gen_track', 'value'),
+        State('param_footprint_gen_track', 'value'),
     )
     def update_profile_plot(n_clicks, *params):
         """
@@ -53,8 +52,8 @@ def register_callbacks(app):
             try:
                 # Generate profile
                 noise = params[8] > 0
-                
-                if params[11] == -1:    
+
+                if params[11] == -1:
                     x_profile, y_profile = generate_profile(prot_length=int(params[0]),
                                                             suntag_length=int(params[1]),
                                                             nb_suntag=int(params[2]),
@@ -90,7 +89,7 @@ def register_callbacks(app):
                 return figure
 
             except Exception as e:
-                logger.exception("Failed to generate profile/track plot")
+                logger.exception("Failed to generate profile/track plot", e)
                 return empty_error_figure()
         raise PreventUpdate
 
@@ -122,19 +121,19 @@ def register_callbacks(app):
         Output("complete", "data"),
         Input('start-gen-tracks-btn', 'n_clicks'),
         Input("start", "data"),
-        State('param_prot_length', 'value'),
-        State('param_suntag_length', 'value'),
-        State('param_nb_suntag', 'value'),
-        State('param_fluo_one_suntag', 'value'),
-        State('param_translation_rate', 'value'),
-        State('param_initiation_rate', 'value'),
-        State('param_retention_time', 'value'),
-        State('param_pos_suntag', 'value'),
-        State('param_noise', 'value'),
-        State('param_dt', 'value'),
-        State('param_length', 'value'),
-        State('param_nb_tracks', 'value'),
-        State('param_filename', 'value'),
+        State('param_prot_length_gen_track', 'value'),
+        State('param_suntag_length_gen_track', 'value'),
+        State('param_nb_suntag_gen_track', 'value'),
+        State('param_fluo_one_suntag_gen_track', 'value'),
+        State('param_translation_rate_gen_track', 'value'),
+        State('param_initiation_rate_gen_track', 'value'),
+        State('param_retention_time_gen_track', 'value'),
+        State('param_pos_suntag_gen_track', 'value'),
+        State('param_noise_gen_track', 'value'),
+        State('param_dt_gen_track', 'value'),
+        State('param_length_gen_track', 'value'),
+        State('param_nb_tracks_gen_track', 'value'),
+        State('param_filename_gen_track', 'value'),
         # background=True,
         # progress=[Ouput("progress-generate", "children")]
     )

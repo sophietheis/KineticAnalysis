@@ -15,11 +15,11 @@ def layout():
                                 The calculation is based on this equation :
                                  $$ d = \\frac{I_{poly}}{I_{single_prot}(L_{
                                  poi}+0.5L_{tag})}$$
-                                 where $$I_{poi}$$ and $$I_{single_prot}$$ are the 
-                                 fluorescence of the polysome and single 
-                                 protein respectively ; $$L_{poi}$$ and 
-                                 $$L_{tag}$$ are the length of the protein 
-                                 of interest and the tag respectively. 
+                                 where $$I_{poi}$$ and $$I_{single_prot}$$ are the
+                                 fluorescence of the polysome and single
+                                 protein respectively ; $$L_{poi}$$ and
+                                 $$L_{tag}$$ are the length of the protein
+                                 of interest and the tag respectively.
                                 ''',
                          mathjax=True),
         ]),
@@ -122,7 +122,7 @@ def layout():
                 html.Div([
                     html.P(["Protein length (aa) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_prot_length",
+                                      id="faq_param_prot_length_count_rib",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
@@ -130,7 +130,7 @@ def layout():
                            ),
                     dbc.Tooltip("Length of the protein in amino acid. This "
                                 "value will be added to suntag length.",
-                                target="faq_param_prot_length"),
+                                target="faq_param_prot_length_count_rib"),
                     dcc.Input(id='param_prot_length_rib', type='number',
                               value=490,
                               style={'width': '200px'}),

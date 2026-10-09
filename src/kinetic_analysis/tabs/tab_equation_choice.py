@@ -20,14 +20,14 @@ def layout():
             dcc.Markdown(children='''
                                 $$
                                 G(T)_{exact} = \\frac{Pe^{-kT}}{P^2(
-                                \\frac{N(N+1)}{2}+NM)^2 }[ \sum_{
+                                \\frac{N(N+1)}{2}+NM)^2 }[\sum_{
                                 n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(
                                 kT)^n}{n!}
                                 $$
                                 $$ 
                                 + N\sum_{n=0}^{N}n\\frac{(2N-n+1}{
                                 2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\sum_{
-                                n=N}^{M}\\frac{(kT)^n}{n!} 
+                                n=N}^{M}\\frac{(kT)^n}{n!}
                                 $$
                                 $$+ N\sum_{n=1}^{
                                 N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(
@@ -35,8 +35,7 @@ def layout():
                                 kT)^n}{n!} ] 
                                 $$
 
-                                ''',
-                        mathjax=True),
+                                ''', mathjax=True),
         ]),
         dbc.Row([
             html.P(["The approximate equations are : "]),
@@ -44,15 +43,13 @@ def layout():
                                 $$
                                 G(T)_{epitope} = \\frac{k}{c}(\\frac{2}{3})\\frac{1}{(N(N+1))^2}e^{-kT} \\sum_{n=0}^N\Big[(N-n)(N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} \Big]
                                 $$
-                            ''',
-                        mathjax=True),
+                            ''', mathjax=True),
             html.Br(),
             dcc.Markdown(children='''
                                 $$
                                 G(T)_{approx} =  \\frac{((M/k)-T)}{c(M/k)^2}.H((M/k)-T)
                                 $$
-                            ''',
-                        mathjax=True),
+                            ''', mathjax=True),
         ]),
         html.Br(),
         html.Br(),
@@ -62,7 +59,7 @@ def layout():
                 html.Div([
                     html.P(["Protein length (aa) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_prot_length",
+                                      id="faq_param_prot_length_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
@@ -70,56 +67,56 @@ def layout():
                            ),
                     dbc.Tooltip("Length of the protein in amino acid. This "
                                 "value will be added to suntag length.",
-                                target="faq_param_prot_length"),
-                    dcc.Input(id='param_prot_length', type='number', value=490,
+                                target="faq_param_prot_length_choice"),
+                    dcc.Input(id='param_prot_length_choice', type='number', value=490,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Suntag length (aa) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_suntag_length",
+                                      id="faq_param_suntag_length_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Length of the suntag in amino acid. This "
                                 "value will be added to protein length.",
-                                target="faq_param_suntag_length"),
-                    dcc.Input(id='param_suntag_length', type='number', value=796,
+                                target="faq_param_suntag_length_choice"),
+                    dcc.Input(id='param_suntag_length_choice', type='number', value=796,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Number of suntag ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_nb_suntag",
+                                      id="faq_param_nb_suntag_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height": "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Number of suntag repetition",
-                                target="faq_param_nb_suntag"),
-                    dcc.Input(id='param_nb_suntag', type='number', value=32,
+                                target="faq_param_nb_suntag_choice"),
+                    dcc.Input(id='param_nb_suntag_choice', type='number', value=32,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Estimate elongation rate (aa/sec) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_translation_rate",
+                                      id="faq_param_translation_rate_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height":
-                                      "auto",
+                                  "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip("Elongation rate.",
-                                target="faq_param_translation_rate"),
-                    dcc.Input(id='param_elongation_rate', type='number',
+                                target="faq_param_translation_rate_choice"),
+                    dcc.Input(id='param_elongation_rate_choice', type='number',
                               value=0.3,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["Estimate initiation rate (ribosome/sec) ",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_initiation_rate",
+                                      id="faq_param_initiation_rate_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={
@@ -127,24 +124,24 @@ def layout():
                                    "auto",
                                "margin-bottom": "auto"}),
                     dbc.Tooltip("Initiation rate.",
-                                target="faq_param_initiation_rate"),
-                    dcc.Input(id='param_initiation_rate', type='number',
+                                target="faq_param_initiation_rate_choice"),
+                    dcc.Input(id='param_initiation_rate_choice', type='number',
                               value=0.015,
                               style={'width': '200px'}),
                 ]),
                 html.Div([
                     html.P(["tau",
                             html.Span(className="fas fa-question-circle",
-                                      id="faq_param_dt",
+                                      id="faq_param_dt_choice",
                                       style={"cursor": "pointer",
                                              "marginLeft": "5px"})],
                            style={"height":
-                                      "auto",
+                                  "auto",
                                   "margin-bottom": "auto"}),
                     dbc.Tooltip(
                         "Maximum length",
-                        target="faq_param_dt"),
-                    dcc.Input(id='param_tau', type='number', value=150,
+                        target="faq_param_dt_choice"),
+                    dcc.Input(id='param_tau_choice', type='number', value=150,
                               style={'width': '200px'}),
                 ]),
                 html.Br(),

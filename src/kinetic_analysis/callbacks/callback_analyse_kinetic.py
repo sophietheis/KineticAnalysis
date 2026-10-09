@@ -56,20 +56,20 @@ def register_callbacks(app):
         Output('loading_output2', 'children'),
         Output('loading_output3', 'children'),
         Output('loading_track_plot', 'children'),
-        Input('analyse_show_button2', 'n_clicks'),
-        State('col_track2', 'value'),  #0
-        State('col_time2', 'value'),  #1
-        State('col_intensity2', 'value'),  #2
-        State('dt-param-vivo2', 'value'),  #3
-        State('prot-length-param-vivo2', 'value'),  #4
-        State('suntag-length-param-vivo2', 'value'),  #5
-        State('repetition-suntag-param-vivo2', 'value'),  #6
-        State('id_track2', 'value'),  #7
-        State("missing_point_param_vivo2", 'value'),  #8
-        State("switches_force_analysis2", "value"),  #9
-        State("switches_correct_queuing_analysis2", "value"),  #10
-        State("rib_occupancy-param-vivo2", "value"),  #11
-        State("rib_footprint-param-vivo2", "value"),  #12
+        Input('analyse_show_button_kinetic', 'n_clicks'),
+        State('col_track_kinetic', 'value'),
+        State('col_time_kinetic', 'value'),
+        State('col_intensity_kinetic', 'value'),
+        State('dt-param-vivo_kinetic', 'value'),
+        State('prot-length-param-vivo_kinetic', 'value'),
+        State('suntag-length-param-vivo_kinetic', 'value'),
+        State('repetition-suntag-param-vivo_kinetic', 'value'),
+        State('id_track_kinetic', 'value'),
+        State("missing_point_param_vivo_kinetic", 'value'),
+        State("switches_force_analysis_kinetic", "value"),
+        State("switches_correct_queuing_analysis_kinetic", "value"),
+        State("rib_occupancy-param-vivo_kinetic", "value"),
+        State("rib_footprint-param-vivo_kinetic", "value"),
     )
     def analyse_display_track(n_clicks, session_id, *params):
 
@@ -182,16 +182,16 @@ def register_callbacks(app):
         Input('start-analyze-btn-vivo', 'n_clicks'),
         State('session-id', 'data'),
 
-        State('col_track2', 'value'),  #0
-        State('col_time2', 'value'),  #1
-        State('col_intensity2', 'value'),  #2
-        State('dt-param-vivo2', 'value'),  #3
-        State('prot-length-param-vivo2', 'value'),  #4
-        State('suntag-length-param-vivo2', 'value'),  #5
-        State('repetition-suntag-param-vivo2', 'value'),  #6
-        State("missing_point_param_vivo2", 'value'),  #7
-        State("switches_force_analysis2", "value"),  #8
-        State('save-results-name-vivo', 'value'),  #9
+        State('col_track_kinetic', 'value'),
+        State('col_time_kinetic', 'value'),
+        State('col_intensity_kinetic', 'value'),
+        State('dt-param-vivo_kinetic', 'value'),
+        State('prot-length-param-vivo_kinetic', 'value'),
+        State('suntag-length-param-vivo_kinetic', 'value'),
+        State('repetition-suntag-param-vivo_kinetic', 'value'),
+        State("missing_point_param_vivo_kinetic", 'value'),
+        State("switches_force_analysis_kinetic", "value"),
+        State('save-results-name-vivo', 'value'),
         # State('checkbox_simu', 'value') #9
     )
     def start_analyze_all_tracks(n_clicks, session_id, *params):

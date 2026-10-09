@@ -88,8 +88,8 @@ def register_callbacks(app):
         Output('download_csv', 'data'),
         Input('btn_calculate_ribosome_density', 'n_clicks'),
         State('session-id', 'data'),
-        State('param_prot_length_rib', 'value'),  #0
-        State('param_suntag_length_rib', 'value'),  #1
+        State('param_prot_length_rib', 'value'),
+        State('param_suntag_length_rib', 'value'),
     )
     def calculate_density(n_clicks, session_id, *params):
         """
@@ -122,8 +122,10 @@ def register_callbacks(app):
                     L_poi,
                     L_tag)
 
-                mean_single = get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")].mean()
-                std_single = get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")].std()
+                mean_single = get_session_data(session_id, "csv_fluo_single")[
+                    get_session_data(session_id, "single_prot_column_intensity")].mean()
+                std_single = get_session_data(session_id, "csv_fluo_single")[
+                    get_session_data(session_id, "single_prot_column_intensity")].std()
                 mean_polysome = result["INTENSITY"].mean()
                 std_polysome = result["INTENSITY"].std()
                 mean_rib = result["ribosome_density"].mean()
@@ -144,8 +146,10 @@ def register_callbacks(app):
 
                 output_path = "result.csv"
                 result.to_csv(output_path, index=False)
-                figure = plot_ribosome(get_session_data(session_id, "csv_fluo_single")[get_session_data(session_id, "single_prot_column_intensity")],
-                                       get_session_data(session_id, "csv_fluo_polysome")[get_session_data(session_id, "polysome_column_intensity")],
+                figure = plot_ribosome(get_session_data(session_id, "csv_fluo_single")[
+                    get_session_data(session_id, "single_prot_column_intensity")],
+                                       get_session_data(session_id, "csv_fluo_polysome")[
+                                           get_session_data(session_id, "polysome_column_intensity")],
                                        result
                                        )
 

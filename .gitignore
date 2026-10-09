@@ -25,3 +25,7 @@ kinetic_analysis_app/__pycache__/
 *.pyc
 
 /.cache
+
+*.mmd
+
+.vscode

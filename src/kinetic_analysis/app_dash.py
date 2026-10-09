@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output, dcc, State, no_update
+from dash import Dash, html, Input, Output, dcc
 import dash_bootstrap_components as dbc
 
 from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
@@ -31,9 +31,9 @@ from kineticanalysis.tabs.tab_combine_track import layout as tab7_layout
 from kineticanalysis.callbacks.callback_combine_track import (
     register_callbacks as tab7_callbacks)
 
-from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
+# from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
-from kineticanalysis.session_store import init_cache, new_session_id
+from kineticanalysis.session_store import init_cache
 from kineticanalysis.utils.logging_config import configure_logging
 
 configure_logging()
@@ -46,19 +46,6 @@ app.server.static_folder = "assets"
 app.title = "Translation dynamics app"
 
 init_cache(app)
-
-# # Global variables to store states
-# # Thread safety need to be changed
-# app.data = {
-#     'directory_generation': None,
-#     'directory_analysis': None,
-#     'directory_analysis_vivo': None,
-#     'csv_files': [],
-#     'fig': None,
-#     'selected_file': None,
-#     'solver': "Exact equation",
-#     'csv_to_analyse': None,
-# }
 
 _TAB_LAYOUTS = {
     'tab-0': tab0_layout,
@@ -155,4 +142,3 @@ tab7_callbacks(app)
 if __name__ == '__main__':
     # run_app()
     app.run_server(debug=True, host="0.0.0.0", port=5001)
-    

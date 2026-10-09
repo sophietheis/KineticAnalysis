@@ -11,6 +11,7 @@ from ..analysis.combination import combine_tracks_df, combine_tracks_df_ensemble
 
 logger = logging.getLogger(__name__)
 
+
 def register_callbacks(app):
     @app.callback(
         Output('selected-file-output-combine', 'children'),
@@ -64,14 +65,13 @@ def register_callbacks(app):
                         data)
         raise PreventUpdate
 
-
     @app.callback(
         Output('combine-tracks-gtau-output', 'children'),
         Output('download-csv4', 'data'),
         Output("loading_combination_gtau", "children"),
         Output("complete3", "data"),
         Input("combine-tracks-gtau-btn", "n_clicks"),
-        Input("start3", "data"),
+        Input("start_combine", "data"),
         State('session-id', 'data'),
         State('nb_tracks', "value"),
         State('nb_new_tracks', "value"),
