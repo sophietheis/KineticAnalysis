@@ -1,16 +1,16 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from kineticanalysis.utils.texts import t
+from kineticanalysis.tabs.tab_utils import button, input_case, title_h4
+
 
 def layout():
-
     return (
         html.Br(),
-
         # FILE IMPORT AND DISPLAY
-        html.H4(children="Upload data",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Upload data"),
+
         html.Br(),
         dbc.Row([
             dbc.Col(children=[
@@ -22,10 +22,7 @@ def layout():
                         dbc.Col(children=[
                             dcc.Upload(
                                 id='browse_directory_combine',
-                                children=dbc.Button(children='Upload csv file',
-                                                    className="mr-2",
-                                                    style={"width": "150px"}
-                                                    ),
+                                children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
                         ], width="auto"),
@@ -55,84 +52,42 @@ def layout():
         dbc.Row([
             html.P(children=["There is : ",
                              html.Span(id='nb_tracks_init', children=''),
-                             " track(s)."
-        ],
+                             " track(s)."],
                    className="mb-0"),
         ]),
 
         html.Br(),
-
-        html.H4(children="Parameters for combining tracks",
-                        style={"text-align": "center",
-                               "color": "#10D79B"}),
+        title_h4("Parameters for combining tracks"),
 
         dbc.Row([
             # nb track in the combined track
-            dbc.Col([
-                html.Div([
-                    html.P(children="How many tracks in the combined tracks?",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='nb_tracks',
-                              type='number',
-                              value="2",
-                              style={'width': '200px'}),
-                ]),
-            ]),
+            dbc.Col(input_case(child="How many tracks in the combined tracks?",
+                               input_id='nb_tracks',
+                               input_type='number',
+                               input_value="2")),
 
             # number of new tracks created
-            dbc.Col([
-                html.Div([
-                    html.P(children="How many new track created ?",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='nb_new_tracks',
-                              type='number',
-                              value="10",
-                              style={'width': '200px'}),
-                ]),
-            ]),
+            dbc.Col(input_case(child="How many new track created ?",
+                               input_id='nb_new_tracks',
+                               input_type='number',
+                               input_value="10")),
         ]),
 
         html.Br(),
 
-        
         dbc.Row([
-            dbc.Col([
-                html.H4(children="Combine tracks",
-                        style={"text-align": "left",
-                                "color": "#10D79B"}),
-                html.Div([
-                    dbc.Col(children=[
-                        dcc.Store(id="start2", data=""),
-                        dcc.Store(id="complete2", data=""),
-                        dbc.Button(dbc.Spinner(
-                            html.Span(children="Combine tracks",
-                                      id="loading_combination")),
-                            id="combine-tracks-btn"),
-                    ], width=3),
-                ]),
-                html.Div(id='combine-tracks-output'),
-                dcc.Download(id="download-csv3"),
+            html.Div([
+                dbc.Col(children=[
+                    dcc.Store(id="start2", data=""),
+                    dcc.Store(id="complete2", data=""),
+                    dbc.Button(dbc.Spinner(
+                        html.Span(children="Combine tracks",
+                                  id="loading_combination")),
+                        id="combine-tracks-btn"),
+                ], width=3),
             ]),
-            # dbc.Col([
-            #     html.H4(children="Combine G(tau) from independent tracks",
-            #             style={"text-align": "left",
-            #                     "color": "#10D79B"}),
-            #     html.P("! This has not been tested yet! "),
-            #     html.Div([
-            #         dbc.Col(children=[
-            #             dcc.Store(id="start_combine", data=""),
-            #             dcc.Store(id="complete3", data=""),
-            #             dbc.Button(dbc.Spinner(
-            #                 html.Span(children="Combine G(tau)",
-            #                             id="loading_combination_gtau")),
-            #                 id="combine-tracks-gtau-btn"),
-            #         ], width=3),
-            #     ]),
-            #     html.Div(id='combine-tracks-gtau-output'),
-            #     dcc.Download(id="download-csv4"),
-            # ]),
+            html.Div(id='combine-tracks-output'),
+            dcc.Download(id="download-csv3"),
         ]),
 
     )

@@ -1,0 +1,176 @@
+{
+  "button":{
+    "upload_csv": "Select csv file",
+    "msd": "Calculate MSD",
+    "density": "Calculate ribosome density",
+    "acquisition": "Calculate acquisition parameters"
+  },
+  "tooltips": {
+    "prot_length":"Length of the protein in amino acid. This value will be added to suntag length.",
+    "suntag_length":"Length of the suntag in amino acid. This value will be added to protein length."
+  },
+
+  "labels": {
+
+  },
+
+  "default_input_value": {
+    "id": "TRACK_ID",
+    "x": "POSITION_X",
+    "y": "POSITION_Y",
+    "z": "POSITION_Z",
+    "prot_length":490,
+    "suntag_length": 796
+  },
+
+  "tab_intros": {
+    "introduction": "A web application for analysing mRNA translation dynamics using the SunTag fluorescence system.",
+    "introduction_tabs": "Seven integrated modules cover the full analysis pipeline — from experiment design to kinetic parameter extraction."
+  },
+
+  "tab_acquisition": {
+    "intro": "In this tab, you will estimate the optimal microscopy acquisition settings for a live-cell SunTag imaging experiment before data collection. ",
+    "intro1":"It is recommended that track length is at least 3 times the time to translate one (Suntag+protein).",
+    "intro2":"The recommended frame rate should be lower that 1/3 of the time to translate the SunTag",
+    "math": "The calculation is based on this equation : $$\\Delta t = \\frac{1}{2k}$$ where $$k$$ is the elongation rate."
+  },
+
+  "tab_msd": {
+    "intro": "In this tab, you will calculate the MSD (Mean Square Displacement) of fluorescence dots in 3D.",
+    "msd_col_note": "Columns name should be \"x\", \"y\", \"z\".",
+    "math": "The calculation is based on this equation : \n $$MSD = \\langle\\sum{(r_{t}-r_{t-1})^2}\\rangle$$\nwhere $$r_{t}$$ and $$r_{t-1}$$ are the position at time t and t-1."
+  },
+
+  "tab_ribosome": {
+    "intro": "In this tab, you will estimate the number of ribosome on a translation site based on single protein fluorescence.",
+    "count_ribosome_col_note": "After uploading your data, select a column in each dataframe that corresponds to the intensity.",
+    "math":"The calculation is based on this equation : $$ d = \\frac{I_{poly}}{I_{single_prot}(L_{poi}+0.5L_{tag})}$$ where $$I_{poi}$$ and $$I_{single_prot}$$ are the fluorescence of the polysome and single protein respectively ; $$L_{poi}$$ and $$L_{tag}$$ are the length of the protein of interest and the tag respectively.",
+    "select_csv_single": "Choose your csv file that contains single protein fluorescence.",
+    "select_csv_polysome": "Choose your csv file that contains polysome fluorescence.",
+    "after_upload": "After uploading your data, select a column in each dataframe that corresponds to the intensity."
+  },
+
+  "misc": {
+    "not_found_404": "This is our custom 404 content.",
+    "github_issue_prefix": "If you encounter any problems, please ",
+    "github_issue_link_text": "open an issue",
+    "github_issue_url": "https://github.com/sophietheis/KineticAnalysis/issues",
+    "github_issue_suffix": " along with a detailed description of the problem."
+  },
+
+
+
+  "equations": {
+    "g_exact": "$$\nG(T)_{exact} = \\frac{Pe^{-kT}}{P^2(\\frac{N(N+1)}{2}+NM)^2 }[ \\sum_{n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(kT)^n}{n!}\n$$\n$$\n+ N\\sum_{n=0}^{N}n\\frac{(2N-n+1}{2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\\sum_{n=N}^{M}\\frac{(kT)^n}{n!}\n$$\n$$+ N\\sum_{n=1}^{N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(M+N-n)!}+ N^2\\sum_{n=0}^{M}(M-n)\\frac{(kT)^n}{n!} ]\n$$\nwhere $$c$$ is the initiation rate, $$k$$ the elongation rate and $$T$$ is the residence time. The steady state occupancy $$P$$ is defined by $$\\frac{c}{k}$$.",
+
+    "g_epitope": "$$\nG(T)_{epitope} = \\frac{k}{c}\\left(\\frac{2}{3}\\right)\\frac{1}{(N(N+1))^2}e^{-kT}\\sum_{n=0}^N\\Big[(N-n)(N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} \\Big]\n$$",
+
+    "g_approx": "$$\nG(T)_{approx} = \\frac{T - x}{cT^2} H(T - x)\n$$\nwhere $$c$$ is the initiation rate, and $$T$$ is the residence time.\n\n$$T=M/k$$ where $$M$$ is the RNA size (aa) and $$k$$ is the elongation rate.",
+
+    "ribosome_density": "The calculation is based on this equation :\n$$ d = \\frac{I_{poly}}{I_{single\\_prot}(L_{poi}+0.5L_{tag})}$$\nwhere $$I_{poi}$$ and $$I_{single\\_prot}$$ are the fluorescence of the polysome and single protein respectively; $$L_{poi}$$ and $$L_{tag}$$ are the length of the protein of interest and the tag respectively.",
+
+    "fluo_profile": "$$\n\\phi(t-t_i^{init}) =\n\\begin{cases}\n    \\frac{N\\theta k}{\\chi_{s}}\\times (t-t_i^{init}) , \\qquad & 0<(t-t_i^{init}) \\leq \\chi_{s}/k \\\\\n    N\\times \\theta, \\qquad & \\chi_{s}/k<(t-t_i^{init}) \\leq \\chi_{p}/k\n\\end{cases}\n$$",
+
+    "total_fluo": "$$\nI(t) = \\sum_i \\phi(t-t_i^{init})\n$$"
+  },
+  "to_remove": {
+    "download_csv": "Download csv",
+    "download_pdf": "Download pdf",
+    "download_png": "Download png",
+    "download_svg": "Download svg",
+    "download_jpg": "Download jpg",
+    "download_json": "Download json",
+    "download_excel": "Download excel",
+    "generate_tracks": "Generate tracks",
+    "analyse_tracks": "Analyse tracks",
+    "combine_gtau": "Combine G(tau)",
+    "display_df": "Display DataFrame",
+    "nb_tracks_display": "There is : ",
+    "combine_gtau_title": "Combine G(tau) from independent tracks",
+    "df_visualisation": "DataFrame Visualisation",
+    "single_prot_df_label": "Single protein fluorescence dataFrame visualisation",
+    "polysome_df_label": "Polysome fluorescence dataFrame visualisation",
+    "chosen_solver_prefix": "The chosen solver is: ",
+
+    "msd": "In this tab, you will calculate the MSD (Mean Square Displacement) of fluorescence dots in 3D.",
+    "msd_col_note": "Columns name should be \"x\", \"y\", \"z\".",
+    "acquisition": "In this tab, you will calculate the ideal acquisition parameters for your experiment.",
+    "generate_track": "In this tab, you will be able to generate tracks according to a set of parameters. By default, tracks are made with a time step of 0.1 sec.",
+    "generate_track_2": "You can see the fluorescence profile according to the parameters below. When happy, you can generate a csv file with all the tracks.",
+    "generate_track_fluo_eq": "Equation of the fluorescence profile used to generate the tracks:",
+    "generate_track_total_fluo": "The total fluorescence intensity of one polysome is:",
+    "count_ribosome": "In this tab, you will estimate the number of ribosome on a translation site based on single protein fluorescence.",
+    "equation_choice": "In this tab, you will be able to visualise the contribution of each term in the equation in order to help you choose the best method of analysis.",
+    "equation_choice_reference": "This is based on the work of Larson et al.",
+    "equation_choice_intro": "Each term came from this equation:",
+    "equation_approx_intro": "The approximate equations are:",
+    "theory": "In this tab, you will be able to visualise the contribution of each term in the equation in order to help you choose the best method of analysis.",
+    "theory_reference": "This is based on the work of Larson et al.",
+    "theory_intro": "Each term came from this equation:",
+    "combine_track_warning": "! This has not been tested yet!",
+    "count_ribosome_col_note": "After uploading your data, select a column in each dataframe that corresponds to the intensity.",
+
+    "prot_length": "Protein length (aa)",
+    "suntag_length": "Suntag length (aa)",
+    "nb_suntag": "Number of suntag",
+    "elongation_rate": "Estimate elongation rate (aa/sec)",
+    "initiation_rate": "Estimate initiation rate (ribosome/sec)",
+    "initiation_rate_gen": "Initiation rate (ribosome/sec)",
+    "translation_rate": "Translation rate (aa/sec)",
+    "fluo_one_suntag": "Fluorescence one suntag",
+    "footprint": "Footprint (aa)",
+    "retention_time": "Retention time (sec)",
+    "pos_suntag": "Suntag position (begin or end)",
+    "noise": "Noise",
+    "dt": "dt (sec)",
+    "tau": "tau",
+    "track_length": "Length of one track (sec)",
+    "nb_tracks": "Number of tracks",
+    "filename": "File name to save",
+    "track_id_col": "Track ID column",
+    "time_col": "Time column",
+    "intensity_col": "Intensity column",
+    "missing_point": "Missing point",
+    "nb_suntag_analysis": "Number of suntag",
+    "rib_occupancy": "Mean ribosome occupancy",
+    "rib_footprint": "Ribosome footprint",
+    "full_translated_protein": "Number of full translated protein",
+    "stem_loops": "Number of stem loops",
+    "upload_csv": "Choose your csv file.",
+    "upload_csv_analyse": "Choose your csv file to analyse.",
+    "upload_csv_single_prot": "Choose your csv file that contains single protein fluorescence.",
+    "upload_csv_polysome": "Choose your csv file that contains polysome fluorescence.",
+    "section_upload": "Upload data",
+    "section_col_names": "Confirm column name for the analysis",
+    "section_parameters": "Confirm parameters for the analysis",
+    "section_equation": "Choose equation for the analysis",
+    "section_one_track": "Display of one track",
+    "section_all_tracks": "Analyse all tracks",
+    "section_results": "Display of one track curves and result"
+  },
+"to_remove2": {
+    "prot_length": "Length of the protein in amino acid. This value will be added to suntag length.",
+    "suntag_length": "Length of the suntag in amino acid. This value will be added to protein length.",
+    "nb_suntag": "Number of suntag repetition.",
+    "elongation_rate": "Elongation rate.",
+    "initiation_rate": "Initiation rate.",
+    "tau": "Maximum length.",
+    "fluo_one_suntag": "Fluorescence of one suntag, used as reference for fluorescence profile.",
+    "translation_rate": "Translation rate.",
+    "footprint": "Footprint. -1 means no footprint.",
+    "retention_time": "Protein stays at the RNA for some time.",
+    "pos_suntag": "Choose if Suntag is before or after the protein.",
+    "noise": "Add random noise to the protein fluorescence profile. 0 if no noise.",
+    "dt": "Time step used to generate track. This value should be quite small regarding the time step used for the analysis.",
+    "track_length": "Length duration of one track, used for the analysis.",
+    "nb_tracks": "Number of tracks to be generated.",
+    "time_col": "It corresponds to a FRAME column. This will be multiplied by the dt time step.",
+    "suntag_length_analysis": "Length of the SunTag in amino acid.",
+    "prot_length_analysis": "Length of the protein in amino acid.",
+    "missing_point": "How many continuous missing points can we recover. If it is too many the track will not be analysed. Missing points are created by calculating the mean value.",
+    "nb_suntag_analysis": "Number of suntag repetition.",
+    "rib_occupancy": "Mean ribosome occupancy.",
+    "rib_footprint": "Ribosome footprint."
+  }
+
+}

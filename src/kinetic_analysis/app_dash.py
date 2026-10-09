@@ -36,6 +36,10 @@ from kineticanalysis.callbacks.callback_combine_track import (
 from kineticanalysis.session_store import init_cache
 from kineticanalysis.utils.logging_config import configure_logging
 
+from kineticanalysis.tabs.tab_utils import color_line
+from kineticanalysis.tabs.footer import issue_footer
+
+
 configure_logging()
 
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
@@ -58,6 +62,7 @@ _TAB_LAYOUTS = {
     'tab-6': tab6_layout,
     'tab-7': tab7_layout,
 }
+
 
 app.layout = dbc.Container([
 
@@ -116,6 +121,8 @@ app.layout = dbc.Container([
 
     html.Br(),
     html.Br(),
+    color_line(),
+    issue_footer(),
 ])
 
 

@@ -1,41 +1,33 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from kineticanalysis.tabs.tab_utils import title_h4, input_case, button
+from kineticanalysis.utils.texts import t
+
 
 def layout():
     return (html.Div([
         # Explanation at the beginning of the page
         dbc.Row([
-            html.P([
-                "In this tab, you will estimate the "
-                " optimal microscopy acquisition settings for a live-cell SunTag "
-                "imaging experiment before data collection. ",
-                html.Br(),
-                "It is recommended that track length is at least 3 times "
-                "the time to translate one (Suntag+protein).",
-                html.Br(),
-                "The recommended frame rate should be lower that 1/3 "
-                "of the time to translate the SunTag ",
-            ]),
+            html.P([t("tab_acquisition.intro"),
+                    html.Br(),
+                    t("tab_acquisition.intro1"),
+                    html.Br(),
+                    t("tab_acquisition.intro2"),
+                    ]),
         ]),
-
         html.Br(),
 
         dbc.Row([
             dbc.Col([
-                # Select value
-                html.H4(children="Input value",
-                        style={"text-align": "center",
-                               "color": "#10D79B"}),
+                title_h4("Input value"),
             ], width=5),
             dbc.Col([
-                # Select value
-                html.H4(children="Output",
-                        style={"text-align": "center",
-                               "color": "#10D79B"}),
+                title_h4("Output"),
             ], width=5),
         ]),
         html.Br(),
+
         dbc.Row([
             dbc.Col([
                 # Track ID column name
@@ -98,9 +90,8 @@ def layout():
                               style={'width': '200px'}),
                 ]),
                 html.Br(),
-                dbc.Button(children='Calculate acquisition parameters',
-                           id='btn_calculate_acquisition',
-                           className="mr-1"),
+                button(child=t("button.acquisition"),
+                       id_='btn_calculate_acquisition'),
             ], width=5),
 
             dbc.Col([

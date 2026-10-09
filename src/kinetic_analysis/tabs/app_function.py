@@ -29,7 +29,7 @@ def upload_csv(contents, session_id, name="csv_to_analyse"):
     # Save to this browser session's data only
     set_session_data(session_id, name, df)
 
-    return df, f"Success to parse CSV"
+    return df, "Success to parse CSV"
 
 
 def browse_directory(n_clicks, col_name, session_id):
@@ -40,7 +40,7 @@ def browse_directory(n_clicks, col_name, session_id):
         folder_selected = filedialog.askdirectory()
         root.destroy()
         logger.debug("Directory selected for '%s': %s", col_name, folder_selected or None)
-        
+
         set_session_data(session_id, col_name, folder_selected)
         return f"Directory chosen: {folder_selected}"
 

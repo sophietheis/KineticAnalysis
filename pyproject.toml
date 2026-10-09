@@ -79,6 +79,9 @@ build-verbosity = 1
 [tool.setuptools.package-dir]
 kineticanalysis = "src/kinetic_analysis"
 
+[tool.setuptools.package-data] 
+kineticanalysis = ["locales/*.json", "assets/**/*", "tabs/*.css"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = [

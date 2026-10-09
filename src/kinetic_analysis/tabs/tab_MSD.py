@@ -1,33 +1,29 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from kineticanalysis.utils.texts import t
+from kineticanalysis.tabs.tab_utils import button, input_case, title_h4
+
 
 def layout():
     return (html.Div([
         # Explanation at the beginning of the page
         dbc.Row([
             html.P([
-                "In this tab, you will calculate the MSD (Mean Square "
-                "Displacement) of fluorescence dots in 3D.",
+                t("tab_msd.intro"),
                 html.Br(),
                 ]),
-            dcc.Markdown('''
-                                The calculation is based on this equation :
-                                 $$MSD = <\sum{(r_{t}-r_{t-1})²}>$$
-                                 where $$r_{t}$$ and $$r_{t-1}$$ are the 
-                                 position at time t and t-1. 
-                                ''',
+            dcc.Markdown(t("tab_msd.math"),
                          mathjax=True),
             html.P([
-                "Columns name should be \"x\", \"y\", \"z\"",
+                t("tab_msd.msd_col_note"),
                 html.Br(),
             ]),
         ]),
         html.Br(),
         # Upload dataframes
-        html.H4("Upload data",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Upload data"),
+
         html.Br(),
 
         dbc.Row([
@@ -40,10 +36,7 @@ def layout():
                         dbc.Col([
                             dcc.Upload(
                                 id='browse_directory_msd',
-                                children=dbc.Button('Select csv file',
-                                                    className="mr-2",
-                                                    style={"width": "150px"}
-                                                    ),
+                                children=button(child=t("button.upload_csv")),
                                 multiple=False,
                             ),
                         ], width="auto"),
@@ -70,72 +63,40 @@ def layout():
         html.Br(),
         html.Br(),
         # CHOOSE COLUMN NAME
-        html.H4(children="Confirm column name for the analysis",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Select column name for the analysis"),
         html.Br(),
         dbc.Row([
             # Track ID column name
-            dbc.Col([
-                html.Div([
-                    html.P(children="Track ID",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_ID',
-                              type='text',
-                              value="TRACK_ID",
-                              style={'width': '200px'}),
-                ]),
-            ]),
-
+            dbc.Col(input_case(child="Track id",
+                               input_id='col_ID',
+                               input_type='text',
+                               input_value=t("default_input_value.id"))),
             # X column name
-            dbc.Col([
-                html.Div([
-                    html.P(children="x",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_x',
-                              type='text',
-                              value="POSITION_X",
-                              style={'width': '200px'}),
-                ]),
-            ]),
+            dbc.Col(input_case(child="x",
+                               input_id='col_x',
+                               input_type='text',
+                               input_value=t("default_input_value.x"))),
 
             # Y column name
-            dbc.Col([
-                html.Div([
-                    html.P(children="y",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_y',
-                              type='text',
-                              value="POSITION_Y",
-                              style={'width': '200px'}),
-                ]),
-            ]),
+            dbc.Col(input_case(child="y",
+                               input_id='col_y',
+                               input_type='text',
+                               input_value=t("default_input_value.y"))),
 
             # Z column name
-            dbc.Col([
-                html.Div([
-                    html.P(children="z",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_z',
-                              type='text',
-                              value="POSITION_Z",
-                              style={'width': '200px'}),
-                ]),
-            ]),
+            dbc.Col(input_case(child="z",
+                               input_id='col_z',
+                               input_type='text',
+                               input_value=t("default_input_value.z"))),
         ]),
 
         html.Br(),
         html.Br(),
         dbc.Row([
-            # Calculate MSD
             dbc.Col([
-                dbc.Button('Calculate MSD',
-                           id='btn_calculate_MSD',
-                           className="mr-1"),
+                button(child=t("button.msd"),
+                       id_='btn_calculate_MSD',
+                       classname="mr-2"),
             ], width=5)
         ]),
         html.Div(id='output_MSD'),
