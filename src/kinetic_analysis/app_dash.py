@@ -41,6 +41,7 @@ configure_logging()
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 app = Dash(__name__,
            external_stylesheets=[dbc.themes.FLATLY, FONT_AWESOME],
+           suppress_callback_exceptions=True,
            )
 app.server.static_folder = "assets"
 app.title = "Translation dynamics app"
