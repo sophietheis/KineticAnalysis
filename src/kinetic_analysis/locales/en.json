@@ -3,15 +3,56 @@
     "upload_csv": "Select csv file",
     "msd": "Calculate MSD",
     "density": "Calculate ribosome density",
-    "acquisition": "Calculate acquisition parameters"
+    "acquisition": "Calculate acquisition parameters",
+    "show_profile": "Show profile",
+    "show_contribution": "Show contribution"
   },
+
   "tooltips": {
     "prot_length":"Length of the protein in amino acid. This value will be added to suntag length.",
-    "suntag_length":"Length of the suntag in amino acid. This value will be added to protein length."
+    "suntag_length":"Length of the suntag in amino acid. This value will be added to protein length.",
+    "nb_stemloop":"Number of stemloops in the suntag.",
+    "fluo_one_suntag":"Fluorescence of one suntag, use as reference for fluorescence profile.",
+    "elongation_rate":"Elongation rate",
+    "initiation_rate":"Initiation rate",
+    "footprint":"Footprint. -1 means no footprint.",
+    "retention_time":"Protein stays at the RNA for some time.",
+    "pos_suntag":"Choose if Suntag is before or after the protein.",
+    "noise":"Add random noise to the protein fluorescence profile. 0 if no noise.",
+    "dt":"Time step used to generate track. This value should be quite small regarding the time step used for the analysis.",
+    "track_length":"Length duration of one track, used for the analysis.",
+    "nb_tracks":"Number of tracks to be generated.",
+    "time_col":"It corresponds to a FRAME column. This will be multiplied by the dt.",
+    "tau":"Maximum length.",
+    "missing_point":"How many continuous missing points can we recover. If it is too many the track will not be analysed. Missing points are created by calculating the mean value.",
+    "mean_rib_occ":"Mean ribosome occupancy."
   },
 
   "labels": {
-
+    "prot": "Protein length (aa)",
+    "suntag": "Suntag length (aa)",
+    "nb_stemloop": "Number of stemloops",
+    "elongation_rate": "Elongation rate (aa/sec)",
+    "initiation_rate": "Initiation rate (ribosome/sec)",
+    "fluo_one_suntag": "Fluorescence one suntag",
+    "footprint": "Footprint (aa)",
+    "retention_time": "Retention time (sec)",
+    "pos_suntag": "Suntag position (begin or end)",
+    "noise": "Noise",
+    "dt": "dt (sec)",
+    "tau": "tau",
+    "track_length": "Length of one track (sec)",
+    "nb_prot": "Number of full translated protein",
+    "nb_tracks": "Number of tracks",
+    "filename": "File name to save",
+    "estimate_elongation_rate": "Estimate elongation rate (aa/sec)",
+    "estimate_initiation_rate": "Estimate initiation rate (ribosome/sec)",
+    "Track_id": "Track ID column",
+    "Time": "Time column",
+    "intensity": "Intensity column",
+    "missing_point": "Missing point",
+    "mean_rib_occ": "Mean ribosome occupancy",
+    "single_track_id": "id of the track to analyse"
   },
 
   "default_input_value": {
@@ -19,8 +60,30 @@
     "x": "POSITION_X",
     "y": "POSITION_Y",
     "z": "POSITION_Z",
+    "time": "FRAME",
+    "intensity": "INTENSITY",
     "prot_length":490,
-    "suntag_length": 796
+    "suntag_length": 796,
+    "nb_stemloop": 24,
+    "elongation_rate": 10,
+    "initiation_rate": 1,
+    "fluo_one_suntag": 4,
+    "footprint": -1,
+    "retention_time": 0,
+    "pos_suntag": "begin",
+    "nb_prot": 1,
+    "noise": 0,
+    "dt": 0.1,
+    "dt_analysis": 3,
+    "track_length": 6000,
+    "nb_tracks": 100,
+    "filename_data":"datas.csv",
+    "filename_results":"results.csv",
+    "tau":150,
+    "missing_point": 5,
+    "mean_rib_occ":10,
+    "footprint_analysis": 24,
+    "track_id": 1
   },
 
   "tab_intros": {
@@ -33,6 +96,24 @@
     "intro1":"It is recommended that track length is at least 3 times the time to translate one (Suntag+protein).",
     "intro2":"The recommended frame rate should be lower that 1/3 of the time to translate the SunTag",
     "math": "The calculation is based on this equation : $$\\Delta t = \\frac{1}{2k}$$ where $$k$$ is the elongation rate."
+  },
+
+  "tab_generate_track": {
+    "intro": "In this tab, you will be able to generate tracks according to a set of parameters. By default, tracks are made with a time step of 0.1 sec.",
+    "intro2":"You can see the fluorescence profile according to the parameters below. When happy, you can generate a csv file with all the tracks.",
+    "eq_fluo":"Equation of the fluorescence profile used to generate the tracks : ",
+    "eq_fluo_markdown": "$$\\phi(t-t_i^{init}) = \\begin{cases} \\frac{N\\theta k}{\\chi_{s}}\\times (t-t_i^{init}) , \\qquad & 0<(t-t_i^{init}) \\leq \\chi_{s}/k  N\\times \\theta, \\qquad & \\chi_{s}/k<(t-t_i^{init}) \\leq \\chi_{p}/k\\ \\end{cases}$$",
+    "eq_total_fluo":"The total fluorescence intensity of one polysome is : ",
+    "eq_total_fluo_markdown":"$$I(t) = \\sum_i \\phi(t-t_i^{init})$$"
+  },
+
+  "tab_equation_choice": {
+    "intro": "In this tab, you will be able to visualise the contribution of each term in the equation in order to help you choose the best method of analysis.",
+    "reference": "This is based on the work of Larson et al."
+  },
+
+  "tab_analysis": {
+    "select_csv": "Choose your csv file to analyse."
   },
 
   "tab_msd": {
@@ -58,13 +139,14 @@
     "github_issue_suffix": " along with a detailed description of the problem."
   },
 
-
-
   "equations": {
+    "intro_exact": "Each term came from this equation :",
     "g_exact": "$$\nG(T)_{exact} = \\frac{Pe^{-kT}}{P^2(\\frac{N(N+1)}{2}+NM)^2 }[ \\sum_{n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(kT)^n}{n!}\n$$\n$$\n+ N\\sum_{n=0}^{N}n\\frac{(2N-n+1}{2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\\sum_{n=N}^{M}\\frac{(kT)^n}{n!}\n$$\n$$+ N\\sum_{n=1}^{N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(M+N-n)!}+ N^2\\sum_{n=0}^{M}(M-n)\\frac{(kT)^n}{n!} ]\n$$\nwhere $$c$$ is the initiation rate, $$k$$ the elongation rate and $$T$$ is the residence time. The steady state occupancy $$P$$ is defined by $$\\frac{c}{k}$$.",
 
+    "intro_epitope": "The stemloop approximate equations are :",
     "g_epitope": "$$\nG(T)_{epitope} = \\frac{k}{c}\\left(\\frac{2}{3}\\right)\\frac{1}{(N(N+1))^2}e^{-kT}\\sum_{n=0}^N\\Big[(N-n)(N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} \\Big]\n$$",
-
+    
+    "intro_approx": "The protein approximate equations are :",
     "g_approx": "$$\nG(T)_{approx} = \\frac{T - x}{cT^2} H(T - x)\n$$\nwhere $$c$$ is the initiation rate, and $$T$$ is the residence time.\n\n$$T=M/k$$ where $$M$$ is the RNA size (aa) and $$k$$ is the elongation rate.",
 
     "ribosome_density": "The calculation is based on this equation :\n$$ d = \\frac{I_{poly}}{I_{single\\_prot}(L_{poi}+0.5L_{tag})}$$\nwhere $$I_{poi}$$ and $$I_{single\\_prot}$$ are the fluorescence of the polysome and single protein respectively; $$L_{poi}$$ and $$L_{tag}$$ are the length of the protein of interest and the tag respectively.",
@@ -73,6 +155,7 @@
 
     "total_fluo": "$$\nI(t) = \\sum_i \\phi(t-t_i^{init})\n$$"
   },
+
   "to_remove": {
     "download_csv": "Download csv",
     "download_pdf": "Download pdf",

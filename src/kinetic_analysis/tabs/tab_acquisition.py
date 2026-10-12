@@ -1,4 +1,4 @@
-from dash import html, dcc
+from dash import html
 import dash_bootstrap_components as dbc
 
 from kineticanalysis.tabs.tab_utils import title_h4, input_case, button
@@ -30,65 +30,33 @@ def layout():
 
         dbc.Row([
             dbc.Col([
-                # Track ID column name
-                html.Div([
-                    html.P(children="Protein length (aa) ",
-                           style={"height": "auto",
-                                    "margin-bottom": "auto"}
-                           ),
-                    dcc.Input(id='param_prot_length_acquisition',
-                              type='number',
-                              value=490,
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.prot"),
+                           input_id="param_prot_length_acquisition",
+                           input_type='number',
+                           input_value=t("default_input_value.prot_length")),
 
-                # X column name
-                html.Div([
-                    html.P(children="Suntag length (aa) ",
-                           style={"height": "auto",
-                                    "margin-bottom": "auto"}),
-                    dcc.Input(id='param_suntag_length_acquisition',
-                              type='number',
-                              value=796,
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.suntag"),
+                           input_id="param_suntag_length_acquisition",
+                           input_type='number',
+                           input_value=t("default_input_value.suntag_length")),
 
-                # A column name
-                html.Div([
-                    html.P(children="Number of stem loops",
-                           style={"height": "auto",
-                                    "margin-bottom": "auto"}),
-                    dcc.Input(id='param_stem_loops_acquisition',
-                              type='number',
-                              value=24,
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.nb_stemloop"),
+                           input_id="param_stem_loops_acquisition",
+                           input_type='number',
+                           input_value=t("default_input_value.nb_stemloop")),
 
                 html.Br(),
 
-                # Y column name
-                html.Div([
-                    html.P(children="Translation rate (aa/sec) ",
-                           style={"height": "auto",
-                                    "margin-bottom": "auto"}),
+                input_case(child=t("labels.elongation_rate"),
+                           input_id="param_translation_rate_acquisition",
+                           input_type='number',
+                           input_value=t("default_input_value.elongation_rate")),
 
-                    dcc.Input(id='param_translation_rate_acquisition',
-                              type='number',
-                              value=24,
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.nb_prot"),
+                           input_id="param_full_translated_protein_acquisition",
+                           input_type='number',
+                           input_value=t("default_input_value.nb_prot")),
 
-                # Z column name
-                html.Div([
-                    html.P(children="Number of full translated protein",
-                           style={"height": "auto",
-                                    "margin-bottom": "auto"}),
-
-                    dcc.Input(id='param_full_translated_protein_acquisition',
-                              type='number',
-                              value=1,
-                              style={'width': '200px'}),
-                ]),
                 html.Br(),
                 button(child=t("button.acquisition"),
                        id_='btn_calculate_acquisition'),

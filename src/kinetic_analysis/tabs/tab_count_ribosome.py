@@ -93,13 +93,13 @@ def layout():
         html.Br(),
         # Define parameter of the simulation
         dbc.Row([
-            dbc.Col([input_case_with_tooltip(child="Protein length (aa)",
+            dbc.Col([input_case_with_tooltip(child=t("labels.prot"),
                                              input_id='param_prot_length_rib',
                                              tooltip_id="faq_param_prot_length_count_rib",
                                              tooltip_text=t("tooltips.prot_length"),
                                              input_type='number',
                                              input_value=t("default_input_value.prot_length")),
-                    input_case_with_tooltip(child="Suntag length (aa)",
+                    input_case_with_tooltip(child=t("labels.suntag"),
                                             input_id='param_suntag_length_rib',
                                             tooltip_id="faq_param_suntag_length",
                                             tooltip_text=t("tooltips.suntag_length"),

@@ -54,7 +54,7 @@ def input_case(child: str, input_id: str, input_type: str = 'text', input_value=
                           type=input_type,
                           value=input_value,
                           style={'width': '200px'}),
-            ]),
+            ])
     return s
 
 

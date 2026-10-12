@@ -1,6 +1,13 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
+from kineticanalysis.utils.texts import t
+from kineticanalysis.tabs.tab_utils import (button,
+                                            input_case_with_tooltip,
+                                            input_case,
+                                            title_h4,
+                                            color_line)
+
 
 def layout():
     items_solver = ["",
@@ -12,26 +19,20 @@ def layout():
 
     return (
         html.Br(),
-
         # FILE IMPORT AND DISPLAY
-        html.H4(children="Upload data",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Upload data"),
         html.Br(),
         dbc.Row([
             dbc.Col(children=[
                 html.Div([
                     # Choose a csv file
-                    html.Label("Choose your csv file to analyse "),
+                    html.Label(t("tab_analysis.select_csv")),
                     html.Br(),
                     dbc.Row([
                         dbc.Col(children=[
                             dcc.Upload(
                                 id='browse_directory_analyze_vivo2',
-                                children=dbc.Button(children='Upload csv file',
-                                                    className="mr-2",
-                                                    style={"width": "150px"}
-                                                    ),
+                                children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
                         ], width="auto"),
@@ -60,56 +61,33 @@ def layout():
         html.Br(),
 
         # CHOOSE COLUMN NAME
-        html.H4(children="Confirm column name for the analysis",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Confirm column name for the analysis"),
         html.Br(),
         dbc.Row([
             # Track ID column name
             dbc.Col([
-                html.Div([
-                    html.P(children="Track ID column",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_track_kinetic',
-                              type='text',
-                              value="TRACK_ID",
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.Track_id"),
+                           input_id='col_track_kinetic',
+                           input_type='text',
+                           input_value=t("default_input_value.id")),
             ]),
 
             # Time column name
             dbc.Col([
-                html.Div([
-                    html.P(children=["Time column",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_time_col_analysis",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_time_kinetic',
-                              type='text',
-                              value="FRAME",
-                              style={'width': '200px'}),
-                    dbc.Tooltip(
-                        children="It corresponds to a FRAME column. "
-                                 "This will be multiply by the dt time step.",
-                        target="faq_time_col_analysis"),
-                ]),
+                input_case_with_tooltip(child=t("labels.Time"),
+                                        input_id='col_time_kinetic',
+                                        tooltip_id="faq_time_col_analysis",
+                                        tooltip_text=t("tooltips.time_col"),
+                                        input_type='text',
+                                        input_value=t("default_input_value.time")),
             ]),
 
             # Intensity column name
             dbc.Col([
-                html.Div([
-                    html.P(children="Intensity column",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='col_intensity_kinetic',
-                              type='text',
-                              value="MEAN_INTENSITY_CH1",
-                              style={'width': '200px'}),
-                ]),
+                input_case(child=t("labels.intensity"),
+                           input_id='col_intensity_kinetic',
+                           input_type='text',
+                           input_value=t("default_input_value.intensity")),
             ]),
         ]),
 
@@ -117,9 +95,8 @@ def layout():
         html.Br(),
 
         # CHOOSE THE EQUATION FOR THE ANALYSIS
-        html.H4(children="Choose equation for the analysis",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Choose equation for the analysis"),
+
         html.Br(),
 
         dbc.Row([
@@ -138,148 +115,66 @@ def layout():
             ], width=3),
 
             dbc.Col([
-                dcc.Markdown(children='''
-                            If you choose **exact equation**, the default the 
-                             equation used is :
-                             $$
-                             G(T)_{exact} = \\frac{Pe^{-kT}}{P^2(
-                             \\frac{N(N+1)}{2}+NM)^2 }[ \sum_{
-                             n=0}^{N}(N-n)(N-n+1)\\frac{(2N+n+1)}{6}\\frac{(
-                             kT)^n}{n!}
-                             $$
-                             $$ 
-                             + N\sum_{n=0}^{N}n\\frac{(2N-n+1}{
-                             2}\\frac{(kT)^n}{n!}+ N^2\\frac{N+1}{2}\sum_{
-                             n=N}^{M}\\frac{(kT)^n}{n!} 
-                             $$
-                             $$+ N\sum_{n=1}^{
-                             N}n\\frac{(1+n)}{2}\\frac{(kT)^{M+N-n}}{(
-                             M+N-n)!}+ N^2\sum_{n=0}^{M}(M-n)\\frac{(
-                             kT)^n}{n!} ] 
-                             $$
-                             where $$c$$ is the initiation rate, $$k$$ 
-                             the elongation rate and $$T$$ is 
-                             the residence time. The steady state 
-                             occupancy $$P$$ is defined by 
-                             $$\\frac{c}{k}$$.
-                             ''',
-                             mathjax=True),
-                html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
-                               "color": "#10D79B"}),
-                dcc.Markdown(children='''
-                             If you choose **approximate equation**, 
-                             the default 
-                             the equation used is :
-                             $$ G(x) = \\frac{T - x}{cT^2}
-                             H(T - x), $$
-                             where $$c$$ is the initiation rate, and $$T$$ is 
-                             the residence time.
-
-                             $$T=M/k$$ where $M$ is the RNA size (aa) and $k$ 
-                             is the elongation rate.
-                             ''',
-                             mathjax=True),
-                html.Hr(style={'borderWidth': "0.3vh", "width": "25%",
-                               "color": "#10D79B"}),
-                dcc.Markdown(children='''             
-                             If you choose **approximate epitope**, 
-                             the default equation used is : 
-                             $$ G(T) = \\frac{k}{c}(\\frac{2}{3})\\frac{
-                             1}{(N(N+1))^2}e^{-kT} \\sum_{n=0}^N(N-n)(
-                             N-n+1)(2N+n+1)\\frac{(kT)^n}{n!} $$
-                            ''',
-                             mathjax=True),
+                html.P(children="If you choose **exact equation**, the default the equation used is :"),
+                dcc.Markdown(children=t("equations.g_exact"), mathjax=True),
+                color_line(),
+                html.P(children="If you choose **approximate equation**, the default the equation used is :"),
+                dcc.Markdown(children=t("equations.g_approx"), mathjax=True),
+                color_line(),
+                html.P(children="If you choose **approximate epitope**, the default the equation used is :"),
+                dcc.Markdown(children=t("equations.g_epitope"), mathjax=True),
             ], width=9),
         ]),
-
-
 
         html.Br(),
         html.Br(),
 
         # CONFIRM PARAMETER FOR THE ANALYSIS
-        html.H4(children="Confirm parameters for the analysis",
-                style={"text-align": "center",
-                       "color": "#10D79B"}),
+        title_h4("Confirm parameters for the analysis"),
         html.Br(),
 
         dbc.Row([
             dbc.Col([
-                html.Div([
-                    html.P(children="dt (sec)",
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dcc.Input(id='dt-param-vivo_kinetic', type='number', value=3),
-                ]),
+                input_case(child=t("labels.dt"),
+                           input_id='dt-param-vivo_kinetic',
+                           input_type='number',
+                           input_value=t("default_input_value.dt_analysis")),
             ]),
             dbc.Col([
-                html.Div([
-                    html.P(children=["Suntag length (aa)",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_suntag_length",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="Length of the SunTag in amino "
-                                "acid.",
-                                target="faq_suntag_length"),
-                    dcc.Input(id='suntag-length-param-vivo_kinetic', type='number',
-                              value=800),
-                ]),
+                input_case_with_tooltip(child=t("labels.suntag"),
+                                        input_id='suntag-length-param-vivo_kinetic',
+                                        tooltip_id="faq_suntag_length",
+                                        tooltip_text=t("tooltips.suntag_length"),
+                                        input_type='number',
+                                        input_value=t("default_input_value.suntag_length")),
             ]),
             dbc.Col([
-                html.Div([
-                    html.P(children=["Protein length (aa)",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_prot_length",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="Length of the protein in amino "
-                                         "acid.",
-                                target="faq_prot_length"),
-                    dcc.Input(id='prot-length-param-vivo_kinetic', type='number',
-                              value=800),
-                ]),
+                input_case_with_tooltip(child=t("labels.prot"),
+                                        input_id='prot-length-param-vivo_kinetic',
+                                        tooltip_id="faq_prot_length",
+                                        tooltip_text=t("tooltips.prot_length"),
+                                        input_type='number',
+                                        input_value=t("default_input_value.prot_length")),
             ]),
         ]),
         dbc.Row([
             dbc.Col([
                 html.Div([
-                    html.P(children=["Missing point",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_missing_point",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="How many continuous missing point can "
-                                "we recover. If it is too much the track will "
-                                "not be analysed. For now, missing point are "
-                                "created by calculated the mean value.",
-                                target="faq_missing_point"),
-                    dcc.Input(id='missing_point_param_vivo_kinetic',
-                              type='number',
-                              value=5),
+                    input_case_with_tooltip(child=t("labels.missing_point"),
+                                            input_id='missing_point_param_vivo_kinetic',
+                                            tooltip_id="faq_missing_point",
+                                            tooltip_text=t("tooltips.missing_point"),
+                                            input_type='number',
+                                            input_value=t("default_input_value.missing_point")),
                 ]),
             ]),
             dbc.Col([
-                html.Div([
-                    html.P(children=["Number of suntag",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_suntag_number",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="Number of suntag repetition.",
-                                target="faq_suntag_number"),
-                    dcc.Input(id='repetition-suntag-param-vivo_kinetic',
-                              type='number',
-                              value=32),
-                ]),
+                input_case_with_tooltip(child=t("labels.nb_stemloop"),
+                                        input_id='repetition-suntag-param-vivo_kinetic',
+                                        tooltip_id="faq_suntag_number",
+                                        tooltip_text=t("tooltips.nb_stemloop"),
+                                        input_type='number',
+                                        input_value=t("default_input_value.nb_stemloop")),
             ]),
 
             dbc.Col([
@@ -303,36 +198,20 @@ def layout():
                               switch=False, ),
             ]),
             dbc.Col([
-                html.Div([
-                    html.P(children=["Mean ribosome occupancy",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_rib_occupancy",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="mean ribosome occupancy.",
-                                target="faq_rib_occupancy"),
-                    dcc.Input(id='rib_occupancy-param-vivo_kinetic',
-                              type='number',
-                              value=10),
-                ]),
+                input_case_with_tooltip(child=t("labels.mean_rib_occ"),
+                                        input_id='rib_occupancy-param-vivo_kinetic',
+                                        tooltip_id="faq_rib_occupancy",
+                                        tooltip_text=t("tooltips.mean_rib_occ"),
+                                        input_type='number',
+                                        input_value=t("default_input_value.mean_rib_occ")),
             ]),
             dbc.Col([
-                html.Div([
-                    html.P(children=["Ribosome footprint",
-                                     html.Span(className="fas fa-question-circle",
-                                               id="faq_rib_footprint",
-                                               style={"cursor": "pointer",
-                                                      "marginLeft": "5px"})],
-                           style={"height": "auto",
-                                  "margin-bottom": "auto"}),
-                    dbc.Tooltip(children="Ribosome footprint.",
-                                target="faq_rib_footprint"),
-                    dcc.Input(id='rib_footprint-param-vivo_kinetic',
-                              type='number',
-                              value=24),
-                ]),
+                input_case_with_tooltip(child=t("labels.footprint"),
+                                        input_id='rib_footprint-param-vivo_kinetic',
+                                        tooltip_id="faq_rib_footprint",
+                                        tooltip_text=t("tooltips.footprint"),
+                                        input_type='number',
+                                        input_value=t("default_input_value.footprint_analysis")),
             ])
         ]),
 
@@ -345,21 +224,16 @@ def layout():
                 html.H5(children="Display of one track",
                         style={"text-align": "center"}),
                 dbc.Row([
-                    html.Div([
-                        html.P(children="id of the track to analyse",
-                               style={"height": "auto",
-                                      "margin-bottom": "auto"}),
-                        dcc.Input(id='id_track_kinetic',
-                                  type='number',
-                                  value=0),
-                    ]),
+                    input_case(child=t("labels.single_track_id"),
+                               input_id='id_track_kinetic',
+                               input_type='number',
+                               input_value=t("default_input_value.track_id")),
                 ]),
                 dbc.Row(children=[
                     dbc.Col(children=[
-                        dbc.Button(children='Analyse and display ONE track',
-                                   id='analyse_show_button_kinetic',
-                                   className="mr-2",
-                                   style={"width": "300px"}, ),
+                        button(child='Analyse and display ONE track',
+                               id_='analyse_show_button_kinetic',
+                               width="300px"),
                         dbc.Alert(
                             "Analysis did not work",
                             id="alert-analysis",
@@ -390,20 +264,16 @@ def layout():
                 html.H5(children="Analyse all tracks",
                         style={"text-align": "center"}),
                 dbc.Row([
-                    html.Div([
-                        html.P(children="File name to save",
-                               style={"height": "auto",
-                                      "margin-bottom": "auto"}),
-                        dcc.Input(id='save-results-name-vivo', type='text',
-                                  value='datas_results'),
-                    ]),
+                    input_case(child=t("labels.filename"),
+                               input_id='save-results-name-vivo',
+                               input_type='number',
+                               input_value=t("default_input_value.filename_results")),
                 ]),
                 dbc.Row(children=[
                     dbc.Col(children=[
-                        dbc.Button(children='Analyse ALL Tracks',
-                                   id='start-analyze-btn-vivo',
-                                   className="mr-2",
-                                   style={"width": "300px"}, ),
+                        button(child='Analyse ALL Tracks',
+                               id_='start-analyze-btn-vivo',
+                               width="300px"),
                     ], width="auto"),
 
                     dbc.Col(children=[
