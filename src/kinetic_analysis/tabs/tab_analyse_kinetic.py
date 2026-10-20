@@ -31,7 +31,7 @@ def layout():
                     dbc.Row([
                         dbc.Col(children=[
                             dcc.Upload(
-                                id='browse_directory_analyze_vivo2',
+                                id='analysisk_browse_directory_analysis',
                                 children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
@@ -39,7 +39,7 @@ def layout():
                         dbc.Col(children=[
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_vivo2")],
+                                    html.Div(id="analysisk_load_data_vivo")],
                                 size="sm",
                                 color="primary",
                                 type="border",
@@ -47,13 +47,13 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-vivo2'),
+                    html.Div(id='analysisk_selected_output_vivo'),
                 ]),
             ], width=3),
 
             dbc.Col(children=[
                 html.Label("DataFrame Visualisation"),
-                html.Div(id="table-container2", children=[]),
+                html.Div(id="analysisk_table_container", children=[]),
             ], width=9)
         ]),
 
@@ -67,7 +67,7 @@ def layout():
             # Track ID column name
             dbc.Col([
                 input_case(child=t("labels.Track_id"),
-                           input_id='col_track_kinetic',
+                           input_id='analysisk_col_track',
                            input_type='text',
                            input_value=t("default_input_value.id")),
             ]),
@@ -75,7 +75,7 @@ def layout():
             # Time column name
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.Time"),
-                                        input_id='col_time_kinetic',
+                                        input_id='analysisk_col_time',
                                         tooltip_id="faq_time_col_analysis",
                                         tooltip_text=t("tooltips.time_col"),
                                         input_type='text',
@@ -85,7 +85,7 @@ def layout():
             # Intensity column name
             dbc.Col([
                 input_case(child=t("labels.intensity"),
-                           input_id='col_intensity_kinetic',
+                           input_id='analysisk_col_intensity',
                            input_type='text',
                            input_value=t("default_input_value.intensity")),
             ]),
@@ -143,13 +143,13 @@ def layout():
         dbc.Row([
             dbc.Col([
                 input_case(child=t("labels.dt"),
-                           input_id='dt-param-vivo_kinetic',
+                           input_id='analysisk_param_vivo',
                            input_type='number',
                            input_value=t("default_input_value.dt_analysis")),
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.epitope"),
-                                        input_id='epitope-length-param-vivo_kinetic',
+                                        input_id='analysisk_epitope_length',
                                         tooltip_id="faq_suntag_length",
                                         tooltip_text=t("tooltips.suntag_length"),
                                         input_type='number',
@@ -157,7 +157,7 @@ def layout():
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.prot"),
-                                        input_id='prot-length-param-vivo_kinetic',
+                                        input_id='analysisk_prot_length',
                                         tooltip_id="faq_prot_length",
                                         tooltip_text=t("tooltips.prot_length"),
                                         input_type='number',
@@ -168,7 +168,7 @@ def layout():
             dbc.Col([
                 html.Div([
                     input_case_with_tooltip(child=t("labels.missing_point"),
-                                            input_id='missing_point_param_vivo_kinetic',
+                                            input_id='analysisk_missing_point',
                                             tooltip_id="faq_missing_point",
                                             tooltip_text=t("tooltips.missing_point"),
                                             input_type='number',
@@ -177,7 +177,7 @@ def layout():
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.nb_stemloop"),
-                                        input_id='repetition-epitope-param-vivo_kinetic',
+                                        input_id='analysisk_epitope_repeat',
                                         tooltip_id="faq_suntag_number",
                                         tooltip_text=t("tooltips.nb_stemloop"),
                                         input_type='number',
@@ -193,7 +193,7 @@ def layout():
             dbc.Checklist(options=[{"label": "Force the analysis even if "
                                              "time is not continuous.",
                                     "value": 0}],
-                          id="switches_force_analysis_kinetic",
+                          id="analysisk_switch_force_analysis",
                           switch=False, ),
         ]),
         html.Br(),
@@ -201,21 +201,21 @@ def layout():
             dbc.Col([
                 dbc.Checklist(options=[{"label": "Correct queuing",
                                                  "value": 0}],
-                              id="switches_correct_queuing_analysis_kinetic",
+                              id="analysisk_switch_queuing",
                               switch=False, ),
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.mean_rib_occ"),
-                                        input_id='rib_occupancy-param-vivo_kinetic',
-                                        tooltip_id="faq_rib_occupancy",
+                                        input_id='analysisk_rib_occupancy',
+                                        tooltip_id="analysisk_faq_occupancy",
                                         tooltip_text=t("tooltips.mean_rib_occ"),
                                         input_type='number',
                                         input_value=t("default_input_value.mean_rib_occ")),
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.footprint"),
-                                        input_id='rib_footprint-param-vivo_kinetic',
-                                        tooltip_id="faq_rib_footprint",
+                                        input_id='analysisk_rib_footprint',
+                                        tooltip_id="analysisk_faq_footprint",
                                         tooltip_text=t("tooltips.footprint"),
                                         input_type='number',
                                         input_value=t("default_input_value.footprint_analysis")),
@@ -232,18 +232,18 @@ def layout():
                         style={"text-align": "center"}),
                 dbc.Row([
                     input_case(child=t("labels.single_track_id"),
-                               input_id='id_track_kinetic',
+                               input_id='analysisk_id_track',
                                input_type='number',
                                input_value=t("default_input_value.track_id")),
                 ]),
                 dbc.Row(children=[
                     dbc.Col(children=[
                         button(child='Analyse and display ONE track',
-                               id_='analyse_show_button_kinetic',
+                               id_='analysisk_button_display',
                                width="300px"),
                         dbc.Alert(
                             "Analysis did not work",
-                            id="alert-analysis",
+                            id="analysisk_alert",
                             dismissable=True,
                             fade=False,
                             is_open=False,
@@ -253,7 +253,7 @@ def layout():
 
                     dbc.Col(children=[
                         dbc.Spinner(
-                            children=[html.Div(id="loading_track_plot")],
+                            children=[html.Div(id="analysisk_loading_track_plot")],
                             size="sm", color="primary", type="border",
                             spinner_style={"margin-left": "10px"}
                         )
@@ -279,28 +279,28 @@ def layout():
                 dbc.Col([
                     dbc.Row([
                         input_case(child=t("labels.filename"),
-                                   input_id='save-results-name-vivo',
+                                   input_id='analysisk_filename_save',
                                    input_type='number',
                                    input_value=t("default_input_value.filename_results")),
                     ]),
                     dbc.Row(children=[
                         dbc.Col(children=[
                             button(child='Analyse ALL Tracks',
-                                id_='start-analyze-btn-vivo',
+                                id_='analysisk_button_all_analysis',
                                 width="300px"),
                         ], width="auto"),
 
                         dbc.Col(children=[
                             dbc.Spinner(
-                                children=[html.Div(id="loading_analysis_vivo")],
+                                children=[html.Div(id="analysisk_loading_analysis")],
                                 size="sm", color="primary", type="border",
                                 spinner_style={"margin-left": "10px"}
                             )
                         ], width="auto"),
                     ], align="center", style={"margin-top": "10px"}),
                 ]),
-                html.Div(id='analyze-output-vivo'),
-                dcc.Download(id="download-csv"),
+                html.Div(id='analysisk_output'),
+                dcc.Download(id="analysisk_download"),
             ], style={'border': 'ridge',
                       'background-color': '#e6ffde'}),
         ]),
@@ -312,7 +312,7 @@ def layout():
         dbc.Row([
             html.H5(children="Display of one track curves and result",
                     style={"text-align": "center"}),
-            dcc.Graph(id='plot_results'),
+            dcc.Graph(id='analysisk_plot_results'),
         ]),
 
 

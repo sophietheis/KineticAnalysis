@@ -175,7 +175,7 @@ def autocurve_analysis(x_auto,
                        constraint=None,
                        mean_n_ribosome=None,
                        footprint=10,
-                       correct_queuing=False, 
+                       correct_queuing=False,
                        ):
     """
     Analysis of one track inside a dataframe.
@@ -304,7 +304,7 @@ def single_track_analysis(x,
                           simulation=False,
                           mean_n_ribosome=None,
                           footprint=10,
-                          correct_queuing=False, 
+                          correct_queuing=False,
                           ):
     """
     Analysis of one track inside a dataframe.

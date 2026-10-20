@@ -12,7 +12,7 @@ from .utils import generate_table, resolve_solver_method, empty_error_figure
 from ..session_store import get_session_data, set_session_data
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
-                                       check_track_validity, 
+                                       check_track_validity,
                                        autocurve_analysis)
 from ..analysis.fit_functions import (function_exact,
                                       function_approx,
@@ -24,14 +24,14 @@ logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
-        Output('selected-file-output-vivo2', 'children'),
-        Output("table-container2", "children"),
-        Output('loading_data_vivo2', 'children'),
-        Input('browse_directory_analyze_vivo2', 'contents'),
+        Output('analysisk_selected_output_vivo', 'children'),
+        Output("analysisk_table_container", "children"),
+        Output('analysisk_load_data_vivo', 'children'),
+        Input('analysisk_browse_directory_analysis', 'contents'),
         State('session-id', 'data'),
         prevent_initial_call=True,
     )
-    def browse_directory_analyze_vivo2(contents, session_id):
+    def analysisk_browse_directory_analysis(contents, session_id):
         df, output = upload_csv(contents, session_id, "csv_to_analyse")
         if df is None:
             return output, None, None
@@ -51,27 +51,27 @@ def register_callbacks(app):
         return value
 
     @app.callback(
-        Output('plot_results', 'figure'),
+        Output('analysisk_plot_results', 'figure'),
         Output('loading_output_track', 'children'),
         Output('loading_output1', 'children'),
         Output('loading_output2', 'children'),
         Output('loading_output3', 'children'),
-        Output('loading_track_plot', 'children'),
-        Input('analyse_show_button_kinetic', 'n_clicks'),
+        Output('analysisk_loading_track_plot', 'children'),
+        Input('analysisk_button_display', 'n_clicks'),
         State('session-id', 'data'),
-        State('col_track_kinetic', 'value'),
-        State('col_time_kinetic', 'value'),
-        State('col_intensity_kinetic', 'value'),
-        State('dt-param-vivo_kinetic', 'value'),
-        State('prot-length-param-vivo_kinetic', 'value'),
-        State('epitope-length-param-vivo_kinetic', 'value'),
-        State('repetition-epitope-param-vivo_kinetic', 'value'),
-        State('id_track_kinetic', 'value'),
-        State("missing_point_param_vivo_kinetic", 'value'),
-        State("switches_force_analysis_kinetic", "value"),
-        State("switches_correct_queuing_analysis_kinetic", "value"),
-        State("rib_occupancy-param-vivo_kinetic", "value"),
-        State("rib_footprint-param-vivo_kinetic", "value"),
+        State('analysisk_col_track', 'value'),
+        State('analysisk_col_time', 'value'),
+        State('analysisk_col_intensity', 'value'),
+        State('analysisk_param_vivo', 'value'),
+        State('analysisk_prot_length', 'value'),
+        State('analysisk_epitope_length', 'value'),
+        State('analysisk_epitope_repeat', 'value'),
+        State('analysisk_id_track', 'value'),
+        State("analysisk_missing_point", 'value'),
+        State("analysisk_switch_force_analysis", "value"),
+        State("analysisk_switch_queuing", "value"),
+        State("analysisk_rib_occupancy", "value"),
+        State("analysisk_rib_footprint", "value"),
         State("analysisk_choose_constraint", "value")
     )
     def analyse_display_track(n_clicks, session_id, *params):
@@ -187,25 +187,25 @@ def register_callbacks(app):
         return go.Figure(), "",  "", "", "", None
 
     @app.callback(
-        Output('analyze-output-vivo', 'children'),
-        Output('loading_analysis_vivo', 'children'),
-        Output('download-csv', 'data'),
-        Input('start-analyze-btn-vivo', 'n_clicks'),
+        Output('analysisk_output', 'children'),
+        Output('analysisk_loading_analysis', 'children'),
+        Output('analysisk_download', 'data'),
+        Input('analysisk_button_all_analysis', 'n_clicks'),
         State('session-id', 'data'),
 
-        State('col_track_kinetic', 'value'),
-        State('col_time_kinetic', 'value'),
-        State('col_intensity_kinetic', 'value'),
-        State('dt-param-vivo_kinetic', 'value'),
-        State('prot-length-param-vivo_kinetic', 'value'),
-        State('epitope-length-param-vivo_kinetic', 'value'),
-        State('repetition-epitope-param-vivo_kinetic', 'value'),
-        State("missing_point_param_vivo_kinetic", 'value'),
-        State("switches_force_analysis_kinetic", "value"),
+        State('analysisk_col_track', 'value'),
+        State('analysisk_col_time', 'value'),
+        State('analysisk_col_intensity', 'value'),
+        State('analysisk_param_vivo', 'value'),
+        State('analysisk_prot_length', 'value'),
+        State('analysisk_epitope_length', 'value'),
+        State('analysisk_epitope_repeat', 'value'),
+        State("analysisk_missing_point", 'value'),
+        State("analysisk_switch_force_analysis", "value"),
         State("analysisk_choose_constraint", "value"),
         State("analysisk_switches_combine_autocorr", "value"),
 
-        State('save-results-name-vivo', 'value'),
+        State('analysisk_filename_save', 'value'),
         # State('checkbox_simu', 'value') #9
     )
     def start_analyze_all_tracks(n_clicks, session_id, *params):
@@ -262,12 +262,12 @@ def register_callbacks(app):
                         datas2 = df[(df["TRACK_ID"] == i)]
 
                         (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
-                                                                        i,
-                                                                        normalise_intensity=1,
-                                                                        delta_t=dt,
-                                                                        rtol=1e-1,
-                                                                        nb_missing_point=nb_missing_point,
-                                                                        )
+                                                                           i,
+                                                                           normalise_intensity=1,
+                                                                           delta_t=dt,
+                                                                           rtol=1e-1,
+                                                                           nb_missing_point=nb_missing_point,
+                                                                           )
                         length = len(x_fix)
 
                         if valid or force_analysis:
@@ -294,7 +294,7 @@ def register_callbacks(app):
                             df_gtau = pd.concat([df_gtau, pd.DataFrame(y_auto)], axis=1, ignore_index=True)
                             if len(save_x_auto) < len(x_auto):
                                 save_x_auto = x_auto
-                    
+
                     (k, c,
                      elongation_r,
                      translation_init_r,
@@ -318,7 +318,7 @@ def register_callbacks(app):
                                             "perr0": perr0,
                                             "perr1": perr1,
                                             "comment": comment},
-                                            index=[0])
+                                           index=[0])
                     output_path = params[-1] + ".csv"
                     results.to_csv(output_path, index=False)
 
@@ -338,12 +338,12 @@ def register_callbacks(app):
                         datas2 = df[(df["TRACK_ID"] == i)]
 
                         (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
-                                                                        i,
-                                                                        normalise_intensity=1,
-                                                                        delta_t=dt,
-                                                                        rtol=1e-1,
-                                                                        nb_missing_point=nb_missing_point,
-                                                                        )
+                                                                           i,
+                                                                           normalise_intensity=1,
+                                                                           delta_t=dt,
+                                                                           rtol=1e-1,
+                                                                           nb_missing_point=nb_missing_point,
+                                                                           )
                         length = len(x_fix)
 
                         if valid or force_analysis:
@@ -384,7 +384,7 @@ def register_callbacks(app):
                                                     "perr0": perr0,
                                                     "perr1": perr1,
                                                     "comment": comment},
-                                                index=[0])
+                                                   index=[0])
                             first_time = False
 
                         else:
@@ -402,7 +402,7 @@ def register_callbacks(app):
                                                         "perr1": perr1,
                                                         "comment": comment},
                                                     index=[0])
-                                                ], ignore_index=True)
+                                                 ], ignore_index=True)
 
                     output_path = params[-1] + ".csv"
                     results.to_csv(output_path, index=False)
