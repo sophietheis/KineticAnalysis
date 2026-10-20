@@ -12,15 +12,15 @@ logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
-        Output('equation-plot', 'figure'),
-        Output('equation-curve', 'figure'),
-        Input('show-contribution-btn', 'n_clicks'),
-        State('param_prot_length_choice', 'value'),
-        State('param_suntag_length_choice', 'value'),
-        State('param_nb_suntag_choice', 'value'),
-        State('param_elongation_rate_choice', 'value'),
-        State('param_initiation_rate_choice', 'value'),
-        State('param_tau_choice', 'value'),
+        Output('eqchoice_plot', 'figure'),
+        Output('eqchoice_curve', 'figure'),
+        Input('eqchoice_button_display', 'n_clicks'),
+        State('eqchoice_prot_length', 'value'),
+        State('eqchoice_epitope_length', 'value'),
+        State('eqchoice_epitope_repeat', 'value'),
+        State('eqchoice_elongation_rate', 'value'),
+        State('eqchoice_initiation_rate', 'value'),
+        State('eqchoice_tau', 'value'),
     )
     def update_plot(n_clicks, *params):
         """

@@ -32,43 +32,43 @@ def layout():
         dbc.Row([
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.prot"),
-                                        input_id='param_prot_length_choice',
-                                        tooltip_id="faq_param_prot_length_choice",
+                                        input_id='eqchoice_prot_length',
+                                        tooltip_id="eqchoice_faq_prot_length",
                                         tooltip_text=t("tooltips.prot_length"),
                                         input_type='number',
                                         input_value=t("default_input_value.prot_length")),
 
                 input_case_with_tooltip(child=t("labels.epitope"),
-                                        input_id='param_suntag_length_choice',
-                                        tooltip_id="faq_param_suntag_length_choice",
+                                        input_id='eqchoice_epitope_length',
+                                        tooltip_id="eqchoice_faq_epitope_length",
                                         tooltip_text=t("tooltips.suntag_length"),
                                         input_type='number',
                                         input_value=t("default_input_value.suntag_length")),
 
                 input_case_with_tooltip(child=t("labels.nb_stemloop"),
-                                        input_id='param_nb_suntag_choice',
-                                        tooltip_id="faq_param_nb_suntag_choice",
+                                        input_id='eqchoice_epitope_repeat',
+                                        tooltip_id="eqchoice_faq_epitope_repeat",
                                         tooltip_text=t("tooltips.nb_stemloop"),
                                         input_type='number',
                                         input_value=t("default_input_value.nb_stemloop")),
 
                 input_case_with_tooltip(child=t("labels.estimate_elongation_rate"),
-                                        input_id='param_elongation_rate_choice',
-                                        tooltip_id="faq_param_translation_rate_choice",
+                                        input_id='eqchoice_elongation_rate',
+                                        tooltip_id="eqchoice_faq_elongation_rate",
                                         tooltip_text=t("tooltips.elongation_rate"),
                                         input_type='number',
                                         input_value=t("default_input_value.elongation_rate")),
 
                 input_case_with_tooltip(child=t("labels.estimate_initiation_rate"),
-                                        input_id='param_initiation_rate_choice',
-                                        tooltip_id="faq_param_initiation_rate_choice",
+                                        input_id='eqchoice_initiation_rate',
+                                        tooltip_id="eqchoice_faq_initiation_rate",
                                         tooltip_text=t("tooltips.initiation_rate"),
                                         input_type='number',
                                         input_value=t("default_input_value.initiation_rate")),
 
                 input_case_with_tooltip(child=t("labels.tau"),
-                                        input_id='param_tau_choice',
-                                        tooltip_id="faq_param_dt_choice",
+                                        input_id='eqchoice_tau',
+                                        tooltip_id="eqchoice_faq_tau",
                                         tooltip_text=t("tooltips.tau"),
                                         input_type='number',
                                         input_value=t("default_input_value.tau")),
@@ -76,18 +76,18 @@ def layout():
                 html.Br(),
                 html.Br(),
                 dbc.Row([
-                    button(t("button.show_contribution"), id_='show-contribution-btn')
+                    button(t("button.show_contribution"), id_='eqchoice_button_display')
                 ]),
             ], width=4),
 
             # Show plot contribution
             dbc.Col([
-                dcc.Graph(id='equation-plot'),
+                dcc.Graph(id='eqchoice_plot'),
 
             ], width=8)
         ]),
         dbc.Row([
-            dcc.Graph(id="equation-curve"),
+            dcc.Graph(id="eqchoice_curve"),
         ]),
     ]),
     )
