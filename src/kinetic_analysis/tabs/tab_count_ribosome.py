@@ -27,7 +27,7 @@ def layout():
                     dbc.Row([
                         dbc.Col([
                             dcc.Upload(
-                                id='browse_directory_single_prot',
+                                id='countrib_browse_single_prot',
                                 children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
@@ -35,7 +35,7 @@ def layout():
                         dbc.Col([
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_single_prot")],
+                                    html.Div(id="countrib_load_single_prot")],
                                 size="sm",
                                 color="primary",
                                 type="border",
@@ -43,12 +43,12 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-single_prot'),
+                    html.Div(id='countrib_select_single_prot'),
                 ]),
 
                 html.Br(),
                 html.Label("Single protein fluorescence dataFrame visualisation"),
-                html.Div(id="table_container_single", children=[]),
+                html.Div(id="countrib_table_container_single_prot", children=[]),
                 html.Br(),
             ], width=6),
 
@@ -61,7 +61,7 @@ def layout():
                     dbc.Row([
                         dbc.Col([
                             dcc.Upload(
-                                id='browse_directory_polysome',
+                                id='countrib_browse_polysome',
                                 children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
@@ -69,7 +69,7 @@ def layout():
                         dbc.Col([
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_polysome")],
+                                    html.Div(id="countrib_load_polysome")],
                                 size="lm",  # "sm"
                                 color="primary",
                                 type="border",
@@ -77,12 +77,12 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-polysome'),
+                    html.Div(id='countrib_select_polysome'),
                 ]),
 
                 html.Br(),
                 html.Label("Polysome fluorescence dataFrame visualisation"),
-                html.Div(id="table_container_polysome", children=[]),
+                html.Div(id="countrib_table_container_polysome", children=[]),
 
             ], width=6),
         ]),
@@ -94,14 +94,14 @@ def layout():
         # Define parameter of the simulation
         dbc.Row([
             dbc.Col([input_case_with_tooltip(child=t("labels.prot"),
-                                             input_id='param_prot_length_rib',
-                                             tooltip_id="faq_param_prot_length_count_rib",
+                                             input_id='countrib_prot_length',
+                                             tooltip_id="countrib_faq_prot_length",
                                              tooltip_text=t("tooltips.prot_length"),
                                              input_type='number',
                                              input_value=t("default_input_value.prot_length")),
                     input_case_with_tooltip(child=t("labels.epitope"),
-                                            input_id='param_suntag_length_rib',
-                                            tooltip_id="faq_param_suntag_length",
+                                            input_id='countrib_epitope_length',
+                                            tooltip_id="countrib_faq_epitope_length",
                                             tooltip_text=t("tooltips.suntag_length"),
                                             input_type='number',
                                             input_value=t("default_input_value.suntag_length")),
@@ -110,21 +110,21 @@ def layout():
 
             # Calculate ribosome density
             dbc.Col(button(child=t("button.density"),
-                           id_='btn_calculate_ribosome_density',
+                           id_='countrib_button_calculate',
                            classname="mr-1"),
                     width=5)
 
         ]),
-        html.Div(id='output_ribosome_density'),
-        dcc.Download(id="download_csv"),
+        html.Div(id='countrib_output'),
+        dcc.Download(id="countrib_download_csv"),
         dbc.Row([
             dbc.Col(children=[
-                dcc.Graph(id='ribosome-plot'),
+                dcc.Graph(id='countrib_display_plot'),
                 ]),
         ]),
         dbc.Row([
             dbc.Col(children=[
-                dcc.Graph(id='ribosome-density-plot'),
+                dcc.Graph(id='countrib_display_density_plot'),
                 ]),
             ]),
     ]),

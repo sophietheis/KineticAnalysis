@@ -17,13 +17,13 @@ logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
-        Output('selected-file-output-single_prot', 'children'),
-        Output("table_container_single", "children"),
-        Output('loading_data_single_prot', 'children'),
-        Input('browse_directory_single_prot', 'contents'),
+        Output('countrib_select_single_prot', 'children'),
+        Output("countrib_table_container_single_prot", "children"),
+        Output('countrib_load_single_prot', 'children'),
+        Input('countrib_browse_single_prot', 'contents'),
         State('session-id', 'data'),
     )
-    def browse_directory_single_prot(contents, session_id):
+    def countrib_browse_single_prot(contents, session_id):
         df, output = upload_csv(contents, session_id, "csv_fluo_single")
         if df is None:
             return output, None, None
@@ -50,13 +50,13 @@ def register_callbacks(app):
                  } for i in selected_columns]
 
     @app.callback(
-        Output('selected-file-output-polysome', 'children'),
-        Output("table_container_polysome", "children"),
-        Output('loading_data_polysome', 'children'),
-        Input('browse_directory_polysome', 'contents'),
+        Output('countrib_select_polysome', 'children'),
+        Output("countrib_table_container_polysome", "children"),
+        Output('countrib_load_polysome', 'children'),
+        Input('countrib_browse_polysome', 'contents'),
         State('session-id', 'data'),
     )
-    def browse_directory_polysome(contents, session_id):
+    def countrib_browse_polysome(contents, session_id):
         df, output = upload_csv(contents, session_id, "csv_fluo_polysome")
         if df is None:
             return output, None, None
@@ -82,14 +82,14 @@ def register_callbacks(app):
                  } for i in selected_columns]
 
     @app.callback(
-        Output('ribosome-plot', 'figure'),
-        Output('ribosome-density-plot', 'figure'),
-        Output('output_ribosome_density', 'children'),
-        Output('download_csv', 'data'),
-        Input('btn_calculate_ribosome_density', 'n_clicks'),
+        Output('countrib_display_plot', 'figure'),
+        Output('countrib_display_density_plot', 'figure'),
+        Output('countrib_output', 'children'),
+        Output('countrib_download_csv', 'data'),
+        Input('countrib_button_calculate', 'n_clicks'),
         State('session-id', 'data'),
-        State('param_prot_length_rib', 'value'),
-        State('param_suntag_length_rib', 'value'),
+        State('countrib_prot_length', 'value'),
+        State('countrib_epitope_length', 'value'),
     )
     def calculate_density(n_clicks, session_id, *params):
         """
