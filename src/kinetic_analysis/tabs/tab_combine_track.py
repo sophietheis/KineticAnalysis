@@ -21,7 +21,7 @@ def layout():
                     dbc.Row([
                         dbc.Col(children=[
                             dcc.Upload(
-                                id='browse_directory_combine',
+                                id='combine_browse_directoy',
                                 children=button(t("button.upload_csv")),
                                 multiple=False,
                             ),
@@ -29,7 +29,7 @@ def layout():
                         dbc.Col(children=[
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_combine")],
+                                    html.Div(id="combine_loading_data")],
                                 size="sm",
                                 color="primary",
                                 type="border",
@@ -37,13 +37,13 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-combine'),
+                    html.Div(id='combine_output_file'),
                 ]),
             ], width=3),
 
             dbc.Col(children=[
                 html.Label("DataFrame Visualisation"),
-                html.Div(id="table-container_combine", children=[]),
+                html.Div(id="combine_table_container", children=[]),
             ], width=9)
         ]),
 
@@ -62,13 +62,13 @@ def layout():
         dbc.Row([
             # nb track in the combined track
             dbc.Col(input_case(child="How many tracks in the combined tracks?",
-                               input_id='nb_tracks',
+                               input_id='combine_nb_tracks',
                                input_type='number',
                                input_value="2")),
 
             # number of new tracks created
             dbc.Col(input_case(child="How many new track created ?",
-                               input_id='nb_new_tracks',
+                               input_id='combine_nb_new_tracks',
                                input_type='number',
                                input_value="10")),
         ]),
@@ -78,16 +78,16 @@ def layout():
         dbc.Row([
             html.Div([
                 dbc.Col(children=[
-                    dcc.Store(id="start2", data=""),
-                    dcc.Store(id="complete2", data=""),
+                    dcc.Store(id="combine_start", data=""),
+                    dcc.Store(id="combine_complete", data=""),
                     dbc.Button(dbc.Spinner(
                         html.Span(children="Combine tracks",
-                                  id="loading_combination")),
-                        id="combine-tracks-btn"),
+                                  id="combine_loading")),
+                        id="combine_button_combine"),
                 ], width=3),
             ]),
-            html.Div(id='combine-tracks-output'),
-            dcc.Download(id="download-csv3"),
+            html.Div(id='combine_output_tracks'),
+            dcc.Download(id="combine_download_csv"),
         ]),
 
     )

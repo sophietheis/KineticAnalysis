@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 def register_callbacks(app):
     @app.callback(
-        Output('selected-file-output-combine', 'children'),
-        Output("table-container_combine", "children"),
-        Output('loading_data_combine', 'children'),
+        Output('combine_output_file', 'children'),
+        Output("combine_table_container", "children"),
+        Output('combine_loading_data', 'children'),
         Output('nb_tracks_init', 'children'),
-        Input('browse_directory_combine', 'contents'),
+        Input('combine_browse_directoy', 'contents'),
         State('session-id', 'data'),
         prevent_initial_call=True,
     )
-    def browse_directory_combine(contents, session_id):
+    def combine_browse_directoy(contents, session_id):
         df, output = upload_csv(contents, session_id, "csv_to_combine")
         if df is None:
             return output, None, None, None
@@ -33,15 +33,15 @@ def register_callbacks(app):
         return None, table, None, nb_track
 
     @app.callback(
-        Output('combine-tracks-output', 'children'),
-        Output('download-csv3', 'data'),
-        Output("loading_combination", "children"),
-        Output("complete2", "data"),
-        Input("combine-tracks-btn", "n_clicks"),
-        Input("start2", "data"),
+        Output('combine_output_tracks', 'children'),
+        Output('combine_download_csv', 'data'),
+        Output("combine_loading", "children"),
+        Output("combine_complete", "data"),
+        Input("combine_button_combine", "n_clicks"),
+        Input("combine_start", "data"),
         State('session-id', 'data'),
-        State('nb_tracks', "value"),
-        State('nb_new_tracks', "value"),
+        State('combine_nb_tracks', "value"),
+        State('combine_nb_new_tracks', "value"),
 
     )
     def create_tracks(n_clicks, data, session_id, *params):
