@@ -31,39 +31,39 @@ def layout():
         dbc.Row([
             dbc.Col([
                 input_case(child=t("labels.prot"),
-                           input_id="param_prot_length_acquisition",
+                           input_id="acquisition_prot_length",
                            input_type='number',
                            input_value=t("default_input_value.prot_length")),
 
                 input_case(child=t("labels.epitope"),
-                           input_id="param_suntag_length_acquisition",
+                           input_id="acquisition_epitope_length",
                            input_type='number',
                            input_value=t("default_input_value.suntag_length")),
 
                 input_case(child=t("labels.nb_stemloop"),
-                           input_id="param_stem_loops_acquisition",
+                           input_id="acquisition_epitope_repeat",
                            input_type='number',
                            input_value=t("default_input_value.nb_stemloop")),
 
                 html.Br(),
 
                 input_case(child=t("labels.elongation_rate"),
-                           input_id="param_translation_rate_acquisition",
+                           input_id="acquisition_elongation_rate",
                            input_type='number',
                            input_value=t("default_input_value.elongation_rate")),
 
                 input_case(child=t("labels.nb_prot"),
-                           input_id="param_full_translated_protein_acquisition",
+                           input_id="acquisition_prot_repeat",
                            input_type='number',
                            input_value=t("default_input_value.nb_prot")),
 
                 html.Br(),
                 button(child=t("button.acquisition"),
-                       id_='btn_calculate_acquisition'),
+                       id_='acquisition_button_calcul'),
             ], width=5),
 
             dbc.Col([
-                html.Div(id='output_acquisition'),
+                html.Div(id='acquisition_output'),
             ])
         ]),
 

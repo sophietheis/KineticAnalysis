@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 def register_callbacks(app):
 
     @app.callback(
-        Output('output_acquisition', 'children'),
-        Input('btn_calculate_acquisition', 'n_clicks'),
-        State('param_prot_length_acquisition', 'value'),
-        State('param_suntag_length_acquisition', 'value'),
-        State('param_translation_rate_acquisition', 'value'),
-        State('param_full_translated_protein_acquisition', 'value'),
-        State('param_stem_loops_acquisition', 'value'),
+        Output('acquisition_output', 'children'),
+        Input('acquisition_button_calcul', 'n_clicks'),
+        State('acquisition_prot_length', 'value'),
+        State('acquisition_epitope_length', 'value'),
+        State('acquisition_elongation_rate', 'value'),
+        State('acquisition_prot_repeat', 'value'),
+        State('acquisition_epitope_repeat', 'value'),
     )
     def calculate_acquisition(n_clicks, *params):
         """
