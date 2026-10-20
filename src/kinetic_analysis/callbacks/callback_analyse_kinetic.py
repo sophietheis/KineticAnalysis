@@ -12,7 +12,8 @@ from .utils import generate_table, resolve_solver_method, empty_error_figure
 from ..session_store import get_session_data, set_session_data
 from ..tabs.app_function import (upload_csv)
 from ..analysis.analysis_track import (single_track_analysis,
-                                       check_track_validity)
+                                       check_track_validity, 
+                                       autocurve_analysis)
 from ..analysis.fit_functions import (function_exact,
                                       function_approx,
                                       function_epitope)
@@ -40,8 +41,8 @@ def register_callbacks(app):
         return None, table, None
 
     @app.callback(
-        Output("choosen-solver1", "children"),
-        Input('choose-solver1', 'value'),
+        Output("analysisk_choosen_solver", "children"),
+        Input('analysisk_select_solver', 'value'),
         State('session-id', 'data'),
         prevent_initial_call=True,
     )
@@ -119,6 +120,10 @@ def register_callbacks(app):
                 if valid or force_analysis:
                     if force_analysis:
                         str_output_force = "Analysis has been forced!"
+                    if params[13] == "Constrained":
+                        c = True
+                    else:
+                        c = False
                     (x_auto,
                      y_auto,
                      k, c,
@@ -130,9 +135,10 @@ def register_callbacks(app):
                                                    protein_size=prot_length,
                                                    suntag_size=suntag_length,
                                                    repetition_suntag=repetition_suntag,
-                                                   mm=None,
+                                                   mm=8,
                                                    normalise_auto=True,
                                                    method=method,
+                                                   constraint=c,
                                                    simulation=False,
                                                    mean_n_ribosome=int(params[11]),
                                                    footprint=int(params[12]),
@@ -192,10 +198,13 @@ def register_callbacks(app):
         State('col_intensity_kinetic', 'value'),
         State('dt-param-vivo_kinetic', 'value'),
         State('prot-length-param-vivo_kinetic', 'value'),
-        State('suntag-length-param-vivo_kinetic', 'value'),
-        State('repetition-suntag-param-vivo_kinetic', 'value'),
+        State('epitope-length-param-vivo_kinetic', 'value'),
+        State('repetition-epitope-param-vivo_kinetic', 'value'),
         State("missing_point_param_vivo_kinetic", 'value'),
         State("switches_force_analysis_kinetic", "value"),
+        State("analysisk_choose_constraint", "value"),
+        State("analysisk_switches_combine_autocorr", "value"),
+
         State('save-results-name-vivo', 'value'),
         # State('checkbox_simu', 'value') #9
     )
@@ -225,77 +234,146 @@ def register_callbacks(app):
                 # check_simu = 'checked' in params[9]
 
                 # Check solver
-                method = resolve_solver_method(app)
+                method = resolve_solver_method(session_id)
+                if params[9] == "Constrained":
+                    c = True
+                else:
+                    c = False
 
                 ids_track = np.unique(df["TRACK_ID"])
                 first_time = True
-                # Analyse all tracks and save it
-                for i in ids_track:
-                    logger.debug("Analysing track %s", i)
 
-                    k = np.nan
-                    c = np.nan
-                    elongation_r = np.nan
-                    translation_init_r = np.nan
-                    perr0 = np.nan
-                    perr1 = np.nan
-                    comment = ""
+                if params[10]:
+                    save_x_auto = [1]
+                    df_gtau = pd.DataFrame()
 
-                    datas2 = df[(df["TRACK_ID"] == i)]
+                    # Analyse all tracks and save it
+                    for i in ids_track:
+                        logger.debug("Analysing track %s", i)
 
-                    (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
-                                                                       i,
-                                                                       normalise_intensity=1,
-                                                                       delta_t=dt,
-                                                                       rtol=1e-1,
-                                                                       nb_missing_point=nb_missing_point,
-                                                                       )
-                    length = len(x_fix)
+                        k = np.nan
+                        c = np.nan
+                        elongation_r = np.nan
+                        translation_init_r = np.nan
+                        perr0 = np.nan
+                        perr1 = np.nan
+                        comment = ""
 
-                    if valid or force_analysis:
-                        if force_analysis:
-                            comment = "analysis forced"
-                        (x_auto,
-                         y_auto,
-                         k, c,
-                         elongation_r,
-                         translation_init_r,
-                         [perr0, perr1]) = single_track_analysis(x_fix,
-                                                                 y_fix,
-                                                                 delta_t=dt,
-                                                                 protein_size=prot_length,
-                                                                 suntag_size=suntag_length,
-                                                                 repetition_suntag=repetition_suntag,
-                                                                 mm=None,
-                                                                 normalise_auto=True,
-                                                                 method=method,
-                                                                 simulation=False,
-                                                                 )
+                        datas2 = df[(df["TRACK_ID"] == i)]
 
-                        logger.debug("Track %s -> k=%s c=%s elongation_r=%s "
-                                     "translation_init_r=%s", i, k, c,
-                                     elongation_r, translation_init_r)
+                        (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
+                                                                        i,
+                                                                        normalise_intensity=1,
+                                                                        delta_t=dt,
+                                                                        rtol=1e-1,
+                                                                        nb_missing_point=nb_missing_point,
+                                                                        )
+                        length = len(x_fix)
 
-                    # Populate the dataframe
-                    if first_time:
-                        results = pd.DataFrame({
-                                                "id": i,
-                                                "dt": dt,
-                                                "length": length,
-                                                "k": k,
-                                                "c": c,
-                                                "elongation_r": elongation_r,
-                                                "init_translation_r": translation_init_r,
-                                                "perr0": perr0,
-                                                "perr1": perr1,
-                                                "comment": comment},
-                                               index=[0])
-                        first_time = False
+                        if valid or force_analysis:
+                            if force_analysis:
+                                comment = "analysis forced"
 
-                    else:
-                        results = pd.concat([results,
-                                             pd.DataFrame(
-                                                 {
+                            (x_auto,
+                             y_auto,
+                             k, c,
+                             elongation_r,
+                             translation_init_r,
+                             [perr0, perr1]) = single_track_analysis(x_fix,
+                                                                     y_fix,
+                                                                     delta_t=dt,
+                                                                     protein_size=prot_length,
+                                                                     suntag_size=suntag_length,
+                                                                     repetition_suntag=repetition_suntag,
+                                                                     mm=8,
+                                                                     normalise_auto=True,
+                                                                     method=method,
+                                                                     constraint=c,
+                                                                     simulation=False,
+                                                                     )
+                            df_gtau = pd.concat([df_gtau, pd.DataFrame(y_auto)], axis=1, ignore_index=True)
+                            if len(save_x_auto) < len(x_auto):
+                                save_x_auto = x_auto
+                    
+                    (k, c,
+                     elongation_r,
+                     translation_init_r,
+                     [perr0, perr1]) = autocurve_analysis(save_x_auto,
+                                                          df_gtau.mean(axis=1),
+                                                          delta_t=dt,
+                                                          protein_size=prot_length,
+                                                          suntag_size=suntag_length,
+                                                          repetition_suntag=repetition_suntag,
+                                                          method=method,
+                                                          constraint=c,
+                                                          )
+                    results = pd.DataFrame({
+                                            "id": "all_tracks",
+                                            "dt": dt,
+                                            "length": len(save_x_auto),
+                                            "k": k,
+                                            "c": c,
+                                            "elongation_r": elongation_r,
+                                            "init_translation_r": translation_init_r,
+                                            "perr0": perr0,
+                                            "perr1": perr1,
+                                            "comment": comment},
+                                            index=[0])
+                    output_path = params[-1] + ".csv"
+                    results.to_csv(output_path, index=False)
+
+                else:
+                    # Analyse all tracks and save it
+                    for i in ids_track:
+                        logger.debug("Analysing track %s", i)
+
+                        k = np.nan
+                        c = np.nan
+                        elongation_r = np.nan
+                        translation_init_r = np.nan
+                        perr0 = np.nan
+                        perr1 = np.nan
+                        comment = ""
+
+                        datas2 = df[(df["TRACK_ID"] == i)]
+
+                        (valid, x, y, x_fix, y_fix) = check_track_validity(datas2,
+                                                                        i,
+                                                                        normalise_intensity=1,
+                                                                        delta_t=dt,
+                                                                        rtol=1e-1,
+                                                                        nb_missing_point=nb_missing_point,
+                                                                        )
+                        length = len(x_fix)
+
+                        if valid or force_analysis:
+                            if force_analysis:
+                                comment = "analysis forced"
+                            (x_auto,
+                             y_auto,
+                             k, c,
+                             elongation_r,
+                             translation_init_r,
+                             [perr0, perr1]) = single_track_analysis(x_fix,
+                                                                     y_fix,
+                                                                     delta_t=dt,
+                                                                     protein_size=prot_length,
+                                                                     suntag_size=suntag_length,
+                                                                     repetition_suntag=repetition_suntag,
+                                                                     mm=8,
+                                                                     normalise_auto=True,
+                                                                     method=method,
+                                                                     constraint=c,
+                                                                     simulation=False,
+                                                                     )
+
+                            logger.debug("Track %s -> k=%s c=%s elongation_r=%s "
+                                         "translation_init_r=%s", i, k, c,
+                                         elongation_r, translation_init_r)
+
+                        # Populate the dataframe
+                        if first_time:
+                            results = pd.DataFrame({
                                                     "id": i,
                                                     "dt": dt,
                                                     "length": length,
@@ -306,11 +384,28 @@ def register_callbacks(app):
                                                     "perr0": perr0,
                                                     "perr1": perr1,
                                                     "comment": comment},
-                                                 index=[0])
-                                             ], ignore_index=True)
+                                                index=[0])
+                            first_time = False
 
-                output_path = params[-1] + ".csv"
-                results.to_csv(output_path, index=False)
+                        else:
+                            results = pd.concat([results,
+                                                pd.DataFrame(
+                                                    {
+                                                        "id": i,
+                                                        "dt": dt,
+                                                        "length": length,
+                                                        "k": k,
+                                                        "c": c,
+                                                        "elongation_r": elongation_r,
+                                                        "init_translation_r": translation_init_r,
+                                                        "perr0": perr0,
+                                                        "perr1": perr1,
+                                                        "comment": comment},
+                                                    index=[0])
+                                                ], ignore_index=True)
+
+                    output_path = params[-1] + ".csv"
+                    results.to_csv(output_path, index=False)
 
                 return ("Analysis completed and saved successfully!",
                         None,

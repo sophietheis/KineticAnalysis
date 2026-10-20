@@ -11,9 +11,9 @@ from kineticanalysis.tabs.tab_utils import (button,
 
 def layout():
     items_solver = ["",
+                    "Epitope equation",
                     "Exact equation",
-                    "Approximate equation",
-                    "Approximate epitope",
+                    "Post-epitope equation",
                     # "linear fit",
                     ]
 
@@ -102,7 +102,7 @@ def layout():
         dbc.Row([
             dbc.Col([
                 dbc.Select(options=items_solver,
-                           id="choose-solver1",
+                           id="analysisk_select_solver",
                            className="mr-2",
                            style={"width": 250}, ),
 
@@ -110,7 +110,14 @@ def layout():
                 # Put here the chosen equation
                 html.P(children="The chosen solver is: ",
                        className="mb-0"),
-                html.Div(id="choosen-solver1"),
+                html.Div(id="analysisk_choosen_solver"),
+
+                html.Br(),
+                html.P(children=t("tab_analysis.constraint"),),
+                dbc.Select(options=["Unconstrained", "Constrained",],
+                           id="analysisk_choose_constraint",
+                           className="mr-2",
+                           style={"width": 250},),
 
             ], width=3),
 
@@ -141,8 +148,8 @@ def layout():
                            input_value=t("default_input_value.dt_analysis")),
             ]),
             dbc.Col([
-                input_case_with_tooltip(child=t("labels.suntag"),
-                                        input_id='suntag-length-param-vivo_kinetic',
+                input_case_with_tooltip(child=t("labels.epitope"),
+                                        input_id='epitope-length-param-vivo_kinetic',
                                         tooltip_id="faq_suntag_length",
                                         tooltip_text=t("tooltips.suntag_length"),
                                         input_type='number',
@@ -170,7 +177,7 @@ def layout():
             ]),
             dbc.Col([
                 input_case_with_tooltip(child=t("labels.nb_stemloop"),
-                                        input_id='repetition-suntag-param-vivo_kinetic',
+                                        input_id='repetition-epitope-param-vivo_kinetic',
                                         tooltip_id="faq_suntag_number",
                                         tooltip_text=t("tooltips.nb_stemloop"),
                                         input_type='number',
@@ -263,27 +270,35 @@ def layout():
             dbc.Col(children=[
                 html.H5(children="Analyse all tracks",
                         style={"text-align": "center"}),
-                dbc.Row([
-                    input_case(child=t("labels.filename"),
-                               input_id='save-results-name-vivo',
-                               input_type='number',
-                               input_value=t("default_input_value.filename_results")),
+                dbc.Col([
+                    dbc.Checklist(options=[{"label": "Combine autocorrelation curves for all tracks",
+                                            "value": 0}],
+                                  id="analysisk_switches_combine_autocorr",
+                                  switch=False, ),
                 ]),
-                dbc.Row(children=[
-                    dbc.Col(children=[
-                        button(child='Analyse ALL Tracks',
-                               id_='start-analyze-btn-vivo',
-                               width="300px"),
-                    ], width="auto"),
+                dbc.Col([
+                    dbc.Row([
+                        input_case(child=t("labels.filename"),
+                                   input_id='save-results-name-vivo',
+                                   input_type='number',
+                                   input_value=t("default_input_value.filename_results")),
+                    ]),
+                    dbc.Row(children=[
+                        dbc.Col(children=[
+                            button(child='Analyse ALL Tracks',
+                                id_='start-analyze-btn-vivo',
+                                width="300px"),
+                        ], width="auto"),
 
-                    dbc.Col(children=[
-                        dbc.Spinner(
-                            children=[html.Div(id="loading_analysis_vivo")],
-                            size="sm", color="primary", type="border",
-                            spinner_style={"margin-left": "10px"}
-                        )
-                    ], width="auto"),
-                ], align="center", style={"margin-top": "10px"}),
+                        dbc.Col(children=[
+                            dbc.Spinner(
+                                children=[html.Div(id="loading_analysis_vivo")],
+                                size="sm", color="primary", type="border",
+                                spinner_style={"margin-left": "10px"}
+                            )
+                        ], width="auto"),
+                    ], align="center", style={"margin-top": "10px"}),
+                ]),
                 html.Div(id='analyze-output-vivo'),
                 dcc.Download(id="download-csv"),
             ], style={'border': 'ridge',

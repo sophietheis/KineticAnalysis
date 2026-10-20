@@ -15,17 +15,18 @@ from .analyse_density import estimate_density
 
 logger = logging.getLogger(__name__)
 
+
 def correct_elongation_rate(k_fit, rho_bar):
     """
     Correct the elongation rate for ribosome queuing using the mean occupancy
-    Is this really working ? 
+    Is this really working ?
 
     Parameters
     ----------
     k_fit : float
         fitted elongation rate
     rho_bar : float
-        mean occupancy of the mRNA  
+        mean occupancy of the mRNA
 
     Returns
     -------
@@ -37,6 +38,7 @@ def correct_elongation_rate(k_fit, rho_bar):
         return np.nan
     return k_fit / (1 - rho_bar)
 
+
 def correct_initiation_rate(c_fit, rho_bar):
     """
     Correct the initiation rate for ribosome queuing using the mean occupancy
@@ -46,17 +48,18 @@ def correct_initiation_rate(c_fit, rho_bar):
     c_fit : float
         fitted initiation rate
     rho_bar : float
-        mean occupancy of the mRNA  
+        mean occupancy of the mRNA
 
     Returns
     -------
     c_true : float
-        corrected initiation rate   
+        corrected initiation rate
 
     """
     if rho_bar is None or rho_bar >= 1:
         return np.nan
     return c_fit / (1 - rho_bar)
+
 
 def autocorrelation(y, delta_t=0.5, normalize=True, mm=None):
     """
@@ -139,15 +142,153 @@ def fit_autocorrelation_approx(x, y, method='lm'):
     method : method of fit resolution
     """
 
-    popt, pcov = optimize.curve_fit(function_approx,
-                                    x,
-                                    y,
-                                    method=method)
+    if method == "lm":
+        popt, pcov = optimize.curve_fit(function_approx,
+                                        x,
+                                        y,
+                                        method=method
+                                        )
+    elif method == "trf":
+        p0 = [x[-1] / 2, 1.0]
+        bounds = ([0, 1e-12], [np.inf, np.inf])
+        popt, pcov = optimize.curve_fit(function_approx,
+                                        x,
+                                        y,
+                                        p0=p0,
+                                        bounds=bounds,
+                                        method=method
+                                        )
 
     # elongation_r = protein_size / popt[0]
     # translation_init_r = 1 / popt[1]
     # return elongation_r, translation_init_r, np.sqrt(np.diag(pcov))
     return popt[0], popt[1], np.sqrt(np.diag(pcov))
+
+
+def autocurve_analysis(x_auto,
+                       y_auto,
+                       delta_t=0.5,
+                       protein_size=1500,
+                       suntag_size=800,
+                       repetition_suntag=32,
+                       method="exact",
+                       constraint=None,
+                       mean_n_ribosome=None,
+                       footprint=10,
+                       correct_queuing=False, 
+                       ):
+    """
+    Analysis of one track inside a dataframe.
+
+    Parameters
+    ----------
+    x : pd.df
+        dataframe that contains tracks
+    y : int
+        id of the track that will be analysed
+    delta_t : float
+        time between two time point in sec
+    protein_size: int
+        size of the protein (+ epitope) in amino acid
+    normalise_intensity : float
+        value used for normalised the intensity, default value : 1
+    normalise_auto : bool
+        normalise for the autocorrelation.  normalise the result to the
+        square of the average input signal and the factor M-k, default
+        value : True
+    mm : int
+        defines the number of points on one level, must be an even integer,
+        default value : None
+    rtol : float
+        to check if time is continuous , default value : 1e-4
+    method : str
+        choose the method of the analysis, "linear" or "original"
+    force_analysis : bool
+        force the analysis even if criteria not reach, default value : False
+    simulation : bool
+        define if the track come from a simulation (True) or an experiment
+        (False), default value : False
+    func_ : function
+        contains the function that is used for the fit
+
+    Returns
+    -------
+    x : np.array
+        list of time point of the track
+    y : np.array
+        list of fluorescent intensity of the track
+    x_auto : np.array
+        list of time point of the autocorrelation
+    y_auto : np.array
+        list of G(t) of the autocorrelation
+    elongation_r : float
+        estimate elongation rate
+    translation_init_r : float
+        estimate translation_rate
+    perr : float
+        estimate error
+
+    Description
+    -----------
+    This function analyse one track to extract the estimate elongation and
+    initiation rates.
+    Columns names needs to be:
+    - "TRACK_ID", to extract one track with its ID
+    - "FRAME", list of int corresponding to the i time point
+    - "MEAN_INTENSITY_CH1", correspond to the fluorescence intensity
+    if the dataframe doesn't have these names, use rename_columns function
+    to rename column(s).
+    :param suntag_size:
+    :type suntag_size:
+    """
+
+    one_suntag_size = (int(suntag_size/repetition_suntag))
+    M = int(protein_size/one_suntag_size)
+    N = repetition_suntag
+    # Apply the method of analysis
+    if method == "exact":
+        (k, c, perr) = fit_autocorrelation_exact(x_auto,
+                                                 y_auto,
+                                                 N=N,
+                                                 M=M)
+        elongation_r = k*(suntag_size/repetition_suntag)
+        translation_init_r = c
+
+    elif method == "approx":
+        if constraint:
+            approx_method = "trf"
+        else:
+            approx_method = "lm"
+        (k, c, perr) = fit_autocorrelation_approx(x_auto,
+                                                  y_auto,
+                                                  method=approx_method)
+
+        elongation_r = M/k*one_suntag_size
+        # translation_init_r = (1 / (c * k))
+        translation_init_r = c
+    elif method == "epitope":
+        (k, c, perr) = fit_autocorrelation_epitope(x_auto,
+                                                   y_auto,
+                                                   N=N)
+
+        elongation_r = k*one_suntag_size
+        # translation_init_r = (1 / (c * k))
+        translation_init_r = c
+    else:
+        # print("No method choose")
+        logger.warning("No valid fit method chosen: %r", method)
+
+        (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
+                                                          np.nan, np.nan,
+                                                          [np.nan, np.nan])
+    if correct_queuing:
+        if mean_n_ribosome is None:
+            raise ValueError("mean_n_ribosome must be provided when correct_queuing=True")
+        rho_bar = estimate_density(mean_n_ribosome, protein_size, suntag_size, footprint)
+        elongation_r = correct_elongation_rate(elongation_r, rho_bar)
+        translation_init_r = correct_initiation_rate(translation_init_r, rho_bar)
+
+    return k, c, elongation_r, translation_init_r, perr
 
 
 def single_track_analysis(x,
@@ -159,10 +300,12 @@ def single_track_analysis(x,
                           normalise_auto=True,
                           mm=None,
                           method="exact",
+                          constraint=None,
                           simulation=False,
-                          mean_n_ribosome=None,  
-                          footprint=10,          
-                          correct_queuing=False, ):
+                          mean_n_ribosome=None,
+                          footprint=10,
+                          correct_queuing=False, 
+                          ):
     """
     Analysis of one track inside a dataframe.
 
@@ -247,8 +390,13 @@ def single_track_analysis(x,
         translation_init_r = c
 
     elif method == "approx":
+        if constraint:
+            approx_method = "trf"
+        else:
+            approx_method = "lm"
         (k, c, perr) = fit_autocorrelation_approx(x_auto,
-                                                  y_auto,)
+                                                  y_auto,
+                                                  method=approx_method)
 
         elongation_r = M/k*one_suntag_size
         # translation_init_r = (1 / (c * k))
@@ -264,7 +412,7 @@ def single_track_analysis(x,
     else:
         # print("No method choose")
         logger.warning("No valid fit method chosen: %r", method)
-        
+
         (k, c, elongation_r, translation_init_r, perr) = (np.nan, np.nan,
                                                           np.nan, np.nan,
                                                           [np.nan, np.nan])
