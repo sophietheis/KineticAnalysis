@@ -57,23 +57,28 @@ def register_callbacks(app):
         Output('loading_output3', 'children'),
         Output('loading_track_plot', 'children'),
         Input('analyse_show_button_kinetic', 'n_clicks'),
+        State('session-id', 'data'),
         State('col_track_kinetic', 'value'),
         State('col_time_kinetic', 'value'),
         State('col_intensity_kinetic', 'value'),
         State('dt-param-vivo_kinetic', 'value'),
         State('prot-length-param-vivo_kinetic', 'value'),
-        State('suntag-length-param-vivo_kinetic', 'value'),
-        State('repetition-suntag-param-vivo_kinetic', 'value'),
+        State('epitope-length-param-vivo_kinetic', 'value'),
+        State('repetition-epitope-param-vivo_kinetic', 'value'),
         State('id_track_kinetic', 'value'),
         State("missing_point_param_vivo_kinetic", 'value'),
         State("switches_force_analysis_kinetic", "value"),
         State("switches_correct_queuing_analysis_kinetic", "value"),
         State("rib_occupancy-param-vivo_kinetic", "value"),
         State("rib_footprint-param-vivo_kinetic", "value"),
+        State("analysisk_choose_constraint", "value")
     )
     def analyse_display_track(n_clicks, session_id, *params):
 
         if n_clicks:
+            if get_session_data(session_id, 'csv_to_analyse') is None:
+                return go.Figure(), "", "No CSV file uploaded.", "", "", None
+
             try:
                 str_output_force = ""
                 # get table and rename columns if needed
@@ -101,7 +106,7 @@ def register_callbacks(app):
                 force_analysis = bool(params[9])
 
                 # Check solver
-                method = resolve_solver_method(app)
+                method = resolve_solver_method(session_id)
 
                 valid, x, y, x_fix, y_fix = check_track_validity(datas2,
                                                                  int(params[7]),

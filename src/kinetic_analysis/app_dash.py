@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output, dcc
+from dash import Dash, html, Input, Output, dcc, no_update
 import dash_bootstrap_components as dbc
 
 from kineticanalysis.tabs.tab_introduction import layout as tab0_layout
@@ -33,7 +33,7 @@ from kineticanalysis.callbacks.callback_combine_track import (
 
 # from kineticanalysis.tabs.not_found_404 import layout as not_found_layout
 
-from kineticanalysis.session_store import init_cache
+from kineticanalysis.session_store import init_cache, new_session_id
 from kineticanalysis.utils.logging_config import configure_logging
 
 from kineticanalysis.tabs.tab_utils import color_line
@@ -124,6 +124,17 @@ app.layout = dbc.Container([
     color_line(),
     issue_footer(),
 ])
+
+
+@app.callback(
+    Output('session-id', 'data'),
+    Input('session-id', 'data'),
+)
+def assign_session_id(existing_session_id):
+    """Give each browser tab its own session id, once, on first load."""
+    if existing_session_id:
+        return no_update
+    return new_session_id()
 
 
 @app.callback(
