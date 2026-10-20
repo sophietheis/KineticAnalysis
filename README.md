@@ -18,7 +18,7 @@ _____
 
 # Overview
 
-`Kinetic analysis` is an interactive web application for analysing mRNA translation dynamics using the **SunTag fluorescence system**. Built with [Plotly Dash](https://dash.plotly.com/), it provides a complete, researcher-facing analysis pipeline — from experimental design and synthetic data generation, through kinetic parameter fitting, ribosome counting, and diffusion analysis, to population-level result aggregation.
+`Kinetic analysis` is an interactive web application for analysing mRNA translation dynamics using the **Epitope fluorescence system**. Built with [Plotly Dash](https://dash.plotly.com/), it provides a complete, researcher-facing analysis pipeline — from experimental design and synthetic data generation, through kinetic parameter fitting, ribosome counting, and diffusion analysis, to population-level result aggregation.
 
 `Kinetic analysis` is designed for research scientists studying translation kinetics via live-cell single-molecule fluorescence imaging. No programming experience is required — all analysis is performed through a tab-based graphical interface.
 

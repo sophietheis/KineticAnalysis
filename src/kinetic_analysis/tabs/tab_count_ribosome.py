@@ -99,7 +99,7 @@ def layout():
                                              tooltip_text=t("tooltips.prot_length"),
                                              input_type='number',
                                              input_value=t("default_input_value.prot_length")),
-                    input_case_with_tooltip(child=t("labels.suntag"),
+                    input_case_with_tooltip(child=t("labels.epitope"),
                                             input_id='param_suntag_length_rib',
                                             tooltip_id="faq_param_suntag_length",
                                             tooltip_text=t("tooltips.suntag_length"),

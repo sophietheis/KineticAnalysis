@@ -20,17 +20,17 @@ def generate_profile(prot_length,
     prot_length : int
         length of the protein in amino acid
     suntag_length : int
-        length of the suntag in amino acid
+        length of the epitope in amino acid
     nb_suntag : int
-        number of suntag repetition
+        number of epitope repetition
     fluo_one_suntag : int
-        fluorescence intensity of one suntag
+        fluorescence intensity of one epitope
     translation_rate : int
         translation rate of the protein in aa/sec
     retention_time : float, default 0
         length of time the protein remains on the translation site in sec
     suntag_pos : str, "begin" or "end", default "begin"
-        position of the suntag, before of after the protein
+        position of the epitope, before of after the protein
     step : float, default 0.1
         time step between two point in sec
     noise : bool, default False
@@ -46,14 +46,14 @@ def generate_profile(prot_length,
     Description
     -----------
     This function generate the fluorescent profile of one protein.
-    The profile can have retention time, change the suntag position (before or
+    The profile can have retention time, change the epitope position (before or
     after the protein).
     Time to "create" one protein is :
     $ (prot_length + suntag_length)/translation_rate + retention_time
     The assumption made for the fluorescence profile is there is no
-    fluorescence intensity change during protein creation. During suntag
+    fluorescence intensity change during protein creation. During epitope
     creation, fluorescence intensity increase linearly according to
-    the number of suntag and the translation rate.
+    the number of epitope and the translation rate.
     Examples
     --------
     """
@@ -109,11 +109,11 @@ def generate_one_track(prot_length,
     prot_length : int
         length of the protein in amino acid
     suntag_length : int
-        length of the suntag in amino acid
+        length of the epitope in amino acid
     nb_suntag : int
-        number of suntag repetition
+        number of epitope repetition
     fluo_one_suntag : int
-        fluorescence intensity of one suntag
+        fluorescence intensity of one epitope
     translation_rate : int
         translation rate of the protein in aa/sec
     binding_rate : float
@@ -123,7 +123,7 @@ def generate_one_track(prot_length,
     retention_time : float, default 0
         length of time the protein remains on the translation site in sec
     suntag_pos : str, "begin" or "end", default "begin"
-        position of the suntag, before of after the protein
+        position of the epitope, before of after the protein
     noise : bool, default False
         add noise to the signal
     noise_std : float, default 1
@@ -264,11 +264,11 @@ def generate_tracks(n,
     prot_length : int
         length of the protein in amino acid
     suntag_length : int
-        length of the suntag in amino acid
+        length of the epitope in amino acid
     nb_suntag : int
-        number of suntag repetition
+        number of epitope repetition
     fluo_one_suntag : int
-        fluorescence intensity of one suntag
+        fluorescence intensity of one epitope
     translation_rate : int
         translation rate of the protein in aa/sec
     binding_rate : float
@@ -278,7 +278,7 @@ def generate_tracks(n,
     retention_time : float, default 0
         length of time the protein remains on the translation site in sec
     suntag_pos : str, "begin" or "end", default "begin"
-        position of the suntag, before of after the protein
+        position of the epitope, before of after the protein
     noise : bool, default False
         add noise to the signal
     noise_std : float, default 1

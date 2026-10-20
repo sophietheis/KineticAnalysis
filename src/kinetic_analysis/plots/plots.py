@@ -379,7 +379,7 @@ def plot_ribosome_density(prot_size, suntag_size, rib_density,fig=None):
         fillcolor="blue", opacity=0.5, line_width=0
     )
 
-    fig.add_annotation(x=0,    y=1, text="suntag", showarrow=False,
+    fig.add_annotation(x=0,    y=1, text="epitope", showarrow=False,
                     xanchor="left", font=dict(size=12))
     fig.add_annotation(x=suntag_size, y=1, text="prot",   showarrow=False,
                     xanchor="left", font=dict(size=12))

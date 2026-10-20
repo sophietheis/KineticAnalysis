@@ -15,9 +15,9 @@ def function_exact(x, k, c, N, M):
     c : float
         translation initiation rate
     N : float
-        number of suntag in the protein
+        number of epitope in the protein
     M : float
-        protein size as a number of suntag
+        protein size as a number of epitope
 
     Returns
     -------

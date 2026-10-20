@@ -175,7 +175,7 @@ def single_track_analysis(x,
     delta_t : float
         time between two time point in sec
     protein_size: int
-        size of the protein (+ suntag) in amino acid
+        size of the protein (+ epitope) in amino acid
     normalise_intensity : float
         value used for normalised the intensity, default value : 1
     normalise_auto : bool
@@ -366,21 +366,21 @@ def recommend_acquisition(k_est, protein_length, suntag_length, nb_full_prot=7, 
     protein_length : int
         Length of the protein in amino acids.
     suntag_length : int
-        Length of the suntag in amino acids.
+        Length of the epitope in amino acids.
     nb_full_prot : int, optional
         Number of proteins produced entirely one after the other
     samples_per_ramp : int, optional
-        Number of samples to take during the ramp phase (default is 24). 
-    
+        Number of samples to take during the ramp phase (default is 24).
+
     Returns
     -------
     dict
         A dictionary containing recommended acquisition parameters:
-        - 'tau_c': Total translation time (protein + suntag) / k_est
+        - 'tau_c': Total translation time (protein + epitope) / k_est
         - 'tau_ramp': Translation time for the protein only / k_est
         - 'T_recommended': Total acquisition time to capture nb_full_prot times
         - 'dt_recommended': Recommended time interval between samples
-        - 'dt_nyquist_limit': Nyquist limit for time interval 
+        - 'dt_nyquist_limit': Nyquist limit for time interval
     """
     tau_c = (protein_length + suntag_length) / k_est
     tau_ramp = suntag_length / k_est

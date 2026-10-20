@@ -48,7 +48,7 @@ def estimate_density(mean_n_ribosome, prot_length, suntag_length, footprint=10):
     prot_length : int
         length of the protein in amino acid
     suntag_length : int
-        length of the suntag in amino acid
+        length of the epitope in amino acid
     footprint : int
         ribosome exclusion size in amino acids (default 10)
     Returns

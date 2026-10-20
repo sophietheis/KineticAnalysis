@@ -35,7 +35,7 @@ def layout():
                            input_type='number',
                            input_value=t("default_input_value.prot_length")),
 
-                input_case(child=t("labels.suntag"),
+                input_case(child=t("labels.epitope"),
                            input_id="param_suntag_length_acquisition",
                            input_type='number',
                            input_value=t("default_input_value.suntag_length")),
