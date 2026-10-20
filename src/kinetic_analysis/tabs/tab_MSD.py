@@ -35,7 +35,7 @@ def layout():
                     dbc.Row([
                         dbc.Col([
                             dcc.Upload(
-                                id='browse_directory_msd',
+                                id='msd_browse_directory',
                                 children=button(child=t("button.upload_csv")),
                                 multiple=False,
                             ),
@@ -43,7 +43,7 @@ def layout():
                         dbc.Col([
                             dbc.Spinner(
                                 children=[
-                                    html.Div(id="loading_data_msd")],
+                                    html.Div(id="msd_load_data")],
                                 size="sm",
                                 color="primary",
                                 type="border",
@@ -51,11 +51,11 @@ def layout():
                             )
                         ], width="auto"),
                     ]),
-                    html.Div(id='selected-file-output-msd'),
+                    html.Div(id='msd_select_file'),
                 ]),
 
                 html.Br(),
-                html.Div(id="table_container_msd", children=[]),
+                html.Div(id="msd_container_table", children=[]),
                 html.Br(),
             ], width=6),
 
@@ -68,24 +68,24 @@ def layout():
         dbc.Row([
             # Track ID column name
             dbc.Col(input_case(child="Track id",
-                               input_id='col_ID',
+                               input_id='msd_col_ID',
                                input_type='text',
                                input_value=t("default_input_value.id"))),
             # X column name
             dbc.Col(input_case(child="x",
-                               input_id='col_x',
+                               input_id='msd_col_x',
                                input_type='text',
                                input_value=t("default_input_value.x"))),
 
             # Y column name
             dbc.Col(input_case(child="y",
-                               input_id='col_y',
+                               input_id='msd_col_y',
                                input_type='text',
                                input_value=t("default_input_value.y"))),
 
             # Z column name
             dbc.Col(input_case(child="z",
-                               input_id='col_z',
+                               input_id='msd_col_z',
                                input_type='text',
                                input_value=t("default_input_value.z"))),
         ]),
@@ -95,11 +95,11 @@ def layout():
         dbc.Row([
             dbc.Col([
                 button(child=t("button.msd"),
-                       id_='btn_calculate_MSD',
+                       id_='msd_button_calculate',
                        classname="mr-2"),
             ], width=5)
         ]),
-        html.Div(id='output_MSD'),
-        dcc.Download(id="download_csv_msd"),
+        html.Div(id='msd_output'),
+        dcc.Download(id="msd_download_csv"),
     ]),
     )

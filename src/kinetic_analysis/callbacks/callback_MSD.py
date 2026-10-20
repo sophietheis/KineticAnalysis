@@ -16,13 +16,13 @@ logger = logging.getLogger(__name__)
 ## Callbacks
 def register_callbacks(app):
     @app.callback(
-        Output('selected-file-output-msd', 'children'),
-        Output("table_container_msd", "children"),
-        Output('loading_data_msd', 'children'),
-        Input('browse_directory_msd', 'contents'),
+        Output('msd_select_file', 'children'),
+        Output("msd_container_table", "children"),
+        Output('msd_load_data', 'children'),
+        Input('msd_browse_directory', 'contents'),
         State('session-id', 'data'),
     )
-    def browse_directory_msd(contents, session_id):
+    def msd_browse_directory(contents, session_id):
         df, output = upload_csv(contents, session_id, "csv_msd")
         if df is None:
             return output, None, None
@@ -32,14 +32,14 @@ def register_callbacks(app):
         return None, table, None
 
     @app.callback(
-        Output('output_MSD', 'children'),
-        Output('download_csv_msd', 'data'),
-        Input('btn_calculate_MSD', 'n_clicks'),
+        Output('msd_output', 'children'),
+        Output('msd_download_csv', 'data'),
+        Input('msd_button_calculate', 'n_clicks'),
         State('session-id', 'data'),
-        State('col_ID', 'value'),
-        State('col_x', 'value'),
-        State('col_y', 'value'),
-        State('col_z', 'value'),
+        State('msd_col_ID', 'value'),
+        State('msd_col_x', 'value'),
+        State('msd_col_y', 'value'),
+        State('msd_col_z', 'value'),
     )
     def calculate_msd(n_clicks, session_id, *params):
         """
