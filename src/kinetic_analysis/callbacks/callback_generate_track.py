@@ -17,20 +17,20 @@ logger = logging.getLogger(__name__)
 def register_callbacks(app):
 
     @app.callback(
-        Output('profile-plot', 'figure'),
-        Input('show-profile-btn', 'n_clicks'),
-        State('param_prot_length_gen_track', 'value'),
-        State('param_suntag_length_gen_track', 'value'),
-        State('param_nb_suntag_gen_track', 'value'),
-        State('param_fluo_one_suntag_gen_track', 'value'),
-        State('param_translation_rate_gen_track', 'value'),
-        State('param_initiation_rate_gen_track', 'value'),
-        State('param_retention_time_gen_track', 'value'),
-        State('param_pos_suntag_gen_track', 'value'),
-        State('param_noise_gen_track', 'value'),
-        State('param_dt_gen_track', 'value'),
-        State('param_length_gen_track', 'value'),
-        State('param_footprint_gen_track', 'value'),
+        Output('gentrack_plot_profile', 'figure'),
+        Input('gentrack_button_profile', 'n_clicks'),
+        State('gentrack_prot_length', 'value'),
+        State('gentrack_epitope_length', 'value'),
+        State('gentrack_epitope_repeat', 'value'),
+        State('gentrack_epitope_fluo', 'value'),
+        State('gentrack_elongation_rate', 'value'),
+        State('gentrack_initiation_rate', 'value'),
+        State('gentrack_retention_time', 'value'),
+        State('gentrack_epitope_position', 'value'),
+        State('gentrack_noise', 'value'),
+        State('gentrack_dt', 'value'),
+        State('gentrack_track_length', 'value'),
+        State('gentrack_footprint', 'value'),
     )
     def update_profile_plot(n_clicks, *params):
         """
@@ -83,9 +83,9 @@ def register_callbacks(app):
 
     # make the button works
     @app.callback(
-        Output("start-gen-tracks-btn", "disabled", allow_duplicate=True),
-        Output("start", "data"),
-        Input("start-gen-tracks-btn", "n_clicks"),
+        Output("gentrack_button_start", "disabled", allow_duplicate=True),
+        Output("gentrack_start", "data"),
+        Input("gentrack_button_start", "n_clicks"),
         prevent_initial_call=True,
     )
     def register_start(n):
@@ -94,34 +94,34 @@ def register_callbacks(app):
         raise PreventUpdate
 
     @app.callback(
-        Output("start-gen-tracks-btn", "disabled", allow_duplicate=True),
-        Input("complete", "data"),
-        State("start", "data"),
+        Output("gentrack_button_start", "disabled", allow_duplicate=True),
+        Input("gentrack_complete", "data"),
+        State("gentrack_start", "data"),
         prevent_initial_call=True,
     )
     def enable_button(complete_value, start_value):
         return complete_value != start_value
 
     @app.callback(
-        Output('gen-tracks-output', 'children'),
-        Output('download-csv2', 'data'),
-        Output("loading_generate", "children"),
-        Output("complete", "data"),
-        Input('start-gen-tracks-btn', 'n_clicks'),
-        Input("start", "data"),
-        State('param_prot_length_gen_track', 'value'),
-        State('param_suntag_length_gen_track', 'value'),
-        State('param_nb_suntag_gen_track', 'value'),
-        State('param_fluo_one_suntag_gen_track', 'value'),
-        State('param_translation_rate_gen_track', 'value'),
-        State('param_initiation_rate_gen_track', 'value'),
-        State('param_retention_time_gen_track', 'value'),
-        State('param_pos_suntag_gen_track', 'value'),
-        State('param_noise_gen_track', 'value'),
-        State('param_dt_gen_track', 'value'),
-        State('param_length_gen_track', 'value'),
-        State('param_nb_tracks_gen_track', 'value'),
-        State('param_filename_gen_track', 'value'),
+        Output('gentrack_output', 'children'),
+        Output('gentrack_download_csv', 'data'),
+        Output("gentrack_loading", "children"),
+        Output("gentrack_complete", "data"),
+        Input('gentrack_button_start', 'n_clicks'),
+        Input("gentrack_start", "data"),
+        State('gentrack_prot_length', 'value'),
+        State('gentrack_epitope_length', 'value'),
+        State('gentrack_epitope_repeat', 'value'),
+        State('gentrack_epitope_fluo', 'value'),
+        State('gentrack_elongation_rate', 'value'),
+        State('gentrack_initiation_rate', 'value'),
+        State('gentrack_retention_time', 'value'),
+        State('gentrack_epitope_position', 'value'),
+        State('gentrack_noise', 'value'),
+        State('gentrack_dt', 'value'),
+        State('gentrack_track_length', 'value'),
+        State('gentrack_nb_track', 'value'),
+        State('gentrack_filename', 'value'),
         # background=True,
         # progress=[Ouput("progress-generate", "children")]
     )
